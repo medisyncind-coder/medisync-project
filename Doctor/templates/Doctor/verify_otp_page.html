@@ -1,0 +1,38 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Verify OTP</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- CSS File -->
+    <link rel="stylesheet" href="{% static 'Doctor/otp.css' %}">
+</head>
+<body>
+
+<div class="otp-wrapper">
+    <div class="otp-card">
+        <h2>Verify OTP</h2>
+        <p class="subtitle">Enter the 6-digit code sent to your email</p>
+
+        <form method="post">
+            {% csrf_token %}
+            <input type="text" name="otp" maxlength="6" class="otp-input" placeholder="Enter OTP" required>
+            <button type="submit" class="btn">Verify</button>
+        </form>
+
+        {% if messages %}
+            {% for message in messages %}
+                <div class="message">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
+
+        <div class="resend">
+            Didn't receive OTP? <a href="#">Resend</a>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

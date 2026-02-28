@@ -1,0 +1,58 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Lab Login | MediSync</title>
+
+<link rel="stylesheet" href="{% static 'Doctor/lab_login.css' %}">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+</head>
+<body>
+
+<div class="login-wrapper">
+
+    <div class="login-card">
+
+        <h2>Lab Owner Login</h2>
+        <p>Access your professional dashboard</p>
+
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert {{ message.tags }}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+
+        <form method="POST" action="{% url 'do_lab_login' %}">
+            {% csrf_token %}
+
+            <div class="input-group">
+                <label>Email Address</label>
+                <input type="email" name="email" required>
+            </div>
+
+            <div class="input-group">
+                <label>Password</label>
+                <input type="password" name="password" required>
+            </div>
+
+            <button type="submit" class="login-btn">
+                Login
+            </button>
+
+        </form>
+
+        <div class="register-link">
+            Don't have an account? 
+            <a href="{% url 'lab_registration' %}">Register Here</a>
+        </div>
+
+    </div>
+
+</div>
+
+</body>
+</html>

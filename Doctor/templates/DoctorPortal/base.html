@@ -1,0 +1,50 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Doctor Dashboard</title>
+
+    <!-- Google Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="{% static 'Doctor/Doctor_Portal_base.css' %}">
+</head>
+<body>
+
+<div class="layout">
+
+    <!-- ================= SIDEBAR ================= -->
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <h2>🩺 MediSync</h2>
+            <p>Dr. {{ doctor.name }}</p>
+        </div>
+
+        <nav>
+            <ul>
+                <li><a href="{% url 'doctor_dashboard' %}" class="active">Dashboard</a></li>
+                <li><a href="{% url 'doctor_availability' %}">Availability</a></li>
+                <li><a href="#">Appointments</a></li>
+                <li><a href="#">Profile</a></li>
+                <li><a href="{% url 'doctor_logout' %}">Logout</a></li>
+            </ul>
+        </nav>
+    </aside>
+
+    <!-- ================= MAIN CONTENT ================= -->
+    <main class="main-content">
+        <header class="topbar">
+            <h1>Doctor Panel</h1>
+            <span class="date">Welcome Back 👋</span>
+        </header>
+
+        <section class="content">
+            {% block content %}{% endblock %}
+        </section>
+    </main>
+
+</div>
+
+</body>
+</html>

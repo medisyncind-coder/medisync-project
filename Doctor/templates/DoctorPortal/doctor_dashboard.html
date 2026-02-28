@@ -1,0 +1,76 @@
+{% extends 'DoctorPortal/base.html' %}
+{% load static %}
+
+{% block content %}
+
+<link rel="stylesheet" href="{% static 'Doctor/doctor_dashboard.css' %}">
+
+<div class="dashboard-container">
+
+    <!-- ================= STATS CARDS ================= -->
+    <div class="stats-grid fade-in">
+
+        <div class="stat-card">
+            <div class="stat-info">
+                <h4>Today's Appointments</h4>
+                <h2>{{ appointments|length }}</h2>
+            </div>
+            <div class="stat-icon">📅</div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-info">
+                <h4>Specialization</h4>
+                <h2>{{ doctor.specialization }}</h2>
+            </div>
+            <div class="stat-icon">🩺</div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-info">
+                <h4>Date</h4>
+                <h2>{{ today }}</h2>
+            </div>
+            <div class="stat-icon">📆</div>
+        </div>
+
+    </div>
+
+
+    <!-- ================= APPOINTMENTS SECTION ================= -->
+    <div class="appointments-section slide-up">
+        <div class="section-header">
+            <h2>Today's Appointments</h2>
+        </div>
+
+        {% if appointments %}
+        <div class="appointments-grid">
+            {% for a in appointments %}
+            <div class="appointment-card">
+                <div class="patient-avatar">
+                    {{ a.full_name|first }}
+                </div>
+
+                <div class="appointment-details">
+                    <h3>{{ a.full_name }}</h3>
+                    <p><strong>Time:</strong> {{ a.preferred_time }}</p>
+                    <p><strong>Contact:</strong> {{ a.contact_number }}</p>
+                </div>
+
+                <div class="appointment-actions">
+                    <button class="btn accept">Accept</button>
+                    <button class="btn reject">Decline</button>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="no-appointment">
+            <p>No appointments scheduled for today</p>
+        </div>
+        {% endif %}
+    </div>
+
+</div>
+
+{% endblock %}

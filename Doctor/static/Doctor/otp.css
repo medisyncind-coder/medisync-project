@@ -1,0 +1,117 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', sans-serif;
+}
+
+body {
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: linear-gradient(-45deg, #4e73df, #1cc88a, #36b9cc, #858796);
+    background-size: 400% 400%;
+    animation: gradientMove 8s ease infinite;
+}
+
+@keyframes gradientMove {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+.otp-wrapper {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.otp-card {
+    background: #ffffff;
+    padding: 40px;
+    width: 350px;
+    border-radius: 15px;
+    text-align: center;
+    box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+    animation: fadeIn 0.8s ease-in-out;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.otp-card h2 {
+    margin-bottom: 10px;
+    color: #333;
+}
+
+.subtitle {
+    font-size: 14px;
+    color: #777;
+    margin-bottom: 25px;
+}
+
+.otp-input {
+    width: 100%;
+    padding: 12px;
+    font-size: 18px;
+    text-align: center;
+    letter-spacing: 5px;
+    border: 2px solid #ddd;
+    border-radius: 8px;
+    outline: none;
+    margin-bottom: 20px;
+    transition: 0.3s;
+}
+
+.otp-input:focus {
+    border-color: #4e73df;
+    box-shadow: 0 0 8px rgba(78,115,223,0.3);
+}
+
+.btn {
+    width: 100%;
+    padding: 12px;
+    border: none;
+    border-radius: 8px;
+    background: #4e73df;
+    color: white;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.btn:hover {
+    background: #2e59d9;
+    transform: scale(1.05);
+}
+
+.message {
+    margin-top: 10px;
+    font-size: 14px;
+    color: red;
+}
+
+.resend {
+    margin-top: 20px;
+    font-size: 14px;
+}
+
+.resend a {
+    color: #4e73df;
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.resend a:hover {
+    text-decoration: underline;
+}

@@ -1,0 +1,41 @@
+{% extends 'DoctorPortal/base.html' %}
+{% load static %}
+
+{% block content %}
+<link rel="stylesheet" href="{% static 'Doctor/availability.css' %}">
+
+<div class="card fade-in">
+    <h2>Manage Availability</h2>
+
+    <form method="POST">
+        {% csrf_token %}
+
+        <div class="grid">
+            <div class="input-group">
+                <label>Day</label>
+                <select name="day">
+                    <option>Monday</option>
+                    <option>Tuesday</option>
+                    <option>Wednesday</option>
+                    <option>Thursday</option>
+                    <option>Friday</option>
+                    <option>Saturday</option>
+                    <option>Sunday</option>
+                </select>
+            </div>
+
+            <div class="input-group">
+                <label>Start Time</label>
+                <input type="time" name="start_time">
+            </div>
+
+            <div class="input-group">
+                <label>End Time</label>
+                <input type="time" name="end_time">
+            </div>
+        </div>
+
+        <button type="submit" class="btn-primary">Update Availability</button>
+    </form>
+</div>
+{% endblock %}

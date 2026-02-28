@@ -1,0 +1,34 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Add Lab Tests | MediSync</title>
+  <link rel="stylesheet" href="{% static 'Doctor/lab_styles.css' %}">
+</head>
+<body class="gradient-bg">
+
+<div class="form-container fade-in">
+  <h1 class="title">🧫 Add Your Tests</h1>
+  <p class="subtitle">Add test name, price, and optional photo below</p>
+
+  <form method="POST" enctype="multipart/form-data">
+    {% csrf_token %}
+    {{ formset.management_form }}
+
+    <div id="formset-area">
+      {% for form in formset %}
+        <div class="test-card">
+          {% for field in form %}
+            <div class="form-group">{{ field.label_tag }} {{ field }}</div>
+          {% endfor %}
+        </div>
+      {% endfor %}
+    </div>
+
+    <button type="submit" class="btn">Save All Tests</button>
+  </form>
+</div>
+
+</body>
+</html>

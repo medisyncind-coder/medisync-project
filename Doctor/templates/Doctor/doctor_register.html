@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Doctor Registration</title>
+  {% load static %}
+  <link rel="stylesheet" href="{% static 'Doctor/doctor_register.css' %}">
+</head>
+<body>
+
+<div class="form-container">
+
+  <div class="form-header">
+    <h2>👨‍⚕️ Doctor Registration</h2>
+    <p>Create your professional profile on MediSync</p>
+  </div>
+
+  <!-- 🔴 GLOBAL ERRORS -->
+  {% if form.non_field_errors %}
+    <div class="alert alert-error">
+      {{ form.non_field_errors }}
+    </div>
+  {% endif %}
+
+  <form method="POST"
+        action="{% url 'doctor_register' %}"
+        enctype="multipart/form-data"
+        novalidate>
+
+    {% csrf_token %}
+
+    <div class="form-scroll">
+
+      <!-- ================= BASIC DETAILS ================= -->
+      <div class="form-section">
+        <h3>👨‍⚕️ Basic Details</h3>
+
+        <div class="grid-2">
+          <div class="input-group">
+            {{ form.name.label_tag }}
+            {{ form.name }}
+            <small class="error">{{ form.name.errors }}</small>
+          </div>
+
+          <div class="input-group">
+            {{ form.qualification.label_tag }}
+            {{ form.qualification }}
+            <small class="error">{{ form.qualification.errors }}</small>
+          </div>
+
+          <div class="input-group">
+            {{ form.education_institution.label_tag }}
+            {{ form.education_institution }}
+          </div>
+
+          <div class="input-group">
+            {{ form.degree_certificate.label_tag }}
+            {{ form.degree_certificate }}
+          </div>
+
+          <div class="input-group">
+            {{ form.specialization.label_tag }}
+            {{ form.specialization }}
+          </div>
+
+          <div class="input-group">
+            {{ form.registration_number.label_tag }}
+            {{ form.registration_number }}
+          </div>
+
+          <div class="input-group">
+            {{ form.experience.label_tag }}
+            {{ form.experience }}
+          </div>
+
+          <div class="input-group">
+            {{ form.contact_number.label_tag }}
+            {{ form.contact_number }}
+          </div>
+
+          <div class="input-group">
+            {{ form.email.label_tag }}
+            {{ form.email }}
+          </div>
+
+          <div class="input-group full-width">
+            {{ form.address.label_tag }}
+            {{ form.address }}
+          </div>
+        </div>
+      </div>
+
+      <!-- ================= SECURITY ================= -->
+      <div class="form-section">
+        <h3>🔐 Account Security</h3>
+
+        <div class="grid-2">
+          <div class="input-group">
+            {{ form.password.label_tag }}
+            {{ form.password }}
+            <small class="error">{{ form.password.errors }}</small>
+          </div>
+
+          <div class="input-group">
+            {{ form.confirm_password.label_tag }}
+            {{ form.confirm_password }}
+            <small class="error">{{ form.confirm_password.errors }}</small>
+          </div>
+        </div>
+      </div>
+
+      <!-- ================= CLINIC ================= -->
+      <div class="form-section">
+        <h3>🏥 Clinic Details</h3>
+
+        <div class="grid-2">
+          <div class="input-group">{{ form.clinic_name.label_tag }} {{ form.clinic_name }}</div>
+          <div class="input-group">{{ form.consultation_fee.label_tag }} {{ form.consultation_fee }}</div>
+          <div class="input-group">{{ form.available_days.label_tag }} {{ form.available_days }}</div>
+          <div class="input-group">{{ form.available_timings.label_tag }} {{ form.available_timings }}</div>
+          <div class="input-group">{{ form.appointment_duration.label_tag }} {{ form.appointment_duration }}</div>
+        </div>
+      </div>
+
+      <!-- ================= CONSULTATION ================= -->
+      <div class="form-section">
+        <h3>🕒 Consultation</h3>
+
+        <div class="grid-2">
+          <div class="input-group">{{ form.consultation_type.label_tag }} {{ form.consultation_type }}</div>
+          <div class="input-group">{{ form.mode_of_appointment.label_tag }} {{ form.mode_of_appointment }}</div>
+        </div>
+      </div>
+
+      <!-- ================= LOCATION ================= -->
+      <div class="form-section">
+        <h3>📍 Location</h3>
+
+        <div class="grid-2">
+          <div class="input-group full-width">{{ form.full_address.label_tag }} {{ form.full_address }}</div>
+          <div class="input-group">{{ form.pincode.label_tag }} {{ form.pincode }}</div>
+          <div class="input-group">{{ form.emergency_number.label_tag }} {{ form.emergency_number }}</div>
+        </div>
+      </div>
+
+      <!-- ================= PHOTOS ================= -->
+      <div class="form-section">
+        <h3>🖼️ Upload Photos</h3>
+
+        <div class="grid-2">
+          <div class="input-group">{{ form.photo_1.label_tag }} {{ form.photo_1 }}</div>
+          <div class="input-group">{{ form.photo_2.label_tag }} {{ form.photo_2 }}</div>
+          <div class="input-group">{{ form.photo_3.label_tag }} {{ form.photo_3 }}</div>
+          <div class="input-group">{{ form.photo_4.label_tag }} {{ form.photo_4 }}</div>
+          <div class="input-group">{{ form.photo_5.label_tag }} {{ form.photo_5 }}</div>
+          <div class="input-group">{{ form.photo_6.label_tag }} {{ form.photo_6 }}</div>
+          <div class="input-group">{{ form.photo_7.label_tag }} {{ form.photo_7 }}</div>
+          <div class="input-group">{{ form.profile_photo.label_tag }} {{ form.profile_photo }}</div>
+        </div>
+      </div>
+
+      <!-- ================= BIO ================= -->
+      <div class="form-section">
+        <h3>🧾 About Doctor</h3>
+        <div class="input-group full-width">
+          {{ form.bio.label_tag }}
+          {{ form.bio }}
+        </div>
+      </div>
+
+    </div>
+
+    <button type="submit" class="btn">
+      Submit & Send OTP
+    </button>
+
+  </form>
+</div>
+
+</body>
+</html>

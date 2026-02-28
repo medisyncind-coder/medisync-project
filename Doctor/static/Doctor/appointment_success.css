@@ -1,0 +1,117 @@
+/* 🌈 Animated Gradient Background */
+body {
+  font-family: 'Poppins', sans-serif;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background: linear-gradient(270deg, #84fab0, #8fd3f4, #a1c4fd, #c2e9fb);
+  background-size: 800% 800%;
+  animation: gradientMove 15s ease infinite;
+}
+
+/* 💚 Success Card */
+.success-container {
+  text-align: center;
+  width: 90%;
+  max-width: 600px;
+}
+
+.success-card {
+  background: rgba(255, 255, 255, 0.95);
+  padding: 40px 35px;
+  border-radius: 25px;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.25);
+  animation: fadeInUp 1s ease forwards;
+}
+
+/* ✅ Checkmark Animation */
+.checkmark {
+  font-size: 4rem;
+  color: #4CAF50;
+  border: 3px solid #4CAF50;
+  display: inline-block;
+  border-radius: 50%;
+  width: 80px;
+  height: 80px;
+  line-height: 70px;
+  margin-bottom: 20px;
+  animation: popIn 0.8s ease;
+}
+
+/* 🧾 Text Styling */
+h1 {
+  font-size: 2rem;
+  color: #2e7d32;
+  margin-bottom: 10px;
+}
+
+p {
+  color: #333;
+  font-size: 1rem;
+  margin: 5px 0;
+}
+
+/* 📦 Appointment Details Box */
+.details-box {
+  margin: 25px auto;
+  padding: 20px;
+  background: #f9f9f9;
+  border-radius: 15px;
+  border-left: 5px solid #4CAF50;
+  text-align: left;
+  display: inline-block;
+}
+
+.details-box p {
+  margin: 8px 0;
+  font-size: 0.95rem;
+}
+
+/* 🔙 Back Button */
+.back-btn {
+  display: inline-block;
+  background: #4CAF50;
+  color: white;
+  text-decoration: none;
+  padding: 12px 25px;
+  border-radius: 30px;
+  margin-top: 15px;
+  transition: all 0.3s ease;
+}
+
+.back-btn:hover {
+  background: #2e7d32;
+  transform: translateY(-2px) scale(1.05);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+}
+
+/* ✨ Animations */
+@keyframes gradientMove {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(50px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes popIn {
+  0% { transform: scale(0); opacity: 0; }
+  60% { transform: scale(1.2); opacity: 1; }
+  100% { transform: scale(1); }
+}
+
+/* 📱 Responsive */
+@media (max-width: 600px) {
+  .success-card {
+    padding: 25px 20px;
+  }
+  h1 {
+    font-size: 1.7rem;
+  }
+}

@@ -1,0 +1,13 @@
+<h2>{{ lab.lab_name }} - Available Tests</h2>
+
+{% if tests %}
+    <ul>
+        {% for test in tests %}
+            <li>
+                {{ test.test.name }} - ₹{{ test.price }}
+            </li>
+        {% endfor %}
+    </ul>
+{% else %}
+    <p>No tests available.</p>
+{% endif %}

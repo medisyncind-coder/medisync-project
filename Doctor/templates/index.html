@@ -1,0 +1,152 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Welcome to MediSync</title>
+    <link href="{% static 'Doctor/hello.css' %}" rel="stylesheet">
+</head>
+<body>
+
+    <!-- Enhanced Navbar -->
+    <nav class="navbar">
+        <div class="container nav-container">
+            <a class="navbar-brand" href="#">MediSync</a>
+            <ul class="navbar-links">
+                <li><a href="{% url 'lab_login' %}">LabsPortal</a></li>
+                <li><a href="{% url 'doctor_dashboard' %}">DoctorPortal</a></li>
+                <li><a href="{% url 'doctor_page' %}">Doctors</a></li>
+                <li><a href="{% url 'lab_list' %}">Labs</a></li>
+                <li><a href="#">Appointments</a></li>
+                <li><a href="{% url 'doctor_register' %}">Doctor Register</a></li>
+                <li><a href="{% url 'lab_registration' %}">Lab Register</a></li>
+                <li><a href="#">Login</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <header class="hero">
+        <div class="hero-overlay">
+            <div class="hero-content">
+                <h1><span class="highlight">Welcome to</span> <span>MediSync</span></h1>
+                <p><em>Book appointments with doctors and labs easily in your city.</em></p>
+                <a href="{% url 'doctor_page' %}" class="btn-primary">Book Now</a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Secondary Hero -->
+    <header class="hero-secondary">
+        <div class="container secondary-container">
+            <div class="hero-image">
+                <img src="{% static 'Doctor/image/pp1.jpg' %}" alt="Exercise and Health">
+            </div>
+            <div class="hero-text">
+                <h1>Feeling better starts with <span>moving better</span></h1>
+                <p>At <strong>MediSync</strong>, we are here to make healthcare simple and available for everyone. Our website helps you easily find local doctors and labs, book appointments, and access your test reports — all from one place. Whether you need a doctor’s advice or lab tests, MediSync is your trusted partner for better health. We care about your well-being and want to make sure you get the right care, when you need it most. Start moving toward a healthier life with us!</p>
+                <a href="#" class="btn-secondary">Book Now</a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Search Section -->
+    <section class="search-section">
+        <h2>Find Doctors or Labs</h2>
+        <div class="search-container">
+            <input type="text" placeholder="Search by name or specialization">
+            <select>
+                <option value="">Select Location</option>
+                <option value="city1">City 1</option>
+                <option value="city2">City 2</option>
+            </select>
+            <button>Search</button>
+        </div>
+    </section>
+
+    <!-- Services Section -->
+    <section class="services">
+        <h2>What we offer</h2>
+        <div class="service-cards">
+            <div class="service-card">
+                <img src="{% static 'Doctor/image/Lab1.jpg' %}" alt="Lab Test">
+                <h3>Lab Test Scheduling</h3>
+            </div>
+            <div class="service-card">
+                <img src="{% static 'Doctor/image/record.jpg' %}" alt="Records">
+                <h3>Health Records Management</h3>
+            </div>
+        </div>
+    </section>
+
+    <!-- Statistics Section -->
+    <section class="statistics">
+        <div class="stat">
+            <h3>150+</h3>
+            <p>Doctors</p>
+        </div>
+        <div class="stat">
+            <h3>80+</h3>
+            <p>Labs</p>
+        </div>
+        <div class="stat">
+            <h3>500+</h3>
+            <p>Appointments</p>
+        </div>
+        <div class="stat">
+            <h3>1000+</h3>
+            <p>Satisfied Users</p>
+        </div>
+    </section>
+
+    <!-- Feedback Section -->
+    <section>
+        <div id="feedback-form" class="feedback-form-container">
+            <h2>Feedback from our clients</h2>
+            <textarea id="user-feedback" placeholder="Enter your feedback..." rows="4"></textarea>
+            <input type="text" id="user-name" placeholder="Your name" />
+            <button onclick="submitFeedback()">Submit</button>
+        </div>
+        <div id="feedback-cards" class="feedback-container" style="display: none;">
+            <div class="feedback-card">
+                <div class="stars">★★★★★</div>
+                <div class="feedback-text">
+                    Boost your product and service’s credibility by adding testimonials from your clients. People love recommendations so feedback from others who’ve tried it is invaluable.
+                </div>
+                <div class="client-name">Casper Berkley</div>
+            </div>
+            <div class="feedback-card">
+                <div class="stars">★★★★★</div>
+                <div class="feedback-text" id="feedback2"></div>
+                <div class="client-name" id="client2"></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <p>&copy; MediSync. Shivansh.</p>
+    </footer>
+
+    <!-- JavaScript -->
+    <script>
+    function submitFeedback() {
+        const feedback = document.getElementById("user-feedback").value.trim();
+        const name = document.getElementById("user-name").value.trim();
+
+        if(feedback === "" || name === "") {
+            alert("Please fill in both fields!");
+            return;
+        }
+
+        document.getElementById("feedback-form").style.display = "none";
+        const cards = document.getElementById("feedback-cards");
+        cards.style.display = "flex";
+        document.getElementById("feedback2").innerText = feedback;
+        document.getElementById("client2").innerText = name;
+    }
+    </script>
+
+</body>
+</html>

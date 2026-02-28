@@ -1,0 +1,204 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Lab Owner Dashboard | MediSync</title>
+
+<link rel="stylesheet" href="{% static 'Doctor/lab_dashboard.css' %}">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+</head>
+<body>
+
+<div class="dashboard-wrapper">
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar" id="sidebar">
+        <div class="logo">
+            <i class="fa-solid fa-flask"></i>
+            <span>MediSync Lab</span>
+        </div>
+
+        <ul class="menu">
+            <li class="active"><i class="fa-solid fa-chart-line"></i> Dashboard</li>
+            <li><i class="fa-solid fa-vial"></i> Tests</li>
+            <li><i class="fa-solid fa-calendar-check"></i> Appointments</li>
+            <li><a href="{% url 'lab_logout' %}"><i class="fa-solid fa-right-from-bracket"></i> Logout</a></li>
+        </ul>
+    </aside>
+
+
+    <!-- MAIN -->
+    <main class="main-content">
+
+        <!-- TOP BAR -->
+        <div class="topbar">
+            <button id="toggleBtn"><i class="fa-solid fa-bars"></i></button>
+            <h2>Welcome, {{ lab.lab_name }}</h2>
+            <div class="clock" id="liveClock"></div>
+        </div>
+
+
+        <!-- STATS -->
+        <div class="stats-grid">
+
+            <div class="stat-card blue">
+                <i class="fa-solid fa-vial"></i>
+                <div>
+                    <h3 class="counter" data-target="{{ total_tests }}">0</h3>
+                    <p>Total Tests</p>
+                </div>
+            </div>
+
+            <div class="stat-card orange">
+                <i class="fa-solid fa-clock"></i>
+                <div>
+                    <h3 class="counter" data-target="{{ pending_appointments }}">0</h3>
+                    <p>Pending</p>
+                </div>
+            </div>
+
+            <div class="stat-card green">
+                <i class="fa-solid fa-check-circle"></i>
+                <div>
+                    <h3 class="counter" data-target="{{ completed_appointments }}">0</h3>
+                    <p>Completed</p>
+                </div>
+            </div>
+
+            <div class="stat-card purple">
+                <i class="fa-solid fa-calendar"></i>
+                <div>
+                    <h3 class="counter" data-target="{{ total_appointments }}">0</h3>
+                    <p>Total Appointments</p>
+                </div>
+            </div>
+
+        </div>
+
+
+        <!-- CHART -->
+        <div class="chart-box">
+            <canvas id="appointmentChart"></canvas>
+        </div>
+
+
+        <!-- TABLE -->
+        <div class="table-section">
+
+            <h3>Recent Appointments</h3>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>User</th>
+                        <th>Test</th>
+                        <th>Date</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    {% for appointment in appointments %}
+                    <tr>
+                        <td>{{ appointment.user.email }}</td>
+                        <td>{{ appointment.test.name }}</td>
+                        <td>{{ appointment.appointment_date }}</td>
+                        <td>
+                            <span class="status-badge {{ appointment.status|lower }}">
+                                {{ appointment.status }}
+                            </span>
+                        </td>
+                        <td>
+                            {% if appointment.status == "Pending" %}
+                                <a href="{% url 'approve_lab_appointment' appointment.id %}" class="btn blue-btn">Approve</a>
+                            {% endif %}
+
+                            {% if appointment.status != "Completed" %}
+                                <a href="{% url 'upload_lab_report' appointment.id %}" class="btn green-btn">Upload</a>
+                            {% else %}
+                                <span class="completed-text">Uploaded</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" class="empty">No appointments found</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+
+        </div>
+
+    </main>
+</div>
+
+<!-- ========================= SCRIPTS ========================= -->
+
+<script>
+
+// Sidebar Toggle
+document.getElementById("toggleBtn").addEventListener("click", function() {
+    document.getElementById("sidebar").classList.toggle("collapsed");
+});
+
+// Live Clock
+function updateClock() {
+    const now = new Date();
+    document.getElementById("liveClock").innerHTML =
+        now.toLocaleTimeString();
+}
+setInterval(updateClock, 1000);
+updateClock();
+
+// Counter Animation
+const counters = document.querySelectorAll('.counter');
+
+counters.forEach(counter => {
+    counter.innerText = '0';
+    const updateCounter = () => {
+        const target = +counter.getAttribute('data-target');
+        const c = +counter.innerText;
+        const increment = target / 50;
+
+        if (c < target) {
+            counter.innerText = `${Math.ceil(c + increment)}`;
+            setTimeout(updateCounter, 30);
+        } else {
+            counter.innerText = target;
+        }
+    };
+    updateCounter();
+});
+
+// Chart.js
+const ctx = document.getElementById('appointmentChart').getContext('2d');
+
+new Chart(ctx, {
+    type: 'doughnut',
+    data: {
+        labels: ['Pending', 'Completed'],
+        datasets: [{
+            data: [{{ pending_appointments }}, {{ completed_appointments }}],
+            backgroundColor: ['#f97316', '#16a34a']
+        }]
+    },
+    options: {
+        responsive: true,
+        plugins: {
+            legend: {
+                position: 'bottom'
+            }
+        }
+    }
+});
+
+</script>
+
+</body>
+</html>

@@ -1,0 +1,556 @@
+/* =======================
+   General Styles
+========================== */
+body {
+    font-family: 'Poppins', sans-serif;
+    background-color: #f9f9f9;
+    margin: 0;
+    padding: 40px 20px 60px;
+    overflow-x: hidden;
+    text-align: center;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+/* =======================
+   Navbar Styles
+========================== */
+.navbar {
+    background: rgba(0, 0, 0, 0.4);
+    padding: 15px 0;
+    position: fixed;
+    width: 100%;
+    top: 0;
+    left: 0;
+    z-index: 1000;
+    transition: background 0.3s ease, transform 0.3s ease;
+}
+
+.nav-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 20px;
+}
+
+.navbar-brand {
+    font-size: 28px;
+    font-weight: 700;
+    color: white;
+    text-decoration: none;
+    transition: transform 0.3s ease;
+}
+
+.navbar-brand:hover {
+    transform: scale(1.1);
+}
+
+.navbar-links {
+    list-style: none;
+    display: flex;
+    gap: 25px;
+}
+
+.navbar-links li a {
+    color: white;
+    text-decoration: none;
+    font-size: 16px;
+    font-weight: 500;
+    transition: color 0.3s ease, transform 0.3s ease, border-bottom 0.3s ease;
+    position: relative;
+}
+
+.navbar-links li a:hover {
+    color: #f4b400;
+    transform: translateY(-3px);
+}
+
+.navbar-links li a::after {
+    content: "";
+    position: absolute;
+    width: 0;
+    height: 2px;
+    bottom: -5px;
+    left: 50%;
+    background-color: #f4b400;
+    transition: width 0.3s ease, left 0.3s ease;
+}
+
+.navbar-links li a:hover::after {
+    width: 100%;
+    left: 0;
+}
+
+/* =======================
+   Navbar Search Bar
+========================== */
+.search-navbar {
+    background: #fff;
+    padding: 10px 20px;
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    align-items: center;
+}
+
+.search-navbar input {
+    padding: 10px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    width: 250px;
+    font-size: 14px;
+    transition: border-color 0.3s ease;
+}
+
+.search-navbar input:focus {
+    border-color: #f4b400;
+    outline: none;
+}
+
+.search-navbar button {
+    padding: 10px 20px;
+    background-color: #f4b400;
+    color: black;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    animation: pulseButton 2s infinite alternate ease-in-out;
+}
+
+.search-navbar button:hover {
+    background-color: #e0a800;
+    transform: scale(1.05);
+}
+
+/* =======================
+   Hero Section
+========================== */
+.hero {
+    background: url("image/nn1.png") center no-repeat;
+    background-size: cover;
+    background-color: black;
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: fadeInSlide 1.5s ease forwards;
+}
+
+.hero-overlay {
+    background: rgba(0, 0, 0, 0.5);
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: backgroundFloat 20s ease-in-out infinite alternate;
+}
+
+.hero-content {
+    text-align: left;
+    max-width: 600px;
+    color: white;
+    animation: slideIn 1s ease forwards;
+}
+
+.hero-content h1 {
+    font-size: 36px;
+    margin-bottom: 15px;
+    animation: bounce 1s ease infinite alternate;
+}
+
+.hero-content h1 .highlight {
+    color: #f4b400;
+}
+
+.hero-content p {
+    font-size: 18px;
+    margin-bottom: 30px;
+    font-style: italic;
+    animation: fadeIn 2s ease forwards;
+}
+
+.btn-primary {
+    background-color: #f4b400;
+    color: black;
+    padding: 12px 28px;
+    border-radius: 30px;
+    text-decoration: none;
+    font-weight: 600;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+    animation: pulseButton 2s infinite alternate ease-in-out;
+}
+
+.btn-primary:hover {
+    background-color: #e0a800;
+    transform: scale(1.05);
+    box-shadow: 0 6px 20px rgba(0,0,0,0.4);
+}
+
+/* =======================
+   Secondary Hero
+========================== */
+.hero-secondary {
+    padding: 60px 20px;
+    background-color: #fff;
+}
+
+.secondary-container {
+    display: flex;
+    gap: 50px;
+    align-items: center;
+    max-width: 1200px;
+    margin: 0 auto;
+    animation: fadeInSlide 1s ease forwards;
+}
+
+.hero-image img {
+    max-width: 500px;
+    width: 100%;
+    border-radius: 15px;
+    animation: slideInLeft 1s ease forwards;
+}
+
+.hero-text {
+    text-align: left;
+    max-width: 600px;
+    animation: slideInRight 1s ease forwards;
+}
+
+.hero-text h1 {
+    font-size: 36px;
+    margin-bottom: 20px;
+    animation: bounce 1.5s ease infinite alternate;
+}
+
+.hero-text h1 span {
+    color: #f4b400;
+}
+
+.hero-text p {
+    font-size: 18px;
+    line-height: 1.6;
+    margin-bottom: 20px;
+    color: #333;
+    animation: fadeIn 1.5s ease forwards;
+}
+
+.btn-secondary {
+    padding: 12px 28px;
+    background-color: #f4b400;
+    color: #000;
+    text-decoration: none;
+    font-weight: 600;
+    border-radius: 30px;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    animation: pulseButton 2s infinite alternate ease-in-out;
+}
+
+.btn-secondary:hover {
+    background-color: #e0a800;
+    transform: scale(1.05);
+}
+
+/* =======================
+   Search Section
+========================== */
+.search-section {
+    background: #fff;
+    padding: 40px 20px;
+    text-align: center;
+    animation: fadeInSlide 1s ease forwards;
+}
+
+.search-section h2 {
+    font-size: 24px;
+    margin-bottom: 20px;
+}
+
+.search-container {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.search-container input, .search-container select {
+    padding: 12px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    font-size: 16px;
+}
+
+.search-container button {
+    padding: 12px 20px;
+    background-color: #f4b400;
+    color: #000;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    animation: pulseButton 2s infinite alternate ease-in-out;
+}
+
+.search-container button:hover {
+    background-color: #e0a800;
+    transform: scale(1.05);
+}
+
+/* =======================
+   Services Section
+========================== */
+.services {
+    background-color: #f4b400;
+    padding: 50px 20px;
+    text-align: center;
+    animation: fadeInSlide 1s ease forwards;
+}
+
+.services h2 {
+    font-size: 28px;
+    margin-bottom: 40px;
+    color: #333;
+    animation: slideInDown 1s ease forwards;
+}
+
+.service-cards {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 20px;
+}
+
+.service-card {
+    background-color: white;
+    border-radius: 10px;
+    width: 260px;
+    padding: 20px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    animation: fadeInUp 1s ease forwards;
+}
+
+.service-card:hover {
+    transform: scale(1.05) translateY(-5px);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+}
+
+.service-card img {
+    width: 100%;
+    height: 160px;
+    object-fit: cover;
+    border-radius: 10px;
+    animation: imagePulse 3s ease infinite alternate;
+}
+
+.service-card h3 {
+    margin-top: 15px;
+    font-size: 18px;
+    color: #333;
+    animation: fadeIn 1.5s ease forwards;
+}
+
+/* =======================
+   Statistics Section
+========================== */
+.statistics {
+    display: flex;
+    justify-content: center;
+    gap: 40px;
+    padding: 40px 20px;
+    background-color: #0a0a0a;
+    animation: fadeInSlide 1s ease forwards;
+}
+
+
+
+.stat h3 {
+    font-size: 32px;
+    color: #f4b400;
+}
+
+.stat p {
+    font-size: 16px;
+    color: white;
+}
+
+/* =======================
+   Feedback Section
+========================== */
+#feedback-form {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    max-width: 400px;
+    margin: auto;
+    animation: fadeInSlide 1s ease forwards;
+}
+
+#feedback-form textarea,
+#feedback-form input {
+    padding: 10px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    font-size: 14px;
+    width: 100%;
+    transition: border-color 0.3s ease;
+}
+
+#feedback-form textarea:focus,
+#feedback-form input:focus {
+    border-color: #f5a623;
+    outline: none;
+}
+
+#feedback-form button {
+    padding: 10px;
+    border: none;
+    border-radius: 8px;
+    background-color: #f5a623;
+    color: white;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    animation: pulseButton 2s infinite alternate ease-in-out;
+}
+
+#feedback-form button:hover {
+    background-color: #e59400;
+    transform: scale(1.05);
+}
+
+.feedback-container {
+    display: flex;
+    gap: 20px;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-top: 20px;
+    animation: fadeInSlide 1s ease forwards;
+}
+
+.feedback-card {
+    background-color: #fff;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    max-width: 300px;
+    width: 100%;
+    transition: transform 0.3s ease, box-shadow 0.3s ease, background-color 0.3s ease;
+}
+
+.feedback-card:hover {
+    transform: scale(1.03) translateY(-5px);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    background-color: #fff8e1;
+}
+
+.stars {
+    color: #f5a623;
+    font-size: 18px;
+    margin-bottom: 15px;
+    transition: transform 0.3s ease;
+}
+
+.feedback-card:hover .stars {
+    transform: scale(1.2);
+}
+
+.feedback-text {
+    font-size: 14px;
+    color: #555;
+    margin-bottom: 15px;
+    line-height: 1.5;
+}
+
+.client-name {
+    font-weight: 600;
+    color: #222;
+    font-size: 16px;
+}
+
+/* =======================
+   Footer Section
+========================== */
+footer {
+    background-color: #343a40;
+    color: white;
+    text-align: center;
+    padding: 8px 0;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    font-size: 14px;
+    box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.2);
+    animation: slideUp 1s ease forwards;
+}
+
+/* =======================
+   Animations
+========================== */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slideInLeft {
+    from { opacity: 0; transform: translateX(-50px); }
+    to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes slideInRight {
+    from { opacity: 0; transform: translateX(50px); }
+    to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes bounce {
+    from { transform: translateY(0); }
+    to { transform: translateY(-10px); }
+}
+
+@keyframes slideInDown {
+    from { opacity: 0; transform: translateY(-30px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes imagePulse {
+    from { transform: scale(1); }
+    to { transform: scale(1.02); }
+}
+
+@keyframes slideUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slideIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeInSlide {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes pulseButton {
+    from { transform: scale(1); }
+    to { transform: scale(1.05); }
+}
+
+@keyframes backgroundFloat {
+    from { transform: translateY(0); }
+    to { transform: translateY(10px); }
+}

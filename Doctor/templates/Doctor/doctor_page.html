@@ -1,0 +1,55 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Available Doctors</title>
+    <link rel="stylesheet" href="{% static 'Doctor/doctor_page.css' %}">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+</head>
+<body>
+
+<div class="page-wrapper">
+
+    <h1 class="page-title">Available Doctors</h1>
+
+    <div class="doctor-container">
+        {% for doctor in doctors %}
+        <a href="{% url 'doctor_detail' doctor.id %}" class="doctor-card-link">
+            <div class="doctor-card fade-in">
+
+                <div class="image-wrapper">
+                    <img src="{{ doctor.profile_photo.url }}" class="doctor-img">
+                </div>
+
+                <h3>Dr. {{ doctor.name }}</h3>
+                <p class="spec">{{ doctor.specialization }}</p>
+                <p class="exp">{{ doctor.experience }} years experience</p>
+
+                <span class="view-btn">View Details</span>
+
+            </div>
+        </a>
+        {% endfor %}
+    </div>
+
+</div>
+
+<script>
+    // Smooth Fade-In Animation
+    const cards = document.querySelectorAll('.fade-in');
+
+    const observer = new IntersectionObserver(entries => {
+        entries.forEach(entry => {
+            if(entry.isIntersecting){
+                entry.target.classList.add('show');
+            }
+        });
+    }, { threshold: 0.2 });
+
+    cards.forEach(card => {
+        observer.observe(card);
+    });
+</script>
+
+</body>
+</html>

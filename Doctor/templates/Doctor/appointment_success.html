@@ -1,0 +1,33 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Appointment Confirmed</title>
+  <link rel="stylesheet" href="{% static 'Doctor/appointment_success.css' %}">
+</head>
+<body>
+
+  <div class="success-container">
+    <div class="success-card">
+      <div class="checkmark">✔</div>
+      <h1>Appointment Confirmed!</h1>
+      <p>Thank you, <strong>{{ appointment.full_name }}</strong> 🙏</p>
+      <p>Your appointment with 
+        <strong>{{ appointment.doctor_name }}</strong> 
+        ({{ appointment.specialization }}) has been successfully booked.</p>
+
+      <div class="details-box">
+        <p><strong>Booking ID:</strong> {{ appointment.booking_id }}</p>
+        <p><strong>Date:</strong> {{ appointment.preferred_date }}</p>
+        <p><strong>Time:</strong> {{ appointment.preferred_time }}</p>
+        <p><strong>Mode:</strong> {{ appointment.consultation_mode }}</p>
+      </div>
+
+      <a href="{% url 'doctor_page' %}" class="back-btn">← Back to Doctors</a>
+    </div>
+  </div>
+
+</body>
+</html>

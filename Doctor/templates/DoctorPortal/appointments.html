@@ -1,0 +1,24 @@
+{% extends 'DoctorPortal/base.html' %}
+{% load static %}
+
+{% block content %}
+<link rel="stylesheet" href="{% static 'Doctor/appointments.css' %}">
+
+<h2 class="fade-in">Appointments</h2>
+
+<div class="appointment-list">
+    {% if appointments %}
+        {% for a in appointments %}
+        <div class="appointment-card fade-in">
+            <h3>{{ a.full_name }}</h3>
+            <p><b>Time:</b> {{ a.preferred_time }}</p>
+            <p><b>Mode:</b> {{ a.consultation_mode }}</p>
+        </div>
+        {% endfor %}
+    {% else %}
+        <div class="empty-card fade-in">
+            No appointments scheduled
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,120 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Book Appointment</title>
+  <link rel="stylesheet" href="{% static 'Doctor/book_appointment.css' %}">
+</head>
+<body>
+
+<div class="container">
+  <div class="booking-card">
+
+    <h1>🩺 Book Your Appointment</h1>
+    <p class="subtitle">
+      with <strong>{{ doctor_name }}</strong> — {{ specialization }}
+    </p>
+
+    <!-- Django Messages -->
+    {% if messages %}
+      {% for message in messages %}
+        <div class="alert {{ message.tags }}">
+          {{ message }}
+        </div>
+      {% endfor %}
+    {% endif %}
+
+    <form method="POST">
+      {% csrf_token %}
+
+      <div class="form-grid">
+
+        <!-- Personal Info -->
+        <div class="form-group">
+          <label>Full Name</label>
+          {{ form.full_name }}
+          {{ form.full_name.errors }}
+        </div>
+
+        <div class="form-group">
+          <label>Age</label>
+          {{ form.age }}
+          {{ form.age.errors }}
+        </div>
+
+        <div class="form-group">
+          <label>Gender</label>
+          {{ form.gender }}
+        </div>
+
+        <div class="form-group">
+          <label>Contact Number</label>
+          {{ form.contact_number }}
+        </div>
+
+        <div class="form-group">
+          <label>Email</label>
+          {{ form.email }}
+        </div>
+
+        <div class="form-group full-width">
+          <label>Address</label>
+          {{ form.address }}
+        </div>
+
+        <!-- Medical Info -->
+        <div class="form-group full-width">
+          <label>Symptoms</label>
+          {{ form.symptoms }}
+        </div>
+
+        <div class="form-group full-width">
+          <label>Existing Diseases</label>
+          {{ form.existing_diseases }}
+        </div>
+
+        <div class="form-group full-width">
+          <label>Current Medications</label>
+          {{ form.current_medications }}
+        </div>
+
+        <div class="form-group full-width">
+          <label>Allergies</label>
+          {{ form.allergies }}
+        </div>
+
+        <!-- Appointment Info -->
+        <div class="form-group">
+          <label>Preferred Date</label>
+          {{ form.preferred_date }}
+        </div>
+
+        <div class="form-group">
+          <label>Preferred Time</label>
+          {{ form.preferred_time }}
+        </div>
+
+        <div class="form-group">
+          <label>Consultation Mode</label>
+          {{ form.consultation_mode }}
+        </div>
+
+        <div class="form-group">
+          <label>Payment Type</label>
+          {{ form.payment_type }}
+        </div>
+
+      </div>
+
+      <button type="submit" class="btn">
+        Confirm Appointment
+      </button>
+
+    </form>
+  </div>
+</div>
+
+</body>
+</html>

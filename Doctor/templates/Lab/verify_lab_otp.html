@@ -1,0 +1,175 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Verify Lab OTP | MediSync</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+
+<style>
+body{
+    margin:0;
+    font-family:'Poppins',sans-serif;
+    background:linear-gradient(135deg,#0f2027,#203a43,#2c5364);
+    height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+}
+
+.otp-card{
+    width:400px;
+    background:rgba(255,255,255,0.08);
+    backdrop-filter:blur(20px);
+    padding:40px;
+    border-radius:20px;
+    box-shadow:0 20px 50px rgba(0,0,0,0.4);
+    color:white;
+    text-align:center;
+    animation:fadeIn 0.8s ease;
+}
+
+@keyframes fadeIn{
+    from{opacity:0;transform:translateY(40px);}
+    to{opacity:1;transform:translateY(0);}
+}
+
+.otp-card h2{
+    margin-bottom:10px;
+}
+
+.otp-card p{
+    font-size:14px;
+    opacity:0.8;
+    margin-bottom:25px;
+}
+
+.otp-inputs{
+    display:flex;
+    justify-content:space-between;
+    gap:10px;
+    margin-bottom:25px;
+}
+
+.otp-inputs input{
+    width:45px;
+    height:55px;
+    font-size:22px;
+    text-align:center;
+    border-radius:12px;
+    border:2px solid rgba(255,255,255,0.3);
+    background:rgba(255,255,255,0.15);
+    color:white;
+    outline:none;
+    transition:0.3s;
+}
+
+.otp-inputs input:focus{
+    border-color:#00f2fe;
+    box-shadow:0 0 10px rgba(0,242,254,0.6);
+}
+
+.verify-btn{
+    width:100%;
+    padding:12px;
+    border:none;
+    border-radius:30px;
+    background:linear-gradient(90deg,#00f2fe,#4facfe);
+    font-weight:600;
+    cursor:pointer;
+    transition:0.3s;
+}
+
+.verify-btn:hover{
+    transform:scale(1.05);
+    box-shadow:0 10px 30px rgba(0,0,0,0.4);
+}
+
+.messages{
+    margin-top:15px;
+}
+
+.msg{
+    padding:8px;
+    border-radius:8px;
+    font-size:13px;
+}
+
+.msg.success{background:#28a745;}
+.msg.error{background:#dc3545;}
+</style>
+</head>
+<body>
+
+<div class="otp-card">
+    <h2>🔒 Verify Lab OTP</h2>
+    <p>Enter the 6-digit code sent to your registered email</p>
+
+    <form method="POST" id="otpForm">
+        {% csrf_token %}
+
+        <!-- Hidden Email Field -->
+        {{ form.email.as_hidden }}
+
+        <!-- Hidden Combined OTP -->
+        <input type="hidden" name="otp" id="combinedOtp">
+
+        <div class="otp-inputs">
+            <input type="text" maxlength="1" class="otp-box">
+            <input type="text" maxlength="1" class="otp-box">
+            <input type="text" maxlength="1" class="otp-box">
+            <input type="text" maxlength="1" class="otp-box">
+            <input type="text" maxlength="1" class="otp-box">
+            <input type="text" maxlength="1" class="otp-box">
+        </div>
+
+        <button type="submit" class="verify-btn">Verify OTP</button>
+    </form>
+
+    {% if messages %}
+    <div class="messages">
+        {% for message in messages %}
+            <div class="msg {{ message.tags }}">{{ message }}</div>
+        {% endfor %}
+    </div>
+    {% endif %}
+</div>
+
+<script>
+const inputs = document.querySelectorAll(".otp-box");
+const combinedOtp = document.getElementById("combinedOtp");
+
+inputs.forEach((input, index) => {
+
+    input.addEventListener("input", (e) => {
+        if (e.target.value.length === 1 && index < inputs.length - 1) {
+            inputs[index + 1].focus();
+        }
+        updateOtp();
+    });
+
+    input.addEventListener("keydown", (e) => {
+        if (e.key === "Backspace" && !input.value && index > 0) {
+            inputs[index - 1].focus();
+        }
+    });
+
+    input.addEventListener("paste", (e) => {
+        e.preventDefault();
+        const pasteData = e.clipboardData.getData("text").trim();
+        if (pasteData.length === 6) {
+            pasteData.split("").forEach((char, i) => {
+                if (inputs[i]) inputs[i].value = char;
+            });
+            updateOtp();
+        }
+    });
+});
+
+function updateOtp(){
+    combinedOtp.value = Array.from(inputs).map(input => input.value).join("");
+}
+</script>
+
+</body>
+</html>

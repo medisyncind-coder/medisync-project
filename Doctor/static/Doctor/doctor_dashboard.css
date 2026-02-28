@@ -1,0 +1,142 @@
+.dashboard-container {
+    padding: 30px;
+}
+
+/* ================= STATS ================= */
+
+.stats-grid {
+    display: flex;
+    gap: 20px;
+    margin-bottom: 40px;
+}
+
+.stat-card {
+    flex: 1;
+    background: #ffffff;
+    padding: 25px;
+    border-radius: 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+    transition: 0.3s ease;
+}
+
+.stat-card:hover {
+    transform: translateY(-6px);
+}
+
+.stat-info h4 {
+    color: #888;
+    font-size: 14px;
+}
+
+.stat-info h2 {
+    margin-top: 8px;
+    font-size: 22px;
+    font-weight: 600;
+}
+
+.stat-icon {
+    font-size: 28px;
+    background: #f0f2ff;
+    padding: 15px;
+    border-radius: 12px;
+}
+
+/* ================= APPOINTMENTS ================= */
+
+.section-header {
+    margin-bottom: 20px;
+}
+
+.appointments-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 20px;
+}
+
+.appointment-card {
+    background: #ffffff;
+    padding: 20px;
+    border-radius: 15px;
+    display: flex;
+    gap: 15px;
+    align-items: center;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+    transition: 0.3s ease;
+}
+
+.appointment-card:hover {
+    transform: scale(1.02);
+}
+
+.patient-avatar {
+    width: 50px;
+    height: 50px;
+    background: #6c63ff;
+    color: white;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    font-size: 18px;
+}
+
+.appointment-details h3 {
+    margin-bottom: 5px;
+}
+
+.appointment-actions {
+    margin-left: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.btn {
+    padding: 6px 12px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 12px;
+}
+
+.accept {
+    background: #4CAF50;
+    color: white;
+}
+
+.reject {
+    background: #f44336;
+    color: white;
+}
+
+.no-appointment {
+    background: #fff;
+    padding: 30px;
+    border-radius: 12px;
+    text-align: center;
+    color: #777;
+}
+
+/* ================= ANIMATIONS ================= */
+
+.fade-in {
+    animation: fadeIn 0.8s ease-in-out;
+}
+
+.slide-up {
+    animation: slideUp 0.8s ease-in-out;
+}
+
+@keyframes fadeIn {
+    from {opacity:0;}
+    to {opacity:1;}
+}
+
+@keyframes slideUp {
+    from {transform: translateY(30px); opacity:0;}
+    to {transform: translateY(0); opacity:1;}
+}
