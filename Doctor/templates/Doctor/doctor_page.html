@@ -1,55 +1,112 @@
 {% load static %}
 <!DOCTYPE html>
 <html>
+
 <head>
-    <title>Available Doctors</title>
-    <link rel="stylesheet" href="{% static 'Doctor/doctor_page.css' %}">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+<title>Available Doctors</title>
+
+<link rel="stylesheet" href="{% static 'Doctor/doctor_page.css' %}">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+
 </head>
+
 <body>
 
-<div class="page-wrapper">
+<!-- Navbar -->
 
-    <h1 class="page-title">Available Doctors</h1>
+<div class="navbar">
 
-    <div class="doctor-container">
-        {% for doctor in doctors %}
-        <a href="{% url 'doctor_detail' doctor.id %}" class="doctor-card-link">
-            <div class="doctor-card fade-in">
+<div class="logo">
+MediSync
+</div>
 
-                <div class="image-wrapper">
-                    <img src="{{ doctor.profile_photo.url }}" class="doctor-img">
-                </div>
-
-                <h3>Dr. {{ doctor.name }}</h3>
-                <p class="spec">{{ doctor.specialization }}</p>
-                <p class="exp">{{ doctor.experience }} years experience</p>
-
-                <span class="view-btn">View Details</span>
-
-            </div>
-        </a>
-        {% endfor %}
-    </div>
+<a href="{% url 'home' %}" class="home-btn">
+Home
+</a>
 
 </div>
 
+
+<div class="page-wrapper">
+
+<h1 class="page-title">Available Doctors</h1>
+
+
+<!-- SEARCH BAR -->
+
+<div class="search-box">
+
+<input type="text" id="doctorSearch" placeholder="Search doctor or specialization...">
+
+</div>
+
+
+
+<div class="doctor-container" id="doctorList">
+
+{% for doctor in doctors %}
+
+<a href="{% url 'doctor_detail' doctor.id %}" class="doctor-card-link doctor-card-item">
+
+<div class="doctor-card">
+
+<div class="doctor-left">
+<img src="{{ doctor.profile_photo.url }}" class="doctor-img">
+</div>
+
+<div class="doctor-right">
+
+<h3 class="doctor-name">Dr. {{ doctor.name }}</h3>
+
+<p class="spec">{{ doctor.specialization }}</p>
+
+<p class="exp">{{ doctor.experience }} Years Experience</p>
+
+<button class="view-btn">
+View Details
+</button>
+
+</div>
+
+</div>
+
+</a>
+
+{% endfor %}
+
+</div>
+
+</div>
+
+
 <script>
-    // Smooth Fade-In Animation
-    const cards = document.querySelectorAll('.fade-in');
 
-    const observer = new IntersectionObserver(entries => {
-        entries.forEach(entry => {
-            if(entry.isIntersecting){
-                entry.target.classList.add('show');
-            }
-        });
-    }, { threshold: 0.2 });
+const searchInput = document.getElementById("doctorSearch");
 
-    cards.forEach(card => {
-        observer.observe(card);
-    });
+searchInput.addEventListener("keyup", function(){
+
+let filter = searchInput.value.toLowerCase();
+
+let cards = document.querySelectorAll(".doctor-card-item");
+
+cards.forEach(card => {
+
+let name = card.querySelector(".doctor-name").innerText.toLowerCase();
+let spec = card.querySelector(".spec").innerText.toLowerCase();
+
+if(name.includes(filter) || spec.includes(filter)){
+card.style.display = "block";
+}
+else{
+card.style.display = "none";
+}
+
+});
+
+});
+
 </script>
+
 
 </body>
 </html>

@@ -1,0 +1,60 @@
+{% load static %}
+
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+<title>Book Lab Test</title>
+
+<link rel="stylesheet" href="{% static 'Doctor/lab_booking.css' %}">
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+</head>
+
+<body>
+
+<div class="booking-container">
+
+<div class="booking-card">
+
+<h1>Book Lab Test</h1>
+
+<h2>{{ lab.lab_name }}</h2>
+
+<p class="test-name">{{ test.test.name }}</p>
+
+<div class="slots">
+
+{% for slot in slots %}
+
+<a class="slot-btn"
+href="{% url 'confirm_lab_booking' lab.id test.id slot %}">
+
+{{ slot }}
+
+</a>
+
+{% empty %}
+
+<p class="no-slot">No slots available today</p>
+
+{% endfor %}
+
+</div>
+
+<a href="{% url 'lab_detail' lab.id %}" class="back-btn">
+
+← Back
+
+</a>
+
+</div>
+
+</div>
+
+</body>
+</html>

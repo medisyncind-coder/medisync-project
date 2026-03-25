@@ -1,0 +1,185 @@
+{% extends "DoctorPortal/base.html" %}
+{% load static %}
+
+{% block content %}
+
+<div class="profile-edit-container">
+
+<h2>Edit Doctor Profile</h2>
+
+<form method="POST" enctype="multipart/form-data">
+{% csrf_token %}
+
+<div class="form-grid">
+
+<!-- NAME (LOCKED) -->
+<div class="form-group">
+<label>Doctor Name</label>
+<input type="text" value="{{ doctor.name }}" disabled>
+</div>
+
+<!-- QUALIFICATION (LOCKED) -->
+<div class="form-group">
+<label>Qualification</label>
+<input type="text" value="{{ doctor.qualification }}" disabled>
+</div>
+
+<!-- SPECIALIZATION -->
+<div class="form-group">
+<label>Specialization</label>
+<input type="text" name="specialization" value="{{ doctor.specialization }}">
+</div>
+
+<!-- EXPERIENCE -->
+<div class="form-group">
+<label>Experience (Years)</label>
+<input type="number" name="experience" value="{{ doctor.experience }}">
+</div>
+
+<!-- CONTACT -->
+<div class="form-group">
+<label>Contact Number</label>
+<input type="text" name="contact_number" value="{{ doctor.contact_number }}">
+</div>
+
+<!-- CLINIC NAME (LOCKED) -->
+<div class="form-group">
+<label>Clinic Name</label>
+<input type="text" value="{{ doctor.clinic_name }}" disabled>
+</div>
+
+<!-- CONSULTATION FEE -->
+<div class="form-group">
+<label>Consultation Fee</label>
+<input type="number" name="consultation_fee" value="{{ doctor.consultation_fee }}">
+</div>
+
+<!-- EDUCATION (LOCKED) -->
+<div class="form-group">
+<label>Education Institution</label>
+<input type="text" value="{{ doctor.education_institution }}" disabled>
+</div>
+
+<!-- ADDRESS -->
+<div class="form-group full">
+<label>Address</label>
+<textarea name="address">{{ doctor.address }}</textarea>
+</div>
+
+<!-- CLINIC ADDRESS -->
+<div class="form-group full">
+<label>Clinic Address</label>
+<textarea name="full_address">{{ doctor.full_address }}</textarea>
+</div>
+
+<!-- AVAILABLE DAYS -->
+<div class="form-group full">
+<label>Available Days</label><br>
+
+<label>
+<input type="checkbox" name="available_days" value="Mon"
+{% if doctor.available_days and "Mon" in doctor.available_days %}checked{% endif %}>
+Monday
+</label>
+
+<label>
+<input type="checkbox" name="available_days" value="Tue"
+{% if doctor.available_days and "Tue" in doctor.available_days %}checked{% endif %}>
+Tuesday
+</label>
+
+<label>
+<input type="checkbox" name="available_days" value="Wed"
+{% if doctor.available_days and "Wed" in doctor.available_days %}checked{% endif %}>
+Wednesday
+</label>
+
+<label>
+<input type="checkbox" name="available_days" value="Thu"
+{% if doctor.available_days and "Thu" in doctor.available_days %}checked{% endif %}>
+Thursday
+</label>
+
+<label>
+<input type="checkbox" name="available_days" value="Fri"
+{% if doctor.available_days and "Fri" in doctor.available_days %}checked{% endif %}>
+Friday
+</label>
+
+<label>
+<input type="checkbox" name="available_days" value="Sat"
+{% if doctor.available_days and "Sat" in doctor.available_days %}checked{% endif %}>
+Saturday
+</label>
+
+<label>
+<input type="checkbox" name="available_days" value="Sun"
+{% if doctor.available_days and "Sun" in doctor.available_days %}checked{% endif %}>
+Sunday
+</label>
+
+</div>
+
+<!-- START TIME -->
+<div class="form-group">
+<label>Start Time</label>
+<input type="time" name="start_time" value="{{ doctor.start_time|time:'H:i' }}">
+</div>
+
+<!-- END TIME -->
+<div class="form-group">
+<label>End Time</label>
+<input type="time" name="end_time" value="{{ doctor.end_time|time:'H:i' }}">
+</div>
+
+<!-- APPOINTMENT DURATION -->
+<div class="form-group">
+<label>Appointment Duration (Minutes)</label>
+<input type="number" name="appointment_duration" value="{{ doctor.appointment_duration }}">
+</div>
+
+<!-- PINCODE -->
+<div class="form-group">
+<label>Pincode</label>
+<input type="text" name="pincode" value="{{ doctor.pincode }}">
+</div>
+
+<!-- EMERGENCY NUMBER -->
+<div class="form-group">
+<label>Emergency Contact</label>
+<input type="text" name="emergency_number" value="{{ doctor.emergency_number }}">
+</div>
+
+<!-- LOCATION LINK -->
+<div class="form-group full">
+<label>Google Map Location Link</label>
+<input type="text" name="location_link" value="{{ doctor.location_link }}">
+</div>
+
+<!-- ABOUT -->
+<div class="form-group full">
+<label>About Doctor</label>
+<textarea name="bio">{{ doctor.bio }}</textarea>
+</div>
+
+<!-- PROFILE PHOTO (LOCKED) -->
+<div class="form-group">
+<label>Profile Photo</label><br>
+
+{% if doctor.profile_photo %}
+<img src="{{ doctor.profile_photo.url }}" width="80" style="border-radius:50%">
+{% endif %}
+
+<p style="color:#888;font-size:13px;">Profile photo cannot be changed</p>
+
+</div>
+
+</div>
+
+<button class="save-btn">Save Changes</button>
+
+</form>
+
+</div>
+
+{% endblock %}

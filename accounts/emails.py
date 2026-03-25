@@ -70,6 +70,26 @@ Regards,
 MediSync Team
 """
 
+    elif role == "Patient":
+        subject = "MediSync Patient Account Verification"
+        message = f"""
+Dear Patient,
+
+Welcome to MediSync!
+
+Your OTP for Patient Account Verification is: {otp}
+
+This OTP will expire in 5 minutes.
+
+After verification, you will be able to book doctor appointments, lab tests, and manage your health records.
+
+Please do not share this OTP with anyone.
+
+Regards,
+MediSync Team
+"""
+
+
     else:
         subject = "MediSync Account Verification"
         message = f"""
@@ -85,3 +105,7 @@ Your OTP is: {otp}
     )
 
     print("====== MAIL SENT SUCCESS ======")
+    
+    
+    
+    

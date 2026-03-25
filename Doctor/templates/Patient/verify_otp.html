@@ -1,0 +1,261 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Verify OTP | MediSync</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+<style>
+
+/* RESET */
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:'Poppins',sans-serif;
+}
+
+/* BODY */
+body{
+height:100vh;
+display:flex;
+justify-content:center;
+align-items:center;
+background:linear-gradient(135deg,#6366f1,#06b6d4);
+overflow:hidden;
+}
+
+/* BACKGROUND ANIMATION */
+body::before, body::after{
+content:"";
+position:absolute;
+border-radius:50%;
+background:rgba(255,255,255,0.1);
+animation: float 8s infinite ease-in-out;
+}
+
+body::before{
+width:500px;
+height:500px;
+top:-120px;
+left:-120px;
+}
+
+body::after{
+width:400px;
+height:400px;
+bottom:-100px;
+right:-100px;
+animation-delay:2s;
+}
+
+@keyframes float{
+0%{transform:translateY(0);}
+50%{transform:translateY(30px);}
+100%{transform:translateY(0);}
+}
+
+/* CARD */
+.container{
+width:380px;
+padding:35px;
+border-radius:20px;
+background:rgba(255,255,255,0.15);
+backdrop-filter:blur(20px);
+box-shadow:0 25px 60px rgba(0,0,0,0.25);
+text-align:center;
+animation: fadeIn 1s ease;
+}
+
+@keyframes fadeIn{
+from{opacity:0; transform:translateY(40px);}
+to{opacity:1; transform:translateY(0);}
+}
+
+h2{
+color:white;
+margin-bottom:10px;
+}
+
+p{
+color:#e0e7ff;
+font-size:14px;
+margin-bottom:20px;
+}
+
+/* OTP BOXES */
+.otp-box{
+display:flex;
+justify-content:space-between;
+margin-bottom:20px;
+}
+
+.otp-box input{
+width:45px;
+height:55px;
+border:none;
+border-radius:10px;
+text-align:center;
+font-size:20px;
+outline:none;
+background:rgba(255,255,255,0.8);
+transition:0.2s;
+}
+
+.otp-box input:focus{
+box-shadow:0 0 10px #2563eb;
+transform:scale(1.1);
+}
+
+/* BUTTON */
+button{
+width:100%;
+padding:12px;
+border:none;
+border-radius:10px;
+background:#2563eb;
+color:white;
+font-weight:600;
+cursor:pointer;
+transition:0.3s;
+}
+
+button:hover{
+background:#1e40af;
+transform:scale(1.03);
+}
+
+/* TIMER */
+.timer{
+margin-top:15px;
+color:white;
+font-size:14px;
+}
+
+/* RESEND */
+.resend{
+margin-top:10px;
+}
+
+.resend a{
+color:#fff;
+text-decoration:none;
+font-weight:500;
+opacity:0.5;
+pointer-events:none;
+}
+
+.resend a.active{
+opacity:1;
+pointer-events:auto;
+}
+
+/* ERROR ANIMATION */
+.shake{
+animation: shake 0.3s;
+}
+
+@keyframes shake{
+0%{transform:translateX(0);}
+25%{transform:translateX(-5px);}
+50%{transform:translateX(5px);}
+75%{transform:translateX(-5px);}
+100%{transform:translateX(0);}
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="container" id="card">
+
+<h2>Verify OTP</h2>
+<p>Enter the 6-digit code sent to your email</p>
+
+<form method="POST">
+{% csrf_token %}
+
+<div class="otp-box">
+<input type="text" maxlength="1">
+<input type="text" maxlength="1">
+<input type="text" maxlength="1">
+<input type="text" maxlength="1">
+<input type="text" maxlength="1">
+<input type="text" maxlength="1">
+</div>
+
+<!-- Hidden input for final OTP -->
+<input type="hidden" name="otp" id="final_otp">
+
+<button type="submit">Verify</button>
+
+</form>
+
+<div class="timer">
+Resend in <span id="countdown">30</span>s
+</div>
+
+<div class="resend">
+<a href="#" id="resendLink">Resend OTP</a>
+</div>
+
+</div>
+
+<script>
+
+// OTP INPUT LOGIC
+const inputs = document.querySelectorAll(".otp-box input");
+
+inputs.forEach((input, index) => {
+
+input.addEventListener("input", () => {
+if(input.value.length === 1 && index < inputs.length - 1){
+inputs[index + 1].focus();
+}
+updateOTP();
+});
+
+input.addEventListener("keydown", (e) => {
+if(e.key === "Backspace" && index > 0 && input.value === ""){
+inputs[index - 1].focus();
+}
+});
+
+});
+
+// Combine OTP
+function updateOTP(){
+let otp = "";
+inputs.forEach(input => otp += input.value);
+document.getElementById("final_otp").value = otp;
+}
+
+// TIMER
+let time = 30;
+let countdown = document.getElementById("countdown");
+let resendLink = document.getElementById("resendLink");
+
+let timer = setInterval(() => {
+time--;
+countdown.innerText = time;
+
+if(time <= 0){
+clearInterval(timer);
+resendLink.classList.add("active");
+countdown.innerText = "0";
+}
+}, 1000);
+
+// ERROR SHAKE (if Django message exists)
+{% if messages %}
+document.getElementById("card").classList.add("shake");
+{% endif %}
+
+</script>
+
+</body>
+</html>

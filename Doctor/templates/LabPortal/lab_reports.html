@@ -1,0 +1,120 @@
+{% extends "LabPortal/base.html" %}
+
+{% block content %}
+
+<div class="content">
+
+<h2>Lab Reports</h2>
+
+<div class="table-box">
+
+<table>
+
+<thead>
+<tr>
+<th>ID</th>
+<th>Patient Name</th>
+<th>Phone</th>
+<th>Email</th>
+<th>Test</th>
+<th>Date</th>
+<th>Status</th>
+<th>Action</th>
+</tr>
+</thead>
+
+<tbody>
+
+{% for appointment in appointments %}
+
+<tr>
+
+<td>{{ appointment.id }}</td>
+
+<!-- ✅ CORRECT -->
+<td>{{ appointment.full_name }}</td>
+
+<!-- ✅ CORRECT -->
+<td>{{ appointment.contact_number|default:"-" }}</td>
+
+<!-- ✅ CORRECT -->
+<td>{{ appointment.email }}</td>
+
+<!-- ✅ CORRECT -->
+<td>{{ appointment.test_name }}</td>
+
+<!-- ✅ Date -->
+<td>{{ appointment.appointment_date }}</td>
+
+<!-- ✅ Status -->
+<td>
+
+{% if appointment.status == "Completed" %}
+<span class="status completed">Completed</span>
+
+{% elif appointment.status == "Approved" %}
+<span class="status approved">Approved</span>
+
+{% elif appointment.status == "Pending" %}
+<span class="status pending">Pending</span>
+
+{% elif appointment.status == "Cancelled" %}
+<span class="status cancelled">Cancelled</span>
+
+{% endif %}
+
+</td>
+
+<!-- ✅ Action -->
+<td>
+
+{% if appointment.status == "Completed" %}
+
+    {% if appointment.report_file %}
+
+        <!-- ✅ View -->
+        <a href="{{ appointment.report_file.url }}" target="_blank" class="btn">
+            View
+        </a>
+
+        <!-- ✅ Change -->
+        <a href="{% url 'upload_lab_report' appointment.id %}" class="btn">
+            Change
+        </a>
+
+    {% else %}
+
+        <!-- ✅ Upload -->
+        <a href="{% url 'upload_lab_report' appointment.id %}" class="btn">
+            Upload
+        </a>
+
+    {% endif %}
+
+{% else %}
+
+    <span style="color:#999;">-</span>
+
+{% endif %}
+
+</td>
+
+</tr>
+
+{% empty %}
+
+<tr>
+<td colspan="8" style="text-align:center;">No reports found</td>
+</tr>
+
+{% endfor %}
+
+</tbody>
+
+</table>
+
+</div>
+
+</div>
+
+{% endblock %}

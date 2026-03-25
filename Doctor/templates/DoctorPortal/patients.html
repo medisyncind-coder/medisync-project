@@ -1,0 +1,320 @@
+{% extends 'DoctorPortal/base.html' %}
+{% load static %}
+
+{% block content %}
+
+<style>
+
+/* ===== LAYOUT ===== */
+.container{
+    display:flex;
+    gap:25px;
+    align-items:flex-start;
+}
+
+/* LEFT PANEL */
+.left{
+    width:48%;
+}
+
+/* RIGHT PANEL */
+.right{
+    width:52%;
+    background:linear-gradient(145deg,#0f172a,#1e293b);
+    padding:25px;
+    border-radius:16px;
+    box-shadow:0 10px 30px rgba(0,0,0,0.4);
+    color:#e2e8f0;
+}
+
+/* ===== HEADINGS ===== */
+h2{
+    margin-bottom:15px;
+    font-weight:600;
+}
+
+h3{
+    margin-bottom:8px;
+    color:#38bdf8;
+}
+
+/* ===== SEARCH ===== */
+.search-box{
+    width:100%;
+    margin-bottom:15px;
+}
+
+.search-box input{
+    width:100%;
+    padding:12px;
+    border-radius:10px;
+    border:1px solid #334155;
+    background:#0f172a;
+    color:#fff;
+    outline:none;
+}
+
+.search-box input::placeholder{
+    color:#94a3b8;
+}
+
+/* ===== TABLE ===== */
+table{
+    width:100%;
+    border-collapse:collapse;
+    background:#1e293b;
+    border-radius:12px;
+    overflow:hidden;
+}
+
+th,td{
+    padding:14px;
+    color:#e2e8f0;
+    text-align:left;
+}
+
+th{
+    background:#0f172a;
+}
+
+tr{
+    border-bottom:1px solid #334155;
+}
+
+tr:hover{
+    background:#334155;
+}
+
+/* ===== BUTTON ===== */
+.view-btn{
+    background:#3b82f6;
+    border:none;
+    padding:6px 14px;
+    border-radius:6px;
+    color:#fff;
+    cursor:pointer;
+}
+
+/* ===== CARD ===== */
+.card{
+    background:#020617;
+    padding:15px;
+    border-radius:10px;
+    border:1px solid #334155;
+    margin-bottom:15px;
+}
+
+/* ===== SECTION ===== */
+.section{
+    margin-top:18px;
+}
+
+/* ===== LINKS ===== */
+a{
+    color:#38bdf8;
+    font-size:13px;
+    margin-left:6px;
+}
+
+/* ===== FORM ===== */
+form input,
+form textarea{
+    width:100%;
+    background:#020617;
+    border:1px solid #334155;
+    color:#fff;
+    padding:10px;
+    border-radius:8px;
+    margin-top:10px;
+}
+
+form textarea{
+    resize:none;
+}
+
+/* FILE INPUT FIX */
+input[type="file"]{
+    border:none;
+}
+
+/* BUTTON */
+form button{
+    margin-top:12px;
+    padding:10px;
+    width:100%;
+    background:#22c55e;
+    border:none;
+    border-radius:8px;
+    color:#fff;
+    font-weight:600;
+    cursor:pointer;
+}
+
+/* EMPTY */
+.empty{
+    color:#94a3b8;
+}
+
+/* HIDDEN */
+.hidden{
+    display:none;
+}
+
+</style>
+
+<div class="container">
+
+<!-- LEFT -->
+<div class="left">
+
+<h2>Patients</h2>
+
+<div class="search-box">
+<input type="text" id="searchPatient" placeholder="Search patient...">
+</div>
+
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Age</th>
+<th>Phone</th>
+<th>Date</th>
+<th>Action</th>
+</tr>
+</thead>
+
+<tbody id="patientTable">
+{% for p in patients %}
+<tr>
+<td>{{ p.full_name }}</td>
+<td>{{ p.age }}</td>
+<td>{{ p.contact_number }}</td>
+<td>{{ p.appointment_date }}</td>
+<td>
+<button class="view-btn" onclick="showDetail({{ p.id }})">
+View
+</button>
+</td>
+</tr>
+{% endfor %}
+</tbody>
+</table>
+
+</div>
+
+<!-- RIGHT -->
+<div class="right">
+
+<h2>Patient Details</h2>
+
+{% for p in patients %}
+
+<div id="detail-{{ p.id }}" class="hidden">
+
+<!-- BASIC -->
+<div class="card">
+<p><b>Name:</b> {{ p.full_name }}</p>
+<p><b>Age:</b> {{ p.age }}</p>
+<p><b>Symptoms:</b> {{ p.symptoms }}</p>
+</div>
+
+<!-- LAB -->
+<div class="section">
+<h3>🧪 Lab Reports</h3>
+
+{% for r in p.patient.lab_tests.all %}
+{% if r.report_file %}
+<p>
+{{ r.test_name }}
+<a href="{{ r.report_file.url }}" target="_blank">View</a>
+</p>
+{% endif %}
+{% empty %}
+<p class="empty">No reports</p>
+{% endfor %}
+</div>
+
+<!-- RECORDS -->
+<div class="section">
+<h3>📁 Uploaded Records</h3>
+
+{% for rec in p.patient.medicalrecord_set.all %}
+<p>
+{{ rec.file.name }}
+<a href="{{ rec.file.url }}" target="_blank">View</a>
+</p>
+{% empty %}
+<p class="empty">No records</p>
+{% endfor %}
+</div>
+
+<!-- OLD -->
+<div class="section">
+<h3>💊 Previous Prescriptions</h3>
+
+{% for old in p.patient.appointment_set.all %}
+{% if old.prescription_file %}
+<p>
+{{ old.appointment_date }}
+<a href="{{ old.prescription_file.url }}">View</a>
+</p>
+{% endif %}
+{% empty %}
+<p class="empty">No previous prescriptions</p>
+{% endfor %}
+</div>
+
+<!-- ADD -->
+<div class="section">
+<h3>➕ Add Prescription</h3>
+
+<form method="POST" enctype="multipart/form-data" action="{% url 'add_prescription' p.id %}">
+{% csrf_token %}
+
+<input type="text" name="medicine" placeholder="Medicine">
+<input type="text" name="dosage" placeholder="Dosage">
+<textarea name="instructions" placeholder="Instructions"></textarea>
+
+<input type="file" name="prescription_file">
+
+<button type="submit">Save Prescription</button>
+
+</form>
+
+</div>
+
+</div>
+
+{% endfor %}
+
+</div>
+
+</div>
+
+<script>
+
+/* SEARCH */
+document.getElementById("searchPatient").addEventListener("keyup",function(){
+let filter = this.value.toLowerCase()
+let rows = document.querySelectorAll("#patientTable tr")
+
+rows.forEach(row=>{
+row.style.display = row.innerText.toLowerCase().includes(filter) ? "" : "none"
+})
+})
+
+/* SHOW DETAIL */
+function showDetail(id){
+
+document.querySelectorAll("[id^='detail-']").forEach(d=>{
+d.style.display="none"
+})
+
+document.getElementById("detail-"+id).style.display="block"
+
+}
+
+</script>
+
+{% endblock %}

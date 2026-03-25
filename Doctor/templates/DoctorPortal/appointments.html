@@ -2,23 +2,246 @@
 {% load static %}
 
 {% block content %}
+
 <link rel="stylesheet" href="{% static 'Doctor/appointments.css' %}">
 
-<h2 class="fade-in">Appointments</h2>
+<div class="appointments-container">
+
+<!-- ================= HEADER ================= -->
+
+<div class="appointments-header">
+
+<h2>Today's Appointments</h2>
+
+<div class="stats">
+
+<div class="stat-card pending">
+<h3>{{ pending_count }}</h3>
+<p>Pending</p>
+</div>
+
+<div class="stat-card approved">
+<h3>{{ approved_count }}</h3>
+<p>Approved</p>
+</div>
+
+<div class="stat-card completed">
+<h3>{{ completed_count }}</h3>
+<p>Completed</p>
+</div>
+
+<!-- 🔥 NEW -->
+<div class="stat-card cancelled">
+<h3>{{ cancelled_count }}</h3>
+<p>Cancelled</p>
+</div>
+
+</div>
+
+</div>
+
+
+<!-- ================= ACTIVE ================= -->
+
+<h3 class="section-title">Active Appointments</h3>
 
 <div class="appointment-list">
-    {% if appointments %}
-        {% for a in appointments %}
-        <div class="appointment-card fade-in">
-            <h3>{{ a.full_name }}</h3>
-            <p><b>Time:</b> {{ a.preferred_time }}</p>
-            <p><b>Mode:</b> {{ a.consultation_mode }}</p>
-        </div>
-        {% endfor %}
-    {% else %}
-        <div class="empty-card fade-in">
-            No appointments scheduled
-        </div>
-    {% endif %}
+
+{% if appointments %}
+{% for a in appointments %}
+
+<!-- ❌ Cancelled ko active me mat dikhao -->
+{% if a.status != "Cancelled" %}
+
+<div class="appointment-card">
+
+<div class="appointment-info">
+
+<div class="patient-header">
+
+<div class="avatar">
+{{ a.full_name|first|upper }}
 </div>
+
+<div>
+<h3>{{ a.full_name }}</h3>
+<span class="booking-id">ID: {{ a.booking_id }}</span>
+</div>
+
+</div>
+
+<div class="appointment-meta">
+<p><strong>Date:</strong> {{ a.appointment_date }}</p>
+<p><strong>Time:</strong> {{ a.appointment_time }}</p>
+<p><strong>Mode:</strong> {{ a.consultation_mode }}</p>
+</div>
+
+<p class="status-row">
+<strong>Status:</strong>
+
+<span class="status-badge {{ a.status|lower }}">
+{{ a.status }}
+</span>
+
+</p>
+
+<button class="btn view-btn" onclick="toggleDetails({{ a.id }})">
+View Patient Details
+</button>
+
+<div id="details-{{ a.id }}" class="patient-details">
+<p><strong>Symptoms:</strong> {{ a.symptoms }}</p>
+<p><strong>Existing Diseases:</strong> {{ a.existing_diseases }}</p>
+<p><strong>Current Medicines:</strong> {{ a.current_medications }}</p>
+<p><strong>Allergies:</strong> {{ a.allergies }}</p>
+</div>
+
+</div>
+
+{% if a.status == "Pending" %}
+<div class="appointment-actions">
+
+<a href="{% url 'approve_appointment' a.id %}"
+class="btn approve"
+onclick="return confirm('Approve this appointment?')">
+Approve
+</a>
+
+<a href="{% url 'reject_appointment' a.id %}"
+class="btn reject"
+onclick="return confirm('Reject this appointment?')">
+Reject
+</a>
+
+</div>
+{% endif %}
+
+{% if a.status == "Approved" %}
+<div class="appointment-actions">
+
+<a href="{% url 'complete_appointment' a.id %}"
+class="btn complete"
+onclick="return confirm('Mark appointment completed?')">
+Complete
+</a>
+
+</div>
+{% endif %}
+
+</div>
+
+{% endif %}
+{% endfor %}
+
+{% else %}
+
+<div class="empty-card">
+No active appointments today.
+</div>
+
+{% endif %}
+
+</div>
+
+
+
+<!-- ================= CANCELLED ================= -->
+
+<h3 class="section-title">Cancelled Appointments</h3>
+
+<div class="appointment-list">
+
+{% for a in appointments %}
+{% if a.status == "Cancelled" %}
+
+<div class="appointment-card cancelled" style="opacity:0.6;">
+
+<h3>{{ a.full_name }}</h3>
+
+<p><strong>Booking ID:</strong> {{ a.booking_id }}</p>
+<p><strong>Date:</strong> {{ a.appointment_date }}</p>
+<p><strong>Time:</strong> {{ a.appointment_time }}</p>
+
+<span class="status-badge cancelled">
+Cancelled
+</span>
+
+</div>
+
+{% endif %}
+{% empty %}
+<div class="empty-card">
+No cancelled appointments.
+</div>
+{% endfor %}
+
+</div>
+
+
+
+<!-- ================= COMPLETED ================= -->
+
+<h3 class="section-title">Completed Today</h3>
+
+<div class="appointment-list">
+
+{% if completed_today %}
+{% for a in completed_today %}
+
+<div class="appointment-card completed">
+
+<h3>{{ a.full_name }}</h3>
+
+<p><strong>Booking ID:</strong> {{ a.booking_id }}</p>
+<p><strong>Time:</strong> {{ a.appointment_time }}</p>
+
+<span class="status-badge completed">
+Completed
+</span>
+
+</div>
+
+{% endfor %}
+{% else %}
+
+<div class="empty-card">
+No completed appointments yet.
+</div>
+
+{% endif %}
+
+</div>
+
+</div>
+
+
+
+<script>
+
+document.addEventListener("DOMContentLoaded", () => {
+
+const cards = document.querySelectorAll(".appointment-card")
+
+cards.forEach((card,index)=>{
+
+card.style.opacity="0"
+card.style.transform="translateY(20px)"
+
+setTimeout(()=>{
+card.style.transition="0.4s"
+card.style.opacity="1"
+card.style.transform="translateY(0)"
+},index*100)
+
+})
+
+})
+
+function toggleDetails(id){
+const el = document.getElementById("details-"+id)
+el.style.display = (el.style.display==="block") ? "none" : "block"
+}
+
+</script>
+
 {% endblock %}

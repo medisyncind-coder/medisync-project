@@ -1,0 +1,50 @@
+{% extends "LabPortal/base.html" %}
+
+{% block content %}
+
+<div class="table-box">
+
+<h2>Upload / Change Report</h2>
+
+<!-- Appointment Info -->
+<div style="margin-bottom:20px;">
+    <p><strong>Booking ID:</strong> {{ appointment.id }}</p>
+    <p><strong>Patient:</strong> {{ appointment.patient.username }}</p>
+    <p><strong>Test:</strong> {{ appointment.test.name }}</p>
+</div>
+
+<form method="POST" enctype="multipart/form-data">
+
+    {% csrf_token %}
+
+    <!-- File Upload -->
+    <div style="margin-bottom:20px;">
+        <label><strong>Select Report File (PDF/Image):</strong></label><br><br>
+        <input type="file" name="report_file" required>
+    </div>
+
+    <!-- Existing File (if any) -->
+    {% if appointment.report %}
+        <div style="margin-bottom:15px;">
+            <p><strong>Current Report:</strong></p>
+            <a href="{{ appointment.report.report_file.url }}" target="_blank">
+                {{ appointment.report.report_file.name|cut:"lab_reports/" }}
+            </a>
+        </div>
+    {% endif %}
+
+    <!-- Submit -->
+    <button type="submit" class="btn">
+        Upload Report
+    </button>
+
+    <!-- Back Button -->
+    <a href="{% url 'lab_reports' %}" class="btn" style="margin-left:10px;">
+        Cancel
+    </a>
+
+</form>
+
+</div>
+
+{% endblock %}

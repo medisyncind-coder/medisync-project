@@ -1,0 +1,26 @@
+.lab-container{
+padding:30px;
+}
+
+.reports-grid{
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(250px,1fr));
+gap:20px;
+}
+
+.report-card{
+background:white;
+padding:20px;
+border-radius:10px;
+box-shadow:0 5px 15px rgba(0,0,0,0.05);
+}
+
+.download-btn{
+display:inline-block;
+margin-top:10px;
+background:#2563eb;
+color:white;
+padding:8px 12px;
+border-radius:6px;
+text-decoration:none;
+}

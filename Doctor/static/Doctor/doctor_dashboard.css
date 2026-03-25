@@ -1,142 +1,180 @@
-.dashboard-container {
-    padding: 30px;
+.dashboard-container{
+padding:30px;
 }
 
-/* ================= STATS ================= */
+/* Header */
 
-.stats-grid {
-    display: flex;
-    gap: 20px;
-    margin-bottom: 40px;
+.dashboard-header{
+margin-bottom:25px;
 }
 
-.stat-card {
-    flex: 1;
-    background: #ffffff;
-    padding: 25px;
-    border-radius: 15px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    box-shadow: 0 10px 25px rgba(0,0,0,0.05);
-    transition: 0.3s ease;
+.dashboard-header h2{
+font-size:24px;
+margin-bottom:5px;
 }
 
-.stat-card:hover {
-    transform: translateY(-6px);
+.dashboard-header p{
+color:#666;
+font-size:14px;
 }
 
-.stat-info h4 {
-    color: #888;
-    font-size: 14px;
+
+/* Stats Cards */
+
+.stats-grid{
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+gap:20px;
+margin-bottom:30px;
 }
 
-.stat-info h2 {
-    margin-top: 8px;
-    font-size: 22px;
-    font-weight: 600;
+.stat-card{
+background:white;
+padding:20px;
+border-radius:12px;
+display:flex;
+align-items:center;
+gap:15px;
+box-shadow:0 5px 20px rgba(0,0,0,0.05);
+transition:0.3s;
 }
 
-.stat-icon {
-    font-size: 28px;
-    background: #f0f2ff;
-    padding: 15px;
-    border-radius: 12px;
+.stat-card:hover{
+transform:translateY(-3px);
 }
 
-/* ================= APPOINTMENTS ================= */
-
-.section-header {
-    margin-bottom: 20px;
+.stat-icon{
+font-size:30px;
+background:#eef2ff;
+padding:12px;
+border-radius:10px;
 }
 
-.appointments-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    gap: 20px;
+.stat-info h4{
+font-size:14px;
+color:#666;
 }
 
-.appointment-card {
-    background: #ffffff;
-    padding: 20px;
-    border-radius: 15px;
-    display: flex;
-    gap: 15px;
-    align-items: center;
-    box-shadow: 0 10px 25px rgba(0,0,0,0.05);
-    transition: 0.3s ease;
+.stat-info h2{
+font-size:22px;
+margin-top:4px;
 }
 
-.appointment-card:hover {
-    transform: scale(1.02);
+
+/* Appointment Section */
+
+.section-header{
+margin-bottom:15px;
 }
 
-.patient-avatar {
-    width: 50px;
-    height: 50px;
-    background: #6c63ff;
-    color: white;
-    font-weight: 600;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 50%;
-    font-size: 18px;
+.appointments-grid{
+display:flex;
+flex-direction:column;
+gap:15px;
 }
 
-.appointment-details h3 {
-    margin-bottom: 5px;
+
+/* Appointment Card */
+
+.appointment-card{
+background:white;
+padding:18px;
+border-radius:12px;
+display:flex;
+align-items:center;
+justify-content:space-between;
+gap:20px;
+box-shadow:0 5px 20px rgba(0,0,0,0.05);
+transition:0.3s;
 }
 
-.appointment-actions {
-    margin-left: auto;
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
+.appointment-card:hover{
+transform:translateY(-2px);
 }
 
-.btn {
-    padding: 6px 12px;
-    border: none;
-    border-radius: 6px;
-    cursor: pointer;
-    font-size: 12px;
+
+/* Avatar */
+
+.patient-avatar{
+width:45px;
+height:45px;
+background:#2563eb;
+color:white;
+display:flex;
+align-items:center;
+justify-content:center;
+border-radius:50%;
+font-weight:600;
 }
 
-.accept {
-    background: #4CAF50;
-    color: white;
+
+/* Details */
+
+.appointment-details{
+flex:1;
 }
 
-.reject {
-    background: #f44336;
-    color: white;
+.appointment-details h3{
+margin-bottom:5px;
 }
 
-.no-appointment {
-    background: #fff;
-    padding: 30px;
-    border-radius: 12px;
-    text-align: center;
-    color: #777;
+.meta{
+display:flex;
+gap:20px;
+font-size:14px;
+color:#444;
 }
 
-/* ================= ANIMATIONS ================= */
 
-.fade-in {
-    animation: fadeIn 0.8s ease-in-out;
+/* Status Badge */
+
+.status{
+padding:4px 10px;
+border-radius:20px;
+font-size:12px;
 }
 
-.slide-up {
-    animation: slideUp 0.8s ease-in-out;
+.status.pending{
+background:#fff3cd;
+color:#856404;
 }
 
-@keyframes fadeIn {
-    from {opacity:0;}
-    to {opacity:1;}
+.status.approved{
+background:#d1fae5;
+color:#065f46;
 }
 
-@keyframes slideUp {
-    from {transform: translateY(30px); opacity:0;}
-    to {transform: translateY(0); opacity:1;}
+.status.completed{
+background:#dbeafe;
+color:#1e40af;
+}
+
+
+/* Buttons */
+
+.btn{
+padding:8px 14px;
+border-radius:6px;
+text-decoration:none;
+color:white;
+font-size:13px;
+margin-right:5px;
+}
+
+.accept{
+background:#10b981;
+}
+
+.reject{
+background:#ef4444;
+}
+
+
+/* Empty Card */
+
+.empty-card{
+background:#f1f5f9;
+padding:20px;
+border-radius:10px;
+text-align:center;
 }

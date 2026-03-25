@@ -1,0 +1,226 @@
+body{
+font-family:'Poppins',sans-serif;
+background:#f4f7fb;
+margin:0;
+}
+
+
+/* NAVBAR */
+
+.top-nav{
+background:white;
+padding:15px 40px;
+display:flex;
+gap:20px;
+box-shadow:0 3px 12px rgba(0,0,0,0.08);
+}
+
+.nav-btn{
+text-decoration:none;
+color:#333;
+font-weight:500;
+padding:8px 18px;
+border-radius:8px;
+transition:0.3s;
+}
+
+.nav-btn:hover{
+background:#2db6f5;
+color:white;
+}
+
+
+/* CONTAINER */
+
+.container{
+width:80%;
+margin:auto;
+margin-top:40px;
+}
+
+
+/* LAB CARD */
+
+.lab-card{
+display:flex;
+align-items:center;
+background:white;
+padding:35px;
+border-radius:14px;
+box-shadow:0 10px 30px rgba(0,0,0,0.08);
+transition:0.3s;
+}
+
+.lab-card:hover{
+transform:translateY(-4px);
+}
+
+
+.lab-left{
+margin-right:35px;
+}
+
+.lab-icon{
+width:110px;
+height:110px;
+background:linear-gradient(135deg,#2db6f5,#199ed8);
+border-radius:50%;
+display:flex;
+align-items:center;
+justify-content:center;
+font-size:45px;
+color:white;
+}
+
+
+.lab-right h1{
+margin:0;
+font-size:30px;
+}
+
+
+.lab-tags{
+margin:10px 0;
+display:flex;
+gap:10px;
+flex-wrap:wrap;
+}
+
+.type{
+background:#eaf7ff;
+color:#2db6f5;
+padding:4px 10px;
+border-radius:6px;
+font-size:14px;
+font-weight:500;
+}
+
+.badge{
+background:#e6fff0;
+color:#27ae60;
+padding:4px 10px;
+border-radius:6px;
+font-size:14px;
+}
+
+.lab-right p{
+margin:8px 0;
+color:#555;
+font-size:15px;
+}
+
+
+/* TEST SECTION */
+
+.tests-section{
+margin-top:50px;
+}
+
+.test-header{
+display:flex;
+justify-content:space-between;
+align-items:center;
+margin-bottom:25px;
+}
+
+.test-header h2{
+margin:0;
+}
+
+.test-count{
+background:#2db6f5;
+color:white;
+padding:4px 10px;
+border-radius:6px;
+font-size:13px;
+}
+
+
+/* TEST GRID */
+
+.tests-grid{
+display:grid;
+grid-template-columns:repeat(auto-fill,minmax(240px,1fr));
+gap:25px;
+}
+
+
+/* TEST CARD */
+
+.test-card{
+background:white;
+padding:25px;
+border-radius:12px;
+box-shadow:0 6px 20px rgba(0,0,0,0.08);
+text-align:center;
+transition:0.3s;
+position:relative;
+}
+
+.test-card:hover{
+transform:translateY(-6px);
+box-shadow:0 14px 35px rgba(0,0,0,0.12);
+}
+
+.test-icon{
+font-size:26px;
+color:#2db6f5;
+margin-bottom:10px;
+}
+
+.test-card h3{
+margin:10px 0;
+font-size:18px;
+}
+
+
+/* PRICE */
+
+.price{
+font-size:22px;
+color:#2db6f5;
+font-weight:600;
+margin:10px 0 15px;
+}
+
+
+/* BUTTON */
+
+.btn{
+display:inline-block;
+background:#2db6f5;
+color:white;
+padding:9px 20px;
+border-radius:8px;
+text-decoration:none;
+font-weight:500;
+transition:0.3s;
+}
+
+.btn:hover{
+background:#199ed8;
+}
+
+
+/* RESPONSIVE */
+
+@media(max-width:768px){
+
+.container{
+width:90%;
+}
+
+.lab-card{
+flex-direction:column;
+text-align:center;
+}
+
+.lab-left{
+margin:0 0 20px 0;
+}
+
+.tests-grid{
+grid-template-columns:1fr;
+}
+
+}

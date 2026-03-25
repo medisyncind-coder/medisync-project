@@ -2,16 +2,79 @@
 {% load static %}
 
 {% block content %}
+
 <link rel="stylesheet" href="{% static 'Doctor/profile.css' %}">
 
-<div class="profile-card fade-in">
-    <img src="{{ doctor.profile_photo.url }}" class="profile-img">
-    
-    <div class="profile-info">
-        <h2>Dr. {{ doctor.name }}</h2>
-        <p><b>Specialization:</b> {{ doctor.specialization }}</p>
-        <p><b>Experience:</b> {{ doctor.experience }} years</p>
-        <p><b>Contact:</b> {{ doctor.contact_number }}</p>
-    </div>
+<div class="profile-container">
+
+<div class="profile-card">
+
+<div class="profile-header">
+
+<img src="{{ doctor.profile_photo.url }}" class="profile-img">
+
+<div class="profile-title">
+<h2>Dr. {{ doctor.name }}</h2>
+<p class="specialization">{{ doctor.specialization }}</p>
 </div>
+
+</div>
+
+
+<div class="profile-details">
+
+<div class="detail-card">
+<h4>Experience</h4>
+<p>{{ doctor.experience }} Years</p>
+</div>
+
+<div class="detail-card">
+<h4>Contact Number</h4>
+<p>{{ doctor.contact_number }}</p>
+</div>
+
+<div class="detail-card">
+<h4>Specialization</h4>
+<p>{{ doctor.specialization }}</p>
+</div>
+
+<div class="detail-card">
+<h4>Status</h4>
+<p class="active">Active Doctor</p>
+</div>
+
+</div>
+
+
+<div class="profile-actions">
+
+<button class="edit-btn">
+Edit Profile
+</button>
+
+</div>
+
+</div>
+
+</div>
+
+<script>
+
+document.addEventListener("DOMContentLoaded",()=>{
+
+const card = document.querySelector(".profile-card")
+
+card.style.opacity="0"
+card.style.transform="translateY(20px)"
+
+setTimeout(()=>{
+card.style.transition="0.4s"
+card.style.opacity="1"
+card.style.transform="translateY(0)"
+},200)
+
+})
+
+</script>
+
 {% endblock %}

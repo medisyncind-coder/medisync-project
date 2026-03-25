@@ -5,8 +5,11 @@ from django.core.mail import send_mail
 from django.utils import timezone
 from django.core.validators import RegexValidator, MinValueValidator
 from decimal import Decimal
-
 from accounts.models import User
+from appointments.models import *
+from django.contrib.auth.models import AbstractUser
+from django.contrib.auth import get_user_model
+from django.core.validators import RegexValidator
 
 
 # =====================================================
@@ -129,112 +132,21 @@ class Doctor(models.Model):
 # ⏰ Doctor Availability
 # =====================================================
 class DoctorAvailability(models.Model):
-    doctor = models.ForeignKey(Doctor, on_delete=models.CASCADE)
-    day = models.CharField(max_length=10)
+
+    doctor = models.OneToOneField(
+        Doctor,
+        on_delete=models.CASCADE
+    )
+
     is_available = models.BooleanField(default=True)
-    start_time = models.TimeField(null=True, blank=True)
-    end_time = models.TimeField(null=True, blank=True)
-    reason = models.CharField(max_length=200, blank=True)
+
+    updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return f"{self.doctor.name} - {self.day}"
+        status = "Available" if self.is_available else "Unavailable"
+        return f"{self.doctor.name} - {status}"
 
 
-# =====================================================
-# 📅 Appointment Model
-# =====================================================
-
-class Appointment(models.Model):
-
-    # =========================
-    # STATUS SYSTEM
-    # =========================
-    STATUS_CHOICES = [
-        ('Pending', 'Pending'),
-        ('Approved', 'Approved'),
-        ('Rejected', 'Rejected'),
-        ('Completed', 'Completed'),
-        ('Cancelled', 'Cancelled'),
-    ]
-
-    GENDER_CHOICES = [
-        ('Male', 'Male'),
-        ('Female', 'Female'),
-        ('Other', 'Other'),
-    ]
-
-    CONSULT_MODE = [
-        ('Online', 'Online'),
-        ('In-person', 'In-person'),
-    ]
-
-    # =========================
-    # PATIENT INFO
-    # =========================
-    full_name = models.CharField(max_length=100)
-    age = models.PositiveIntegerField()
-    gender = models.CharField(max_length=10, choices=GENDER_CHOICES)
-    contact_number = models.CharField(max_length=15)
-    email = models.EmailField()
-    address = models.TextField(blank=True, null=True)
-
-    # =========================
-    # MEDICAL INFO
-    # =========================
-    symptoms = models.TextField()
-    existing_diseases = models.TextField(blank=True, null=True)
-    current_medications = models.TextField(blank=True, null=True)
-    allergies = models.TextField(blank=True, null=True)
-
-    # =========================
-    # DOCTOR INFO
-    # =========================
-    doctor = models.ForeignKey(Doctor, on_delete=models.CASCADE)
-    patient = models.ForeignKey(User, on_delete=models.CASCADE)
-
-    # =========================
-    # APPOINTMENT INFO
-    # =========================
-    preferred_date = models.DateField()
-    preferred_time = models.TimeField()
-    consultation_mode = models.CharField(max_length=20, choices=CONSULT_MODE)
-    payment_type = models.CharField(max_length=50, default="Online")
-
-    status = models.CharField(
-        max_length=20,
-        choices=STATUS_CHOICES,
-        default='Pending'
-    )
-
-    booking_id = models.CharField(max_length=20, unique=True)
-
-    # =========================
-    # EXTRA PROFESSIONAL FIELDS
-    # =========================
-    cancellation_reason = models.TextField(blank=True, null=True)
-    prescription_file = models.FileField(
-        upload_to='prescriptions/',
-        blank=True,
-        null=True
-    )
-
-    approved_at = models.DateTimeField(blank=True, null=True)
-    completed_at = models.DateTimeField(blank=True, null=True)
-
-    created_at = models.DateTimeField(auto_now_add=True)
-
-    def mark_approved(self):
-        self.status = 'Approved'
-        self.approved_at = timezone.now()
-        self.save()
-
-    def mark_completed(self):
-        self.status = 'Completed'
-        self.completed_at = timezone.now()
-        self.save()
-
-    def __str__(self):
-        return f"{self.full_name} - {self.doctor_name} ({self.status})"
 
 # =====================================================
 # 🧪 Test Model
@@ -247,17 +159,13 @@ class Test(models.Model):
         db_index=True
     )
 
-    description = models.TextField(blank=True, null=True)
-
-    default_price = models.DecimalField(
-        max_digits=8,
-        decimal_places=2,
-        default=0,
-        validators=[MinValueValidator(Decimal('0.00'))]
+    description = models.TextField(
+        blank=True,
+        null=True
     )
 
     test_image = models.ImageField(
-        upload_to='test_images/',
+        upload_to="test_images/",
         blank=True,
         null=True
     )
@@ -265,20 +173,25 @@ class Test(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        ordering = ['name']
+        ordering = ["name"]
         verbose_name = "Medical Test"
         verbose_name_plural = "Medical Tests"
 
     def __str__(self):
-        return f"{self.name} (₹{self.default_price})"
+        return self.name
 
 
 # =====================================================
-# 🏥 LAB MODEL (OTP handled here)
+# 🏥 LAB MODEL (OTP SYSTEM INCLUDED)
 # =====================================================
 
 class Lab(models.Model):
-    user = models.ForeignKey(User,on_delete=models.CASCADE,related_name="labs")
+
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="labs"
+    )
 
     phone_validator = RegexValidator(
         regex=r'^\d{10,15}$',
@@ -291,6 +204,7 @@ class Lab(models.Model):
     )
 
     lab_name = models.CharField(max_length=150, db_index=True)
+
     owner_name = models.CharField(max_length=100)
 
     registration_number = models.CharField(
@@ -313,92 +227,112 @@ class Lab(models.Model):
     email = models.EmailField(unique=True, db_index=True)
 
     address = models.TextField()
+
     city = models.CharField(max_length=100, db_index=True)
+
     state = models.CharField(max_length=100)
+
     pincode = models.CharField(
         max_length=6,
         validators=[pincode_validator]
     )
 
     LAB_TYPE_CHOICES = [
-        ('Pathology', 'Pathology'),
-        ('Radiology', 'Radiology'),
-        ('Diagnostic Center', 'Diagnostic Center'),
-        ('Multi-specialty', 'Multi-specialty'),
+        ("Pathology", "Pathology"),
+        ("Radiology", "Radiology"),
+        ("Diagnostic Center", "Diagnostic Center"),
+        ("Multi-specialty", "Multi-specialty"),
     ]
 
     lab_type = models.CharField(
         max_length=50,
         choices=LAB_TYPE_CHOICES,
-        default='Pathology',
+        default="Pathology",
         db_index=True
     )
 
     home_sample_collection = models.BooleanField(default=False)
 
     operating_days = models.CharField(max_length=100)
+
     opening_time = models.TimeField()
+
     closing_time = models.TimeField()
 
     average_report_time = models.CharField(max_length=50)
 
-    # 🔐 OTP SYSTEM
     otp = models.CharField(max_length=6, blank=True, null=True)
+
     otp_created_at = models.DateTimeField(blank=True, null=True)
 
     is_verified = models.BooleanField(default=False)
 
-    # Auto Tracking
     created_at = models.DateTimeField(auto_now_add=True)
+
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
+
         verbose_name = "Diagnostic Lab"
         verbose_name_plural = "Diagnostic Labs"
-        ordering = ['-created_at']
+        ordering = ["-created_at"]
+
         indexes = [
-            models.Index(fields=['city']),
-            models.Index(fields=['lab_type']),
-            models.Index(fields=['is_verified']),
+            models.Index(fields=["city"]),
+            models.Index(fields=["lab_type"]),
+            models.Index(fields=["is_verified"]),
         ]
 
     def __str__(self):
         return f"{self.lab_name} ({self.city})"
 
-    # =====================================================
-    # 🔢 OTP GENERATE
-    # =====================================================
-    def generate_otp(self):
-        otp = str(random.randint(100000, 999999))
-        self.otp = otp
-        self.otp_created_at = timezone.now()
-        self.save()
-        return otp
+    def total_tests(self):
+        return self.tests.count()
+
 
     # =====================================================
-    # 🔒 OTP VERIFY (5 min expiry)
+    # OTP GENERATION
     # =====================================================
+
+    def generate_otp(self):
+
+        otp = str(random.randint(100000, 999999))
+
+        self.otp = otp
+        self.otp_created_at = timezone.now()
+
+        self.save()
+
+        return otp
+
+
+    # =====================================================
+    # OTP VERIFICATION
+    # =====================================================
+
     def verify_otp(self, entered_otp):
+
         if not self.otp or not self.otp_created_at:
             return False
 
-        # OTP Expiry 5 Minutes
         expiry_time = self.otp_created_at + timezone.timedelta(minutes=5)
 
         if timezone.now() > expiry_time:
             return False
 
         if self.otp == entered_otp:
+
             self.otp = None
             self.is_verified = True
             self.save()
+
             return True
 
         return False
 
 
 # =====================================================
-# 💰 LAB TEST MAPPING
+# 💰 LAB TEST MAPPING (Lab + Test + Price)
 # =====================================================
 
 class LabTest(models.Model):
@@ -406,89 +340,51 @@ class LabTest(models.Model):
     lab = models.ForeignKey(
         Lab,
         on_delete=models.CASCADE,
-        related_name="lab_tests"
+        related_name="tests"
     )
 
     test = models.ForeignKey(
         Test,
         on_delete=models.CASCADE,
-        related_name="available_in_labs"
+        related_name="lab_tests",
+        null=True,
+        blank=True
     )
 
     price = models.DecimalField(
         max_digits=8,
-        decimal_places=2,
-        validators=[MinValueValidator(Decimal('0.00'))]
+        decimal_places=2
     )
 
-    test_image = models.ImageField(
-        upload_to='lab_test_images/',
-        blank=True,
-        null=True
-    )
+    is_active = models.BooleanField(default=True)
 
     created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    custom_name = models.CharField(max_length=255, null=True, blank=True)
+    description = models.TextField(null=True, blank=True)
 
     class Meta:
-        unique_together = ('lab', 'test')
-        verbose_name = "Lab Test"
-        verbose_name_plural = "Lab Tests"
-        ordering = ['test__name']
-        indexes = [
-            models.Index(fields=['lab']),
-            models.Index(fields=['test']),
-        ]
+        unique_together = ("lab", "test")
+        ordering = ["id"]
+
+    # 🔥 IMPORTANT FIX
+    def get_name(self):
+        if self.custom_name:
+            return self.custom_name
+        elif self.test:
+            return self.test.name
+        return "Test Not Available"
 
     def __str__(self):
-        return f"{self.test.name} - ₹{self.price} ({self.lab.lab_name})"
-    
+        return f"{self.lab.lab_name} - {self.get_name()} (₹{self.price})"
 # =====================================================
-# 🧾 LAB APPOINTMENT (User Books Test)
+# 📅 LAB APPOINTMENT SYSTEM
 # =====================================================
 
-class LabAppointment(models.Model):
 
-    STATUS_CHOICES = [
-        ('Pending', 'Pending'),
-        ('Approved', 'Approved'),
-        ('Completed', 'Completed'),
-        ('Cancelled', 'Cancelled'),
-    ]
-
-    user = models.ForeignKey(
-        User,
-        on_delete=models.CASCADE,
-        related_name="lab_appointments"
-    )
-
-    lab = models.ForeignKey(
-        Lab,
-        on_delete=models.CASCADE,
-        related_name="appointments"
-    )
-
-    test = models.ForeignKey(
-        Test,
-        on_delete=models.CASCADE
-    )
-
-    appointment_date = models.DateField()
-    appointment_time = models.TimeField()
-
-    status = models.CharField(
-        max_length=20,
-        choices=STATUS_CHOICES,
-        default="Pending"
-    )
-
-    created_at = models.DateTimeField(auto_now_add=True)
-
-    def __str__(self):
-        return f"{self.user.email} - {self.test.name} ({self.status})"
-    
-    
 # =====================================================
-# 📁 LAB REPORT UPLOAD
+# 📁 LAB REPORT SYSTEM
 # =====================================================
 
 class LabReport(models.Model):
@@ -500,9 +396,159 @@ class LabReport(models.Model):
     )
 
     report_file = models.FileField(upload_to="lab_reports/")
+
     remarks = models.TextField(blank=True, null=True)
 
     uploaded_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f"Report - {self.appointment.user.email}"
+        return f"Report - {self.appointment.patient}"
+
+
+# =====================================================
+# ⏰ LAB WORKING HOURS
+# =====================================================
+
+class LabWorkingHours(models.Model):
+
+    lab = models.ForeignKey(
+        Lab,
+        on_delete=models.CASCADE,
+        related_name="working_hours"
+    )
+
+    day = models.CharField(max_length=20)
+
+    start_time = models.TimeField()
+
+    end_time = models.TimeField()
+
+    is_closed = models.BooleanField(default=False)
+
+    def __str__(self):
+        return f"{self.lab.lab_name} - {self.day}"
+
+
+# =====================================================
+# 🔘 LAB AVAILABILITY
+# =====================================================
+
+class LabAvailability(models.Model):
+
+    lab = models.OneToOneField(
+        Lab,
+        on_delete=models.CASCADE,
+        related_name="availability"
+    )
+
+    is_available = models.BooleanField(default=True)
+
+    start_time = models.TimeField(blank=True, null=True)
+
+    end_time = models.TimeField(blank=True, null=True)
+
+    break_start = models.TimeField(blank=True, null=True)
+
+    break_end = models.TimeField(blank=True, null=True)
+
+    monday = models.BooleanField(default=True)
+    tuesday = models.BooleanField(default=True)
+    wednesday = models.BooleanField(default=True)
+    thursday = models.BooleanField(default=True)
+    friday = models.BooleanField(default=True)
+    saturday = models.BooleanField(default=True)
+    sunday = models.BooleanField(default=False)
+
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+
+        status = "Open" if self.is_available else "Closed"
+
+        return f"{self.lab.lab_name} - {status}"
+    
+    
+# =====================================================
+#  User Model (for Lab and Doctor registration)
+# =====================================================
+    
+    
+
+
+User = get_user_model()   # ✅ BEST PRACTICE (custom user safe)
+
+
+class Patient(models.Model):
+
+    # 🔗 LINK WITH USER
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="patient_profile")
+
+    # -------- VALIDATORS --------
+    phone_validator = RegexValidator(
+        regex=r'^\d{10}$',
+        message="Enter a valid 10-digit phone number"
+    )
+
+    pincode_validator = RegexValidator(
+        regex=r'^\d{6}$',
+        message="Enter a valid 6-digit pincode"
+    )
+
+    # -------- REQUIRED FIELDS --------
+    name = models.CharField(max_length=100)
+
+    phone = models.CharField(
+        max_length=10,
+        validators=[phone_validator]
+    )
+
+    address = models.TextField()
+
+    date_of_birth = models.DateField(null=True, blank=True)
+
+    GENDER_CHOICES = [
+        ('Male', 'Male'),
+        ('Female', 'Female'),
+        ('Other', 'Other'),
+    ]
+
+    gender = models.CharField(max_length=10, choices=GENDER_CHOICES)
+
+    # -------- OPTIONAL FIELDS --------
+    blood_group = models.CharField(max_length=5, blank=True, null=True)
+
+    allergies = models.TextField(blank=True, null=True)
+    medical_conditions = models.TextField(blank=True, null=True)
+
+    emergency_contact = models.CharField(
+        max_length=10,
+        validators=[phone_validator],
+        blank=True,
+        null=True
+    )
+
+    profile_photo = models.ImageField(
+        upload_to='patient_photos/',
+        blank=True,
+        null=True
+    )
+
+    pincode = models.CharField(
+        max_length=6,
+        validators=[pincode_validator],
+        blank=True,
+        null=True
+    )
+
+    full_address = models.TextField(blank=True, null=True)
+
+    # -------- STRING --------
+    def __str__(self):
+        return f"{self.name} ({self.user.email})"
+        return self.name
+    
+    
+class MedicalRecord(models.Model):
+    patient = models.ForeignKey(User, on_delete=models.CASCADE)  # 🔥 CHANGE
+    file = models.FileField(upload_to="records/")
+    uploaded_at = models.DateTimeField(auto_now_add=True)

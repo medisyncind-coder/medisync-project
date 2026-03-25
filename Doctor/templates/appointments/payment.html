@@ -1,0 +1,85 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Secure Payment | MediSync</title>
+    <link rel="stylesheet" href="{% static 'Doctor/payment.css' %}">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+<div class="payment-container">
+
+    <div class="payment-card">
+
+        <div class="payment-header">
+            <h2>Secure Payment</h2>
+            <p>Complete your payment to confirm appointment</p>
+        </div>
+
+        <div class="payment-summary">
+            <div>
+                <span>Doctor</span>
+                <strong>{{ doctor.name }}</strong>
+            </div>
+            <div>
+                <span>Consultation Fee</span>
+                <strong>₹{{ amount }}</strong>
+            </div>
+        </div>
+
+        <div class="payment-methods">
+            <button class="method active" onclick="selectMethod('card')">Credit / Debit Card</button>
+            <button class="method" onclick="selectMethod('upi')">UPI</button>
+        </div>
+
+        <form method="POST" id="paymentForm">
+            {% csrf_token %}
+
+            <!-- Card Section -->
+            <div id="cardSection">
+                <input type="text" placeholder="Card Number" required>
+                <input type="text" placeholder="Card Holder Name" required>
+                <div class="row">
+                    <input type="text" placeholder="MM/YY" required>
+                    <input type="text" placeholder="CVV" required>
+                </div>
+            </div>
+
+            <!-- UPI Section -->
+            <div id="upiSection" style="display:none;">
+                <input type="text" placeholder="Enter UPI ID (example@upi)">
+            </div>
+
+            <button type="submit" class="pay-btn">Pay ₹{{ amount }}</button>
+        </form>
+
+    </div>
+
+</div>
+
+<script>
+function selectMethod(method){
+    document.querySelectorAll(".method").forEach(btn => btn.classList.remove("active"));
+    event.target.classList.add("active");
+
+    if(method === "card"){
+        document.getElementById("cardSection").style.display = "block";
+        document.getElementById("upiSection").style.display = "none";
+    } else {
+        document.getElementById("cardSection").style.display = "none";
+        document.getElementById("upiSection").style.display = "block";
+    }
+}
+
+// Fake Processing Animation
+document.getElementById("paymentForm").addEventListener("submit", function(){
+    const btn = document.querySelector(".pay-btn");
+    btn.innerHTML = "Processing Payment...";
+    btn.style.opacity = "0.7";
+});
+</script>
+
+</body>
+</html>

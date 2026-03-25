@@ -1,0 +1,33 @@
+{% extends 'DoctorPortal/base.html' %}
+{% load static %}
+
+{% block content %}
+
+<link rel="stylesheet" href="{% static 'Doctor/payments.css' %}">
+
+<div class="payments-container">
+
+<h2>Earnings Dashboard</h2>
+
+<div class="stats">
+
+<div class="card">
+<h3>Total Earnings</h3>
+<p>₹ {{ total_earnings }}</p>
+</div>
+
+<div class="card">
+<h3>Monthly Earnings</h3>
+<p>₹ {{ monthly_earnings }}</p>
+</div>
+
+<div class="card">
+<h3>Completed Consultations</h3>
+<p>{{ completed_count }}</p>
+</div>
+
+</div>
+
+</div>
+
+{% endblock %}

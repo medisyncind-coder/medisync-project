@@ -1,0 +1,28 @@
+{% extends 'DoctorPortal/base.html' %}
+{% load static %}
+
+{% block content %}
+
+<link rel="stylesheet" href="{% static 'Doctor/settings.css' %}">
+
+<div class="settings-container">
+
+<h2>Doctor Settings</h2>
+
+<form method="POST">
+
+{% csrf_token %}
+
+<label>Email</label>
+<input type="email" name="email">
+
+<label>Password</label>
+<input type="password" name="password">
+
+<button type="submit">Update Settings</button>
+
+</form>
+
+</div>
+
+{% endblock %}

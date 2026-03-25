@@ -1,0 +1,171 @@
+{% extends "Patient/base.html" %}
+
+{% block title %}My Bookings{% endblock %}
+
+{% block content %}
+
+<style>
+
+/* ===== SECTION ===== */
+.section{
+    margin-top:20px;
+}
+
+/* ===== TABLE ===== */
+.dark-table{
+    width:100%;
+    border-collapse:collapse;
+    margin-top:15px;
+    background:#1e293b;
+    border-radius:12px;
+    overflow:hidden;
+}
+
+.dark-table th{
+    background:#0f172a;
+    color:#fff;
+    padding:12px;
+    text-align:left;
+}
+
+.dark-table td{
+    padding:12px;
+    color:#e2e8f0;
+    border-bottom:1px solid #334155;
+}
+
+/* ===== STATUS ===== */
+.status{
+    padding:5px 12px;
+    border-radius:20px;
+    font-size:12px;
+    font-weight:500;
+}
+
+.pending{ background:#facc15; color:#000; }
+.approved{ background:#22c55e; color:#fff; }
+.rejected{ background:#ef4444; color:#fff; }
+.completed{ background:#3b82f6; color:#fff; }
+.cancelled{ background:#64748b; color:#fff; }
+
+/* ===== BUTTON ===== */
+.cancel-btn{
+    padding:6px 12px;
+    background:#ef4444;
+    color:#fff;
+    border-radius:6px;
+    text-decoration:none;
+    font-size:12px;
+}
+
+.cancel-btn:hover{
+    background:#dc2626;
+}
+
+/* ===== EMPTY ===== */
+.empty{
+    background:#1e293b;
+    padding:40px;
+    border-radius:12px;
+    text-align:center;
+    color:#94a3b8;
+}
+
+.primary-btn{
+    display:inline-block;
+    margin-top:10px;
+    padding:10px 20px;
+    background:#3b82f6;
+    color:#fff;
+    border-radius:8px;
+    text-decoration:none;
+}
+
+</style>
+
+<div class="section">
+
+    <h2>📅 My Bookings (Today)</h2>
+
+    {% if bookings %}
+
+    <table class="dark-table">
+        <tr>
+            <th>Type</th>
+            <th>Name</th>
+            <th>Time</th>
+            <th>Status</th>
+            <th>Action</th> <!-- 🔥 NEW -->
+        </tr>
+
+        {% for b in bookings %}
+        <tr>
+
+            <!-- TYPE -->
+            <td>
+                {% if b.type == "Doctor" %}
+                    👨‍⚕️ Doctor
+                {% else %}
+                    🧪 Lab
+                {% endif %}
+            </td>
+
+            <!-- NAME -->
+            <td>{{ b.name }}</td>
+
+            <!-- TIME -->
+            <td>{{ b.time }}</td>
+
+            <!-- STATUS -->
+            <td>
+                <span class="status
+                    {% if b.status == 'Pending' %}pending
+                    {% elif b.status == 'Approved' %}approved
+                    {% elif b.status == 'Rejected' %}rejected
+                    {% elif b.status == 'Completed' %}completed
+                    {% elif b.status == 'Cancelled' %}cancelled
+                    {% endif %}
+                ">
+                    {{ b.status }}
+                </span>
+            </td>
+
+            <!-- 🔥 ACTION BUTTON -->
+            <td>
+                {% if b.status == "Pending" or b.status == "Approved" %}
+                    <a href="{% url 'cancel_appointment' b.type|lower b.id %}" 
+                       class="cancel-btn"
+                       onclick="return confirm('Are you sure you want to cancel this booking?')">
+                       Cancel
+                    </a>
+                {% else %}
+                    -
+                {% endif %}
+            </td>
+
+        </tr>
+        {% endfor %}
+
+    </table>
+
+    {% else %}
+
+    <!-- EMPTY STATE -->
+    <div class="empty">
+        <h3>No bookings for today</h3>
+        <p>You don’t have any appointments scheduled.</p>
+
+        <a href="{% url 'doctor_page' %}" class="primary-btn">
+            Book Doctor →
+        </a>
+
+        <a href="{% url 'lab_list' %}" class="primary-btn">
+            Book Lab →
+        </a>
+    </div>
+
+    {% endif %}
+
+</div>
+
+{% endblock %}

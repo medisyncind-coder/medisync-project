@@ -1,0 +1,261 @@
+{% extends "Patient/base.html" %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block page_title %}
+Welcome,
+{% if request.user.first_name %}
+{{ request.user.patient_profile.name|title }}
+{% else %}
+{{ request.user.email }}
+{% endif %}
+👋
+{% endblock %}
+
+{% block content %}
+
+<style>
+
+/* ===== TABLE DARK ===== */
+.dark-table{
+    width:100%;
+    border-collapse:collapse;
+    margin-top:15px;
+    background:#1e293b;
+    border-radius:12px;
+    overflow:hidden;
+}
+
+/* HEADER */
+.dark-table th{
+    background:#0f172a;
+    color:#fff;
+    padding:12px;
+    text-align:left;
+}
+
+/* ROW */
+.dark-table td{
+    padding:12px;
+    color:#e2e8f0;
+    border-bottom:1px solid #334155;
+    transition:0.3s;
+}
+
+/* HOVER */
+.clickable-row:hover{
+    background:#334155;
+    cursor:pointer;
+}
+
+/* SELECTED ROW */
+.selected{
+    background:#2563eb !important;
+    color:#fff;
+}
+
+/* ===== STATUS ===== */
+.status{
+    padding:5px 10px;
+    border-radius:20px;
+    font-size:12px;
+    font-weight:500;
+}
+
+.pending{
+    background:#facc15;
+    color:#000;
+}
+
+.approved{
+    background:#22c55e;
+    color:#fff;
+}
+
+.rejected{
+    background:#ef4444;
+    color:#fff;
+}
+
+.completed{
+    background:#3b82f6;
+    color:#fff;
+}
+
+/* ===== EMPTY ===== */
+.empty{
+    background:#1e293b;
+    padding:30px;
+    border-radius:12px;
+    text-align:center;
+    color:#94a3b8;
+}
+
+.primary-btn{
+    display:inline-block;
+    margin-top:10px;
+    padding:10px 20px;
+    background:#3b82f6;
+    color:#fff;
+    border-radius:8px;
+    text-decoration:none;
+}
+
+</style>
+
+<!-- ================= STATS ================= -->
+
+<div class="cards">
+
+<div class="card">
+    <i class="fa fa-calendar-check"></i>
+    <h3>Total Appointments</h3>
+    <p>{{ total_appointments|default:"0" }}</p>
+</div>
+
+<div class="card">
+    <i class="fa fa-check-circle"></i>
+    <h3>Completed</h3>
+    <p>{{ completed|default:"0" }}</p>
+</div>
+
+<div class="card">
+    <i class="fa fa-hourglass-half"></i>
+    <h3>Pending</h3>
+    <p>{{ pending|default:"0" }}</p>
+</div>
+
+</div>
+
+<!-- ================= TODAY ================= -->
+
+<div class="section">
+    <h2>📅 Today’s Schedule</h2>
+
+{% if today_appointments or today_lab_bookings %}
+
+<table class="dark-table" id="bookingTable">
+    <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Time</th>
+        <th>Status</th>
+    </tr>
+
+    <!-- DOCTOR -->
+    {% for a in today_appointments %}
+    <tr class="clickable-row">
+        <td>👨‍⚕️ Doctor</td>
+        <td>{{ a.doctor.name }}</td>
+        <td>{{ a.appointment_time }}</td>
+        <td>
+            <span class="status 
+            {% if a.status == 'Pending' %}pending
+            {% elif a.status == 'Approved' %}approved
+            {% elif a.status == 'Rejected' %}rejected
+            {% elif a.status == 'Completed' %}completed
+            {% endif %}">
+                {{ a.status }}
+            </span>
+        </td>
+    </tr>
+    {% endfor %}
+
+    <!-- LAB -->
+    {% for lab in today_lab_bookings %}
+    <tr class="clickable-row">
+        <td>🧪 Lab</td>
+        <td>{{ lab.test_name }}</td>
+        <td>{{ lab.appointment_time }}</td>
+        <td>
+            <span class="status 
+            {% if lab.status == 'Pending' %}pending
+            {% elif lab.status == 'Approved' %}approved
+            {% elif lab.status == 'Rejected' %}rejected
+            {% elif lab.status == 'Completed' %}completed
+            {% endif %}">
+                {{ lab.status }}
+            </span>
+        </td>
+    </tr>
+    {% endfor %}
+
+</table>
+
+{% else %}
+
+<div class="empty">
+    <p>No appointments scheduled for today.</p>
+
+    <a href="{% url 'doctor_page' %}" class="primary-btn">
+        Book Doctor →
+    </a>
+
+    <a href="{% url 'lab_list' %}" class="primary-btn">
+        Book Lab →
+    </a>
+</div>
+
+{% endif %}
+
+</div>
+
+<!-- ================= PAST ================= -->
+
+<div class="section">
+    <h2>📜 Past Appointments</h2>
+
+{% if past_appointments %}
+
+<table class="dark-table">
+    <tr>
+        <th>Doctor</th>
+        <th>Date</th>
+        <th>Status</th>
+    </tr>
+
+    {% for a in past_appointments %}
+    <tr>
+        <td>{{ a.doctor.name }}</td>
+        <td>{{ a.appointment_date }}</td>
+        <td>
+            <span class="status 
+            {% if a.status == 'Completed' %}completed
+            {% else %}rejected
+            {% endif %}">
+                {{ a.status }}
+            </span>
+        </td>
+    </tr>
+    {% endfor %}
+
+</table>
+
+{% else %}
+
+<div class="empty">
+    <p>No past appointments yet.</p>
+</div>
+
+{% endif %}
+
+</div>
+
+<!-- ================= JS (ROW SELECT) ================= -->
+
+<script>
+
+const rows = document.querySelectorAll(".clickable-row");
+
+rows.forEach(row => {
+    row.addEventListener("click", () => {
+
+        rows.forEach(r => r.classList.remove("selected"));
+        row.classList.add("selected");
+
+    });
+});
+
+</script>
+
+{% endblock %}

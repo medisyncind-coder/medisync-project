@@ -1,0 +1,104 @@
+{% extends "LabPortal/base.html" %}
+
+{% block content %}
+
+<div class="cards">
+
+<div class="card">
+<h3>Total Bookings</h3>
+<p>{{ total_appointments }}</p>
+</div>
+
+<div class="card">
+<h3>Pending</h3>
+<p>{{ pending_appointments }}</p>
+</div>
+
+<div class="card">
+<h3>Completed</h3>
+<p>{{ completed_appointments }}</p>
+</div>
+
+<div class="card">
+<h3>Total Reports</h3>
+<p>{{ total_reports }}</p>
+</div>
+
+</div>
+
+
+<div class="table-box">
+
+<h2>Recent Bookings</h2>
+
+<table>
+
+<thead>
+<tr>
+<th>ID</th>
+<th>Patient</th>
+<th>Test</th>
+<th>Date</th>
+<th>Time</th>
+<th>Status</th>
+</tr>
+</thead>
+
+<tbody>
+
+{% for appointment in recent_appointments %}
+
+<tr>
+
+<td>#{{ appointment.id }}</td>
+
+<td>
+{{ appointment.full_name }}
+</td>
+
+<td>
+{{ appointment.test_name }}
+</td>
+
+<td>
+{{ appointment.appointment_date }}
+</td>
+
+<td>
+{{ appointment.appointment_time }}
+</td>
+
+<td>
+
+{% if appointment.status == "Pending" %}
+<span class="status pending">Pending</span>
+
+{% elif appointment.status == "Approved" %}
+<span class="status approved">Approved</span>
+
+{% elif appointment.status == "Completed" %}
+<span class="status completed">Completed</span>
+
+{% else %}
+<span class="status cancelled">Cancelled</span>
+{% endif %}
+
+</td>
+
+</tr>
+
+{% empty %}
+
+<tr>
+<td colspan="6" style="text-align:center;">No bookings available</td>
+</tr>
+
+{% endfor %}
+
+</tbody>
+
+</table>
+
+</div>
+
+{% endblock %}

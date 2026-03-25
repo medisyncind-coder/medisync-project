@@ -1,0 +1,162 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Patient Register | MediSync</title>
+
+<link rel="stylesheet" href="{% static 'Doctor/patient_register.css' %}">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+</head>
+
+<body>
+
+<div class="container">
+
+    <!-- LEFT PANEL -->
+    <div class="left">
+        <h2>MediSync</h2>
+        <p>Smart Healthcare Platform</p>
+
+        <ul>
+            <li>✔ Easy Doctor Booking</li>
+            <li>✔ Lab Test Management</li>
+            <li>✔ Secure Medical Records</li>
+        </ul>
+    </div>
+
+    <!-- RIGHT PANEL -->
+    <div class="right">
+
+        <h2>Create Account</h2>
+
+        <form method="POST" enctype="multipart/form-data" id="registerForm">
+            {% csrf_token %}
+
+            <!-- 🔴 FORM ERRORS -->
+            {% if form.errors %}
+                <div class="error-box">
+                    Please correct the errors below.
+                </div>
+            {% endif %}
+
+            <div class="grid">
+
+                <div>
+                    <label>Full Name <span class="req">*</span></label>
+                    {{ form.name }}
+                </div>
+
+                <div>
+                    <label>Email <span class="req">*</span></label>
+                    {{ form.email }}
+                </div>
+
+                <div>
+                    <label>Phone Number <span class="req">*</span></label>
+                    {{ form.phone }}
+                </div>
+
+                <div>
+                    <label>Date of Birth <span class="req">*</span></label>
+                    {{ form.date_of_birth }}
+                </div>
+
+                <div>
+                    <label>Gender <span class="req">*</span></label>
+                    {{ form.gender }}
+                </div>
+
+                <div>
+                    <label>Password <span class="req">*</span></label>
+                    {{ form.password }}
+                </div>
+
+                <div>
+                    <label>Confirm Password <span class="req">*</span></label>
+                    {{ form.confirm_password }}
+                </div>
+
+                <div>
+                    <label>Profile Photo (Optional)</label>
+                    {{ form.profile_photo }}
+                </div>
+
+            </div>
+
+            <div>
+                <label>Address <span class="req">*</span></label>
+                {{ form.address }}
+            </div>
+
+            <div>
+                <label>Full Address (Optional)</label>
+                {{ form.full_address }}
+            </div>
+
+            <div class="grid">
+
+                <div>
+                    <label>Blood Group (Optional)</label>
+                    {{ form.blood_group }}
+                </div>
+
+                <div>
+                    <label>Emergency Contact (Optional)</label>
+                    {{ form.emergency_contact }}
+                </div>
+
+                <div>
+                    <label>Pincode (Optional)</label>
+                    {{ form.pincode }}
+                </div>
+
+            </div>
+
+            <div>
+                <label>Allergies (Optional)</label>
+                {{ form.allergies }}
+            </div>
+
+            <div>
+                <label>Medical Conditions (Optional)</label>
+                {{ form.medical_conditions }}
+            </div>
+
+            <button type="submit">Register</button>
+        </form>
+
+        <p class="login-link">
+            Already have an account?
+            <a href="{% url 'patient_login' %}">Login</a>
+        </p>
+
+    </div>
+
+</div>
+
+<!-- JS -->
+<script>
+
+// Animation
+window.onload = () => {
+    document.querySelector('.right').classList.add('show');
+};
+
+// Password match validation
+document.getElementById('registerForm').addEventListener('submit', function(e){
+
+    let pass = document.querySelector('[name=password]').value;
+    let confirm = document.querySelector('[name=confirm_password]').value;
+
+    if(pass !== confirm){
+        alert("Passwords do not match!");
+        e.preventDefault();
+    }
+});
+
+</script>
+
+</body>
+</html>

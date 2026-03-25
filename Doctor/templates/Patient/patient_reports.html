@@ -1,0 +1,253 @@
+{% extends "Patient/base.html" %}
+
+{% block title %}Lab Reports{% endblock %}
+{% block page_title %}My Reports{% endblock %}
+
+{% block content %}
+
+<style>
+
+/* ===== SECTION ===== */
+.section{
+    margin-top:25px;
+}
+
+/* ===== TABLE ===== */
+.dark-table{
+    width:100%;
+    border-collapse:collapse;
+    margin-top:15px;
+    background:#1e293b;
+    border-radius:12px;
+    overflow:hidden;
+}
+
+.dark-table th{
+    background:#0f172a;
+    color:#fff;
+    padding:14px;
+    text-align:left;
+}
+
+.dark-table td{
+    padding:14px;
+    color:#e2e8f0;
+    border-bottom:1px solid #334155;
+}
+
+.dark-table tr:hover{
+    background:#334155;
+}
+
+/* ===== STATUS ===== */
+.status{
+    padding:5px 12px;
+    border-radius:20px;
+    font-size:12px;
+    font-weight:500;
+}
+
+.pending{ background:#facc15; color:#000; }
+.completed{ background:#22c55e; color:#fff; }
+.cancelled{ background:#64748b; color:#fff; }
+
+/* ===== BUTTON ===== */
+.btn{
+    padding:6px 12px;
+    border-radius:6px;
+    text-decoration:none;
+    font-size:12px;
+    margin-right:5px;
+    display:inline-block;
+}
+
+.view{ background:#3b82f6; color:#fff; }
+.download{ background:#22c55e; color:#fff; }
+
+/* ===== UPLOAD BOX (🔥 FIXED) ===== */
+.upload-box{
+    background:linear-gradient(135deg,#1e293b,#0f172a);
+    padding:25px;
+    border-radius:14px;
+    margin-bottom:25px;
+    box-shadow:0 8px 20px rgba(0,0,0,0.3);
+}
+
+.upload-title{
+    color:#fff;
+    font-size:18px;
+    margin-bottom:15px;
+}
+
+/* FILE INPUT */
+.file-input-wrapper{
+    display:flex;
+    align-items:center;
+    gap:12px;
+}
+
+.file-input-wrapper input{
+    display:none;
+}
+
+.file-label{
+    background:#3b82f6;
+    color:#fff;
+    padding:8px 16px;
+    border-radius:6px;
+    cursor:pointer;
+    font-size:14px;
+}
+
+#fileName{
+    color:#cbd5f5;
+    font-size:13px;
+}
+
+/* BUTTON */
+.upload-btn{
+    margin-top:15px;
+    padding:8px 20px;
+    background:#22c55e;
+    color:#fff;
+    border:none;
+    border-radius:6px;
+    cursor:pointer;
+}
+
+/* ===== EMPTY ===== */
+.empty{
+    text-align:center;
+    padding:25px;
+    color:#94a3b8;
+    background:#1e293b;
+    border-radius:12px;
+    margin-top:10px;
+}
+
+</style>
+
+
+<!-- ================= UPLOAD ================= -->
+
+<div class="upload-box">
+
+    <h3 class="upload-title">📤 Upload Medical Record</h3>
+
+    <form method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+
+        <div class="file-input-wrapper">
+            <input type="file" name="file" id="fileInput" required>
+            <label for="fileInput" class="file-label">Choose File</label>
+            <span id="fileName">No file chosen</span>
+        </div>
+
+        <button type="submit" class="upload-btn">Upload</button>
+    </form>
+
+</div>
+
+
+<!-- ================= LAB REPORTS ================= -->
+
+<div class="section">
+<h2>🧪 Lab Test History</h2>
+
+{% if reports %}
+
+<table class="dark-table">
+<tr>
+<th>ID</th>
+<th>Lab</th>
+<th>Test</th>
+<th>Date</th>
+<th>Status</th>
+<th>Report</th>
+</tr>
+
+{% for report in reports %}
+<tr>
+
+<td>#{{ report.booking_id }}</td>
+
+<td>{{ report.lab.lab_name }}</td>
+
+<td>{{ report.test_name }}</td>
+
+<td>{{ report.appointment_date|date:"d M Y" }}</td>
+
+<td>
+<span class="status {{ report.status|lower }}">
+    {{ report.status }}
+</span>
+</td>
+
+<td>
+{% if report.report_file %}
+<a href="{{ report.report_file.url }}" target="_blank" class="btn view">View</a>
+<a href="{{ report.report_file.url }}" download class="btn download">Download</a>
+{% else %}
+<span class="status pending">Not Uploaded</span>
+{% endif %}
+</td>
+
+</tr>
+{% endfor %}
+
+</table>
+
+{% else %}
+<div class="empty">No lab reports found</div>
+{% endif %}
+
+</div>
+
+
+<!-- ================= UPLOADED RECORDS ================= -->
+
+<div class="section">
+<h2>📁 Uploaded Records</h2>
+
+{% if records %}
+
+<table class="dark-table">
+<tr>
+<th>File</th>
+<th>Date</th>
+<th>Action</th>
+</tr>
+
+{% for r in records %}
+<tr>
+
+<td>{{ r.file.name|cut:"records/" }}</td>
+
+<td>{{ r.uploaded_at|date:"d M Y" }}</td>
+
+<td>
+<a href="{{ r.file.url }}" target="_blank" class="btn view">View</a>
+<a href="{{ r.file.url }}" download class="btn download">Download</a>
+</td>
+
+</tr>
+{% endfor %}
+
+</table>
+
+{% else %}
+<div class="empty">No uploaded records</div>
+{% endif %}
+
+</div>
+
+
+<!-- 🔥 FILE NAME SCRIPT -->
+<script>
+document.getElementById("fileInput").addEventListener("change", function(){
+    let fileName = this.files[0]?.name || "No file chosen";
+    document.getElementById("fileName").innerText = fileName;
+});
+</script>
+
+{% endblock %}

@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Doctor Not Available</title>
+    <style>
+
+        body{
+            font-family: Arial;
+            background:#f4f6fb;
+            text-align:center;
+            padding-top:100px;
+        }
+
+        .box{
+            background:white;
+            width:400px;
+            margin:auto;
+            padding:40px;
+            border-radius:10px;
+            box-shadow:0 5px 20px rgba(0,0,0,0.1);
+        }
+
+        h2{
+            color:#e74c3c;
+        }
+
+        a{
+            display:inline-block;
+            margin-top:20px;
+            padding:10px 25px;
+            background:#6c5ce7;
+            color:white;
+            text-decoration:none;
+            border-radius:6px;
+        }
+
+    </style>
+</head>
+<body>
+
+<div class="box">
+
+    <h2>Doctor Not Available Today</h2>
+
+    <p>
+        Sorry! <b>{{doctor.name}}</b> is not available for appointments today.
+    </p>
+
+    <a href="{% url 'doctor_page' %}">
+        Back to Doctors List
+    </a>
+
+</div>
+
+</body>
+</html>

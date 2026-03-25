@@ -1,101 +1,266 @@
 {% load static %}
 <!DOCTYPE html>
 <html>
-<head>
-    <title>Dr. {{ doctor.name }}</title>
 
-    <link rel="stylesheet" href="{% static 'Doctor/doctor_detail.css' %}">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+<head>
+
+<title>Dr. {{ doctor.name }} | Doctor Profile</title>
+
+<link rel="stylesheet" href="{% static 'Doctor/doctor_detail.css' %}">
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+
 </head>
+
+
 <body>
+
+
+<!-- ================= NAVBAR ================= -->
+
+<div class="navbar">
+
+<div class="logo">
+MediSync
+</div>
+
+<div class="nav-links">
+
+<a href="{% url 'home' %}" class="nav-btn">
+Home
+</a>
+
+<a href="{% url 'doctor_page' %}" class="nav-btn">
+Doctor List
+</a>
+
+</div>
+
+</div>
+
 
 <div class="detail-wrapper">
 
-    <!-- LEFT SECTION -->
-    <div class="left-section">
 
-        <!-- PROFILE CARD -->
-        <div class="profile-card fade-in">
-            <img src="{{ doctor.profile_photo.url }}" class="profile-img">
-            <div class="profile-info">
-                <h1>Dr. {{ doctor.name }}</h1>
-                <p class="degree">{{ doctor.qualification }}</p>
-                <p class="speciality">{{ doctor.specialization }}</p>
-                <span class="experience">{{ doctor.experience }}+ Years Experience</span>
-            </div>
-        </div>
+<!-- ================= LEFT SECTION ================= -->
 
-        <!-- BASIC INFO -->
-        <div class="info-card slide-up">
-            <h3>Basic Information</h3>
-            <p><strong>Education:</strong> {{ doctor.education_institution }}</p>
-            <p><strong>Clinic:</strong> {{ doctor.clinic_name }}</p>
-            <p><strong>Consultation Fee:</strong> ₹{{ doctor.consultation_fee }}</p>
-            <p><strong>Available Days:</strong> {{ doctor.available_days }}</p>
-            <p><strong>Timings:</strong> {{ doctor.start_time }} - {{ doctor.end_time }}</p>
-            <p><strong>Duration:</strong> {{ doctor.appointment_duration }} mins</p>
-        </div>
+<div class="left-section">
 
-        <!-- ADDRESS -->
-        <div class="info-card slide-up">
-            <h3>Clinic Address</h3>
-            <p>{{ doctor.full_address }}</p>
-            <p><strong>Pincode:</strong> {{ doctor.pincode }}</p>
-            {% if doctor.location_link %}
-            <a href="{{ doctor.location_link }}" target="_blank" class="map-link">
-                View on Map →
-            </a>
-            {% endif %}
-        </div>
 
-        <!-- ABOUT -->
-        <div class="info-card slide-up">
-            <h3>About Doctor</h3>
-            <p>{{ doctor.bio }}</p>
-        </div>
+<!-- PROFILE CARD -->
 
-        <!-- GALLERY -->
-        <div class="gallery-section">
-            <h3>Clinic Photos</h3>
-            <div class="gallery-grid">
-                {% for img in photos %}
-                    {% if img %}
-                        <img src="{{ img.url }}" class="gallery-img" onclick="openModal(this.src)">
-                    {% endif %}
-                {% endfor %}
-            </div>
-        </div>
+<div class="profile-card fade-in">
 
-    </div>
+{% if doctor.profile_photo %}
+<img src="{{ doctor.profile_photo.url }}" class="profile-img">
+{% else %}
+<img src="{% static 'Doctor/default.png' %}" class="profile-img">
+{% endif %}
 
-    <!-- RIGHT BOOKING CARD -->
-    <div class="booking-card">
-        <h2>Book Appointment</h2>
-        <p>Consultation Fee</p>
-        <h1>₹{{ doctor.consultation_fee }}</h1>
-        <a href="{% url 'book_appointment' doctor.name doctor.specialization %}" class="book-btn">
-            Book Now
-        </a>
-    </div>
+<div class="profile-info">
+
+<h1>Dr. {{ doctor.name }}</h1>
+
+<p class="degree">
+{{ doctor.qualification }}
+</p>
+
+<p class="speciality">
+{{ doctor.specialization }}
+</p>
+
+<span class="experience">
+{{ doctor.experience }}+ Years of Clinical Experience
+</span>
 
 </div>
 
-<!-- IMAGE MODAL -->
+</div>
+
+
+
+<!-- BASIC INFORMATION -->
+
+<div class="info-card slide-up">
+
+<h3>Basic Information</h3>
+
+<p>
+<strong>Education:</strong>
+{{ doctor.education_institution }}
+</p>
+
+<p>
+<strong>Clinic Name:</strong>
+{{ doctor.clinic_name }}
+</p>
+
+<p>
+<strong>Consultation Fee:</strong>
+₹{{ doctor.consultation_fee }}
+</p>
+
+
+<!-- AVAILABLE DAYS -->
+
+<p>
+<strong>Available Days:</strong>
+
+{% if doctor.available_days %}
+
+{% if doctor.available_days.0 %}
+{{ doctor.available_days|join:", " }}
+{% else %}
+{{ doctor.available_days }}
+{% endif %}
+
+{% else %}
+Not Available
+{% endif %}
+
+</p>
+
+
+<p>
+<strong>Consultation Timings:</strong>
+
+{{ doctor.start_time|time:"h:i A" }} – {{ doctor.end_time|time:"h:i A" }}
+
+</p>
+
+
+<p>
+<strong>Appointment Duration:</strong>
+
+{{ doctor.appointment_duration }} Minutes
+
+</p>
+
+</div>
+
+
+
+<!-- CLINIC ADDRESS -->
+
+<div class="info-card slide-up">
+
+<h3>Clinic Address</h3>
+
+<p>{{ doctor.full_address }}</p>
+
+<p>
+<strong>Pincode:</strong>
+{{ doctor.pincode }}
+</p>
+
+{% if doctor.location_link %}
+
+<a href="{{ doctor.location_link }}" target="_blank" class="map-link">
+View Clinic Location →
+</a>
+
+{% endif %}
+
+</div>
+
+
+
+<!-- ABOUT DOCTOR -->
+
+<div class="info-card slide-up">
+
+<h3>About the Doctor</h3>
+
+<p>{{ doctor.bio }}</p>
+
+</div>
+
+
+
+<!-- CLINIC PHOTOS -->
+
+<div class="gallery-section">
+
+<h3>Clinic Photos</h3>
+
+<div class="gallery-grid">
+
+{% for img in photos %}
+
+{% if img %}
+
+<img src="{{ img.url }}" class="gallery-img" onclick="openModal(this.src)">
+
+{% endif %}
+
+{% endfor %}
+
+</div>
+
+</div>
+
+</div>
+
+
+
+<!-- ================= RIGHT BOOKING CARD ================= -->
+
+<div class="booking-card">
+
+<h2>Book Appointment</h2>
+
+<p class="fee-label">Consultation Fee</p>
+
+<h1 class="fee-amount">
+
+₹{{ doctor.consultation_fee }}
+
+</h1>
+
+
+<a href="{% url 'book_slot' doctor.id %}" class="book-btn">
+
+Book Appointment
+
+</a>
+
+</div>
+
+
+</div>
+
+
+
+<!-- ================= IMAGE MODAL ================= -->
+
 <div id="imageModal" class="modal">
-    <span class="close" onclick="closeModal()">&times;</span>
-    <img class="modal-content" id="modalImg">
+
+<span class="close" onclick="closeModal()">&times;</span>
+
+<img class="modal-content" id="modalImg">
+
 </div>
+
+
 
 <script>
-function openModal(src) {
-    document.getElementById("imageModal").style.display = "flex";
-    document.getElementById("modalImg").src = src;
+
+function openModal(src){
+
+document.getElementById("imageModal").style.display="flex";
+
+document.getElementById("modalImg").src=src;
+
 }
 
-function closeModal() {
-    document.getElementById("imageModal").style.display = "none";
+function closeModal(){
+
+document.getElementById("imageModal").style.display="none";
+
 }
+
 </script>
+
 
 </body>
 </html>

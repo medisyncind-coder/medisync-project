@@ -1,0 +1,49 @@
+{% extends "LabPortal/base.html" %}
+
+{% block content %}
+
+<h2>Lab Services</h2>
+
+<table>
+
+<thead>
+<tr>
+<th>Test Name</th>
+<th>Price</th>
+<th>Description</th>
+</tr>
+</thead>
+
+<tbody>
+
+{% for service in services %}
+
+<tr>
+
+<td>
+    {% if service.test %}
+        {{ service.test.name }}
+    {% else %}
+        {{ service.custom_name }}
+    {% endif %}
+</td>
+
+<td>₹{{ service.price }}</td>
+
+<td>
+    {% if service.test %}
+        {{ service.test.description }}
+    {% else %}
+        {{ service.description }}
+    {% endif %}
+</td>
+
+</tr>
+
+{% endfor %}
+
+</tbody>
+
+</table>
+
+{% endblock %}

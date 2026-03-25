@@ -1,0 +1,17 @@
+.payments-container{
+padding:30px;
+}
+
+.stats{
+display:flex;
+gap:20px;
+}
+
+.card{
+background:white;
+padding:25px;
+border-radius:10px;
+box-shadow:0 5px 15px rgba(0,0,0,0.05);
+width:200px;
+text-align:center;
+}

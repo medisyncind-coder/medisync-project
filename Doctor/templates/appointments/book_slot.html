@@ -1,0 +1,101 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+
+<head>
+
+<title>Book Appointment</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<link rel="stylesheet" href="{% static 'Doctor/book_slot.css' %}">
+
+</head>
+
+
+<body>
+
+<div class="booking-card">
+
+<h1 class="page-title">Book Appointment</h1>
+
+<!-- Doctor Info -->
+
+<div class="doctor-section">
+
+<h2>Dr. {{ doctor.name }}</h2>
+
+<p>{{ doctor.specialization }}</p>
+
+</div>
+
+
+<!-- Slots -->
+
+{% if slots %}
+
+<div class="slots-container">
+
+{% for slot in slots %}
+
+<a href="{% url 'confirm_booking' doctor.id slot|time:'H:i:s' %}" class="slot-link">
+
+<div class="slot-btn">
+
+{{ slot|time:"g:i A" }}
+
+</div>
+
+</a>
+
+{% endfor %}
+
+</div>
+
+{% else %}
+
+<div class="no-slot">
+
+Doctor is not available today
+
+</div>
+
+{% endif %}
+
+
+<!-- Back Button -->
+
+<div class="back-btn">
+
+<a href="{% url 'doctor_detail' doctor.id %}">
+
+← Back to Doctor
+
+</a>
+
+</div>
+
+</div>
+
+
+<script>
+
+const slots = document.querySelectorAll(".slot-btn");
+
+slots.forEach(slot => {
+
+slot.addEventListener("click", function(){
+
+slots.forEach(s => s.classList.remove("selected"));
+
+this.classList.add("selected");
+
+});
+
+});
+
+</script>
+
+
+</body>
+</html>

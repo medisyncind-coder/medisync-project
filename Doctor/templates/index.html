@@ -15,10 +15,11 @@
             <a class="navbar-brand" href="#">MediSync</a>
             <ul class="navbar-links">
                 <li><a href="{% url 'lab_login' %}">LabsPortal</a></li>
+                <li><a href="{% url 'patient_login' %}">PatientPortal</a></li>
                 <li><a href="{% url 'doctor_dashboard' %}">DoctorPortal</a></li>
                 <li><a href="{% url 'doctor_page' %}">Doctors</a></li>
                 <li><a href="{% url 'lab_list' %}">Labs</a></li>
-                <li><a href="#">Appointments</a></li>
+                <li><a href="{% url 'patient_register' %}">Patient Register</a></li>
                 <li><a href="{% url 'doctor_register' %}">Doctor Register</a></li>
                 <li><a href="{% url 'lab_registration' %}">Lab Register</a></li>
                 <li><a href="#">Login</a></li>

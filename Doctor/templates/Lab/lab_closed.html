@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Lab Closed | MediSync</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+<style>
+
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+}
+
+body{
+font-family:'Poppins',sans-serif;
+background:linear-gradient(135deg,#2b4c7e,#355fa1);
+height:100vh;
+display:flex;
+justify-content:center;
+align-items:center;
+color:#333;
+}
+
+/* CARD */
+
+.closed-card{
+
+background:white;
+padding:60px;
+border-radius:14px;
+text-align:center;
+max-width:550px;
+width:90%;
+
+box-shadow:0 10px 40px rgba(0,0,0,0.2);
+
+animation:slideUp 0.7s ease;
+
+}
+
+/* ICON */
+
+.closed-icon{
+
+font-size:60px;
+margin-bottom:10px;
+animation:pulse 1.5s infinite;
+
+}
+
+/* TITLE */
+
+.closed-card h1{
+
+font-size:30px;
+color:#e74c3c;
+margin-bottom:10px;
+
+}
+
+/* TEXT */
+
+.closed-card p{
+
+font-size:15px;
+color:#555;
+margin-bottom:35px;
+line-height:1.6;
+
+}
+
+/* BUTTONS */
+
+.actions{
+
+display:flex;
+justify-content:center;
+gap:15px;
+flex-wrap:wrap;
+
+}
+
+.btn{
+
+padding:10px 20px;
+border-radius:8px;
+text-decoration:none;
+color:white;
+font-size:14px;
+transition:0.3s;
+
+}
+
+/* BUTTON COLORS */
+
+.btn-lab{
+background:#3498db;
+}
+
+.btn-lab:hover{
+background:#2c80b4;
+transform:translateY(-2px);
+}
+
+.btn-browse{
+background:#27ae60;
+}
+
+.btn-browse:hover{
+background:#219150;
+transform:translateY(-2px);
+}
+
+.btn-home{
+background:#8e44ad;
+}
+
+.btn-home:hover{
+background:#7a3795;
+transform:translateY(-2px);
+}
+
+/* ANIMATIONS */
+
+@keyframes slideUp{
+
+from{
+opacity:0;
+transform:translateY(40px);
+}
+
+to{
+opacity:1;
+transform:translateY(0);
+}
+
+}
+
+@keyframes pulse{
+
+0%{
+transform:scale(1);
+}
+
+50%{
+transform:scale(1.1);
+}
+
+100%{
+transform:scale(1);
+}
+
+}
+
+/* RESPONSIVE */
+
+@media(max-width:600px){
+
+.closed-card{
+padding:40px 25px;
+}
+
+.closed-card h1{
+font-size:24px;
+}
+
+}
+
+</style>
+
+</head>
+
+<body>
+
+
+<div class="closed-card">
+
+<div class="closed-icon">
+⚠️
+</div>
+
+<h1>Lab Closed for Bookings</h1>
+
+<p>
+Sorry! This lab is currently not accepting bookings.<br>
+Please try again later or choose another lab.
+</p>
+
+
+<div class="actions">
+
+<a href="{% url 'lab_detail' lab.id %}" class="btn btn-lab">
+← Back to Lab Details
+</a>
+
+<a href="{% url 'lab_list' %}" class="btn btn-browse">
+Browse Labs
+</a>
+
+<a href="{% url 'home' %}" class="btn btn-home">
+Go Home
+</a>
+
+</div>
+
+</div>
+
+
+<script>
+
+/* floating animation */
+
+const card = document.querySelector(".closed-card")
+
+setInterval(()=>{
+
+card.style.transform="translateY(-5px)"
+
+setTimeout(()=>{
+card.style.transform="translateY(0px)"
+},500)
+
+},2000)
+
+</script>
+
+</body>
+</html>

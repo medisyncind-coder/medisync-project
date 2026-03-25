@@ -1,0 +1,51 @@
+{% extends "Patient/base.html" %}
+
+{% block content %}
+
+<h2>📜 Past Appointments</h2>
+
+{% if appointments %}
+
+<table class="dark-table">
+    <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Date</th>
+        <th>Time</th>
+        <th>Status</th>
+    </tr>
+
+    {% for a in appointments %}
+    <tr>
+        <td>
+            {% if a.type == "Doctor" %}
+                👨‍⚕️ Doctor
+            {% else %}
+                🧪 Lab
+            {% endif %}
+        </td>
+        <td>{{ a.name }}</td>
+        <td>{{ a.date }}</td>
+        <td>{{ a.time }}</td>
+        <td>
+            <span class="status
+                {% if a.status == 'Completed' %}completed
+                {% elif a.status == 'Rejected' %}rejected
+                {% else %}pending
+                {% endif %}
+            ">
+                {{ a.status }}
+            </span>
+        </td>
+    </tr>
+    {% endfor %}
+
+</table>
+
+{% else %}
+
+<p>No past appointments found.</p>
+
+{% endif %}
+
+{% endblock %}

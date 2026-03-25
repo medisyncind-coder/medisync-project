@@ -1,0 +1,109 @@
+{% extends "LabPortal/base.html" %}
+{% block content %}
+
+<div class="profile-container">
+
+<h2>Edit Lab Profile</h2>
+
+<form method="POST" class="profile-form">
+{% csrf_token %}
+
+<div class="form-row">
+<input type="text" name="address" value="{{ lab.address }}" placeholder="Address">
+<input type="text" name="contact" value="{{ lab.contact_number }}" placeholder="Contact Number">
+</div>
+
+<div class="form-row">
+<input type="time" name="opening_time" value="{{ lab.opening_time }}">
+<input type="time" name="closing_time" value="{{ lab.closing_time }}">
+<input type="text" name="report_time" value="{{ lab.average_report_time }}" placeholder="Report Time">
+</div>
+
+<button type="submit" class="save-btn">Save Changes</button>
+
+</form>
+
+<hr>
+
+<h2>Manage Tests</h2>
+
+<div class="test-list">
+
+{% for t in lab_tests %}
+<div class="test-card">
+
+<h3>{{ t.test.name }}</h3>
+
+<form method="POST" action="{% url 'update_test_price' t.id %}">
+{% csrf_token %}
+<input type="number" name="price" value="{{ t.price }}">
+<button class="btn">Update</button>
+</form>
+
+<form method="POST" action="{% url 'toggle_test' t.id %}">
+{% csrf_token %}
+<button class="toggle-btn">
+{% if t.is_active %}
+Disable
+{% else %}
+Enable
+{% endif %}
+</button>
+</form>
+
+</div>
+{% endfor %}
+
+</div>
+
+<hr>
+
+<!-- ADD TEST SECTION -->
+<h2>Add Tests</h2>
+
+<form method="POST" action="{% url 'add_lab_tests' %}" class="add-test-form">
+{% csrf_token %}
+
+<div id="test-container">
+
+<div class="test-box">
+
+<select name="test_id[]">
+<option value="">Select Test</option>
+{% for test in all_tests %}
+<option value="{{ test.id }}">{{ test.name }}</option>
+{% endfor %}
+</select>
+
+<input type="text" name="custom_name[]" placeholder="Or Custom Test Name">
+
+<input type="text" name="description[]" placeholder="Description">
+
+<input type="number" name="price[]" placeholder="Price">
+
+</div>
+
+</div>
+
+<button type="button" onclick="addMore()" class="add-btn">+ Add More</button>
+
+<button type="submit" class="save-btn">Save Tests</button>
+
+</form>
+
+</div>
+
+<script>
+function addMore(){
+    let container = document.getElementById("test-container");
+
+    let box = document.querySelector(".test-box").cloneNode(true);
+
+    box.querySelectorAll("input").forEach(input => input.value = "");
+    box.querySelector("select").selectedIndex = 0;
+
+    container.appendChild(box);
+}
+</script>
+
+{% endblock %}

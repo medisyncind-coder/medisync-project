@@ -1,0 +1,135 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+
+<title>Lab Details | MediSync</title>
+
+<link rel="stylesheet" href="{% static 'Doctor/lab_detail.css' %}">
+
+<link rel="stylesheet"
+href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+</head>
+
+<body>
+
+<div class="top-nav">
+
+<a href="{% url 'home' %}" class="nav-btn">
+<i class="fa fa-home"></i> Home
+</a>
+
+<a href="{% url 'lab_list' %}" class="nav-btn">
+<i class="fa fa-flask"></i> Labs
+</a>
+
+</div>
+
+
+<div class="container fade-in">
+
+<!-- LAB CARD -->
+
+<div class="lab-card">
+
+<div class="lab-left">
+
+<div class="lab-icon">
+<i class="fa fa-flask"></i>
+</div>
+
+</div>
+
+
+<div class="lab-right">
+
+<h1>{{ lab.lab_name }}</h1>
+
+<div class="lab-tags">
+
+<span class="type">
+<i class="fa fa-layer-group"></i> {{ lab.lab_type }}
+</span>
+
+{% if lab.home_sample_collection %}
+<span class="badge">
+<i class="fa fa-home"></i> Home Collection
+</span>
+{% endif %}
+
+</div>
+
+<p><i class="fa fa-user"></i> Owner: {{ lab.owner_name }}</p>
+
+<p><i class="fa fa-map-marker-alt"></i> {{ lab.address }}, {{ lab.city }}</p>
+
+<p><i class="fa fa-phone"></i> {{ lab.contact_number }}</p>
+
+<p><i class="fa fa-clock"></i> {{ lab.opening_time }} - {{ lab.closing_time }}</p>
+
+<p><i class="fa fa-file-medical"></i> Report Time: {{ lab.average_report_time }}</p>
+
+</div>
+
+</div>
+
+
+<!-- TEST SECTION -->
+
+<div class="tests-section">
+
+<div class="test-header">
+<h2>Available Tests</h2>
+<span class="test-count">{{ total_tests }} Tests</span>
+</div>
+
+<div class="tests-grid">
+
+{% for test in tests %}
+
+<div class="test-card">
+
+<div class="test-icon">
+<i class="fa fa-vial"></i>
+</div>
+
+<!-- ✅ FIXED NAME -->
+<h3>
+    {% if test.test %}
+        {{ test.test.name }}
+    {% else %}
+        {{ test.custom_name }}
+    {% endif %}
+</h3>
+
+<!-- PRICE -->
+<p class="price">₹{{ test.price }}</p>
+
+<!-- OPTIONAL BADGE -->
+{% if not test.test %}
+<span class="custom-badge"></span>
+{% endif %}
+
+<a href="{% url 'lab_book_slot' lab.id test.id %}" class="btn">
+Book Slot
+</a>
+
+</div>
+
+{% empty %}
+
+<p>No tests available in this lab.</p>
+
+{% endfor %}
+
+</div>
+
+</div>
+
+</div>
+
+</body>
+</html>

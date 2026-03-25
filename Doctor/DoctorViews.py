@@ -5,13 +5,31 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.csrf import csrf_exempt
 from datetime import date
+from django.utils import timezone
+from datetime import datetime
 import random
 import string
 from accounts.models import User
 from accounts.emails import send_otp_via_email
-from .models import Doctor, Appointment, DoctorAvailability
-from .forms import DoctorRegistrationForm, AppointmentForm
+from appointments.models import *
+from .models import Doctor, DoctorAvailability, MedicalRecord
+from .forms import DoctorRegistrationForm
 
+
+
+from django.http import JsonResponse
+from appointments.models import Appointment
+
+def check_new_appointments(request):
+
+    doctor = Doctor.objects.get(user=request.user)
+
+    count = Appointment.objects.filter(
+        doctor=doctor,
+        status="Pending"
+    ).count()
+
+    return JsonResponse({"count": count})
 
 # ======================================================
 # 🔢 OTP GENERATOR
@@ -123,13 +141,23 @@ def verify_otp_page(request):
         try:
             user = User.objects.get(email=email)
 
+            # ✅ OTP MATCH
             if user.otp == otp:
                 user.is_verified = True
                 user.otp = None
                 user.save()
 
-                messages.success(request, "Doctor verified successfully")
-                return redirect('doctor_login')
+                # 🔥 LOGIN KARO YAHI PE
+                login(request, user)
+
+                # 🧹 session clean (optional but best)
+                request.session.pop('otp_email', None)
+
+                messages.success(request, "Doctor verified & logged in successfully")
+
+                # 🚀 DIRECT DASHBOARD
+                return redirect('DoctorPortsl/doctor_dashboard.html')
+
             else:
                 messages.error(request, "Invalid OTP")
 
@@ -137,8 +165,6 @@ def verify_otp_page(request):
             messages.error(request, "User not found")
 
     return render(request, 'Doctor/verify_otp_page.html')
-
-
 # ======================================================
 # 🔑 LOGIN
 # ======================================================
@@ -172,113 +198,258 @@ def do_doctor_login(request):
 # ======================================================
 @login_required
 def doctor_dashboard(request):
+
+    # Get logged-in doctor
     doctor = Doctor.objects.filter(user=request.user).first()
 
     if not doctor:
         messages.error(request, "Doctor profile not found.")
-        return redirect('doctor_login')
+        return redirect("doctor_login")
 
-    today = date.today()
+    # Today's date
+    today = timezone.now().date()
 
-    appointments = Appointment.objects.filter(
-        doctor_name=doctor.name,
-        preferred_date=today
+    # ==========================
+    # Today's Appointments
+    # ==========================
+    today_appointments = Appointment.objects.filter(
+        doctor=doctor,
+        appointment_date=today
     )
 
-    availability = DoctorAvailability.objects.filter(
+    # Active appointments
+    appointments = today_appointments.filter(
+        status__in=["Pending", "Approved"]
+    )
+
+    # Completed today
+    completed_today = today_appointments.filter(
+        status="Completed"
+    )
+
+    # ==========================
+    # Dashboard Statistics
+    # ==========================
+
+    # Pending Requests
+    pending_count = Appointment.objects.filter(
         doctor=doctor,
-        day=today.strftime("%A")
-    ).first()
+        status="Pending"
+    ).count()
 
-    return render(request, 'DoctorPortal/doctor_dashboard.html', {
-        'doctor': doctor,
-        'appointments': appointments,
-        'availability': availability,
-        'today': today
-    })
+    # Approved
+    approved_count = Appointment.objects.filter(
+        doctor=doctor,
+        status="Approved"
+    ).count()
+
+    # Completed
+    completed_count = Appointment.objects.filter(
+        doctor=doctor,
+        status="Completed"
+    ).count()
+
+    # Total patients (unique phone numbers)
+    total_patients = Appointment.objects.filter(
+        doctor=doctor
+    ).values('contact_number').distinct().count()
+
+    # Monthly earnings (example calculation)
+    monthly_completed = Appointment.objects.filter(
+        doctor=doctor,
+        status="Completed",
+        appointment_date__month=today.month
+    ).count()
+
+    consultation_fee = getattr(doctor, "consultation_fee", 500)
+
+    monthly_earnings = monthly_completed * consultation_fee
 
 
+    # ==========================
+    # Context Data
+    # ==========================
+
+    context = {
+
+        "doctor": doctor,
+
+        "today": today,
+
+        "appointments": appointments,
+
+        "completed_today": completed_today,
+
+        "pending_count": pending_count,
+
+        "approved_count": approved_count,
+
+        "completed_count": completed_count,
+
+        "total_patients": total_patients,
+
+        "monthly_earnings": monthly_earnings,
+
+    }
+
+    return render(request, "DoctorPortal/doctor_dashboard.html", context)
 # ======================================================
 # ⏰ SET AVAILABILITY
 # ======================================================
 @login_required
 def set_doctor_availability(request):
+
     doctor = get_object_or_404(Doctor, user=request.user)
 
     if request.method == "POST":
+
+        # checkbox value
+        is_available = request.POST.get("is_available") == "on"
+
+        # update or create availability
         DoctorAvailability.objects.update_or_create(
             doctor=doctor,
-            day=request.POST.get('day'),
             defaults={
-                'is_available': request.POST.get('is_available') == 'on',
-                'start_time': request.POST.get('start_time'),
-                'end_time': request.POST.get('end_time'),
-                'reason': request.POST.get('reason')
+                "is_available": is_available
             }
         )
-        messages.success(request, "Availability updated")
-        return redirect('doctor_dashboard')
 
-    return render(request, 'DoctorPortal/availability.html')
+        if is_available:
+            messages.success(request, "Doctor is now available for appointments.")
+        else:
+            messages.success(request, "Doctor marked as unavailable.")
 
+        return redirect("doctor_dashboard")
 
-# ======================================================
-# 📅 BOOK APPOINTMENT
-# ======================================================
+    availability = DoctorAvailability.objects.filter(doctor=doctor).first()
 
-def book_appointment(request, doctor_name, specialization):
-
-    if request.method == "POST":
-        form = AppointmentForm(request.POST)
-
-        if form.is_valid():
-            appointment = form.save(commit=False)
-
-            # Doctor Info
-            appointment.doctor_name = doctor_name
-            appointment.specialization = specialization
-
-            # Status & Booking ID
-            appointment.status = "Pending"
-            appointment.booking_id = generate_booking_id()
-
-            # 🔒 Prevent Double Booking (Same Doctor Same Date Time)
-            already_booked = Appointment.objects.filter(
-                doctor_name=doctor_name,
-                preferred_date=appointment.preferred_date,
-                preferred_time=appointment.preferred_time,
-                status__in=["Pending", "Approved"]
-            ).exists()
-
-            if already_booked:
-                messages.error(request, "This time slot is already booked.")
-                return render(request, 'Doctor/book_appointment.html', {
-                    'form': form,
-                    'doctor_name': doctor_name,
-                    'specialization': specialization
-                })
-
-            appointment.save()
-
-            messages.success(request, "Appointment booked successfully!")
-            return redirect('home')
-
-    else:
-        form = AppointmentForm()
-
-    return render(request, 'Doctor/book_appointment.html', {
-        'form': form,
-        'doctor_name': doctor_name,
-        'specialization': specialization
+    return render(request, "DoctorPortal/availability.html", {
+        "availability": availability
     })
 
-# ======================================================
-# 🔢 BOOKING ID GENERATOR
-# ======================================================
-def generate_booking_id():
-    return ''.join(
-        random.choices(string.ascii_uppercase + string.digits, k=8)
+# # ======================================================
+# # 📅 BOOK APPOINTMENT
+# # ======================================================
+
+@login_required
+def doctor_appointments(request):
+
+    doctor = Doctor.objects.filter(user=request.user).first()
+
+    if not doctor:
+        return render(request, "DoctorPortal/appointments.html", {
+            "appointments": []
+        })
+
+    # ✅ All appointments (including cancelled)
+    appointments = Appointment.objects.filter(
+        doctor=doctor
+    ).order_by('-created_at')
+
+    # ✅ STATUS COUNTS
+    pending_count = appointments.filter(status='Pending').count()
+    approved_count = appointments.filter(status='Approved').count()
+    completed_count = appointments.filter(status='Completed').count()
+    cancelled_count = appointments.filter(status='Cancelled').count()  # 🔥 NEW
+
+    context = {
+        "appointments": appointments,
+        "pending_count": pending_count,
+        "approved_count": approved_count,
+        "completed_count": completed_count,
+        "cancelled_count": cancelled_count,  # 🔥 NEW
+    }
+
+    return render(request, "DoctorPortal/appointments.html", context)
+
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib import messages
+from django.utils import timezone
+
+@login_required
+def doctor_patient_detail(request, appointment_id):
+
+    doctor = get_object_or_404(Doctor, user=request.user)
+
+    today = timezone.now().date()
+
+    # 🔒 ONLY TODAY APPOINTMENT ACCESS
+    appointment = get_object_or_404(
+        Appointment,
+        id=appointment_id,
+        doctor=doctor,
+        appointment_date=today
     )
+
+    patient = appointment.patient
+
+    # ================= SAVE PRESCRIPTION =================
+    if request.method == "POST":
+
+        medicine = request.POST.get("medicine")
+        dosage = request.POST.get("dosage")
+        instructions = request.POST.get("instructions")
+
+        # ✅ SAVE MEDICINE ENTRY
+        if medicine:
+            Prescription.objects.create(
+                appointment=appointment,
+                medicine=medicine,
+                dosage=dosage,
+                instructions=instructions
+            )
+
+        # ✅ SAVE FILE (OPTIONAL)
+        file = request.FILES.get("prescription_file")
+        if file:
+            appointment.prescription_file = file
+            appointment.save()
+
+        messages.success(request, "Prescription saved ✅")
+        return redirect("doctor_patient_detail", appointment_id=appointment.id)
+
+
+    # ================= PATIENT HISTORY =================
+
+    # 🧪 LAB REPORTS
+    lab_reports = LabAppointment.objects.filter(
+        patient=patient,
+        report_file__isnull=False
+    ).order_by("-appointment_date")
+
+    # 📁 USER UPLOADED RECORDS
+    records = MedicalRecord.objects.filter(
+        patient=patient
+    ).order_by("-uploaded_at")
+
+    # 💊 OLD PRESCRIPTIONS (EXCLUDE CURRENT)
+    past_appointments = Appointment.objects.filter(
+        patient=patient,
+        prescription_file__isnull=False
+    ).exclude(id=appointment.id).order_by("-appointment_date")
+
+    # 💊 CURRENT MEDICINES
+    prescriptions = appointment.prescriptions.all()
+
+
+    # ================= CONTEXT =================
+    context = {
+        "appointment": appointment,
+        "lab_reports": lab_reports,
+        "records": records,
+        "past_appointments": past_appointments,
+        "prescriptions": prescriptions,
+    }
+
+    return render(request, "DoctorPortal/patient_detail.html", context)
+# # ======================================================
+# # 🔢 BOOKING ID GENERATOR
+# # ======================================================
+# def generate_booking_id():
+#     return ''.join(
+#         random.choices(string.ascii_uppercase + string.digits, k=8)
+#     )
 
 
 # ======================================================
@@ -288,3 +459,170 @@ def doctor_logout(request):
     logout(request)
     messages.success(request, "Logged out successfully")
     return redirect('home')
+
+
+
+
+
+@login_required
+def approve_appointment(request, appointment_id):
+
+    appointment = get_object_or_404(Appointment, id=appointment_id)
+
+    appointment.status = "Approved"
+    appointment.save()
+
+    return redirect("doctor_appointments")
+
+
+@login_required
+def reject_appointment(request, appointment_id):
+
+    appointment = get_object_or_404(Appointment, id=appointment_id)
+
+    appointment.status = "Rejected"
+    appointment.save()
+
+    return redirect("doctor_appointments")
+
+
+
+@login_required
+def complete_appointment(request, appointment_id):
+
+    appointment = get_object_or_404(Appointment, id=appointment_id)
+
+    appointment.status = "Completed"
+    appointment.save()
+
+    return redirect("doctor_appointments")
+
+
+@login_required
+def doctor_patients(request):
+
+    doctor = Doctor.objects.get(user=request.user)
+
+    patients = Appointment.objects.filter(
+        doctor=doctor
+    ).order_by('-appointment_date')
+
+    return render(request,"DoctorPortal/patients.html",{
+        "patients":patients
+    })
+    
+@login_required
+def add_prescription(request, appointment_id):
+
+    doctor = get_object_or_404(Doctor, user=request.user)
+
+    appointment = get_object_or_404(
+        Appointment,
+        id=appointment_id,
+        doctor=doctor
+    )
+
+    if request.method == "POST":
+
+        medicine = request.POST.get("medicine")
+        dosage = request.POST.get("dosage")
+        instructions = request.POST.get("instructions")
+
+        # 🔥 Save medicine
+        Prescription.objects.create(
+            appointment=appointment,
+            medicine=medicine,
+            dosage=dosage,
+            instructions=instructions
+        )
+
+        # 🔥 File (optional)
+        file = request.FILES.get("prescription_file")
+        if file:
+            appointment.prescription_file = file
+            appointment.save()
+
+        messages.success(request, "Prescription added ✅")
+        return redirect("doctor_patient_detail", appointment_id=appointment.id)
+
+    return render(request, "DoctorPortal/add_prescription.html", {
+        "appointment": appointment
+    })
+    
+@login_required
+def doctor_payments(request):
+
+    payments = []   # you can connect payment model later
+
+    context = {
+        "payments": payments
+    }
+
+    return render(request, "DoctorPortal/payments.html", context)
+
+
+@login_required
+def doctor_notifications(request):
+
+    notifications = []   # later you can connect notification model
+
+    context = {
+        "notifications": notifications
+    }
+
+    return render(request, "DoctorPortal/notifications.html", context)
+
+
+@login_required
+def doctor_settings(request):
+
+    context = {}
+
+    return render(request, "DoctorPortal/settings.html", context)
+
+
+@login_required
+def doctor_profile_edit(request):
+
+    doctor = Doctor.objects.get(user=request.user)
+
+    if request.method == "POST":
+
+        # ❌ Ye fields change nahi honge
+        # doctor.name
+        # doctor.qualification
+        # doctor.clinic_name
+        # doctor.profile_photo
+
+        # ✅ Editable Fields
+        doctor.specialization = request.POST.get("specialization")
+        doctor.experience = request.POST.get("experience")
+        doctor.contact_number = request.POST.get("contact_number")
+
+        doctor.address = request.POST.get("address") or doctor.address
+
+        doctor.consultation_fee = request.POST.get("consultation_fee")
+
+        doctor.available_days = request.POST.getlist("available_days")
+
+        doctor.start_time = request.POST.get("start_time") or doctor.start_time
+        doctor.end_time = request.POST.get("end_time") or doctor.end_time
+
+        doctor.appointment_duration = request.POST.get("appointment_duration")
+
+        doctor.full_address = request.POST.get("full_address")
+        doctor.pincode = request.POST.get("pincode")
+        doctor.emergency_number = request.POST.get("emergency_number")
+
+        doctor.bio = request.POST.get("bio")
+        doctor.location_link = request.POST.get("location_link")
+
+        doctor.save()
+
+        return redirect("doctor_detail", id=doctor.id)
+
+    return render(request, "DoctorPortal/doctor_profile_edit.html", {"doctor": doctor})
+
+@login_required
+def doctor_lab_reports(request):
+    return render(request, "DoctorPortal/doctor_lab_reports.html")

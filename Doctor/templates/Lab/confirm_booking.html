@@ -1,0 +1,83 @@
+{% load static %}
+
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+<title>Confirm Lab Booking</title>
+
+<link rel="stylesheet" href="{% static 'Doctor/lab_booking.css' %}">
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+</head>
+
+<body>
+
+<div class="booking-container">
+
+<div class="booking-card">
+
+<h1>Confirm Booking</h1>
+
+<h2>{{ lab.lab_name }}</h2>
+
+<p class="test-name">{{ test.test.name }}</p>
+
+<p class="slot-time">
+
+Selected Time: <strong>{{ slot_time }}</strong>
+
+</p>
+
+<form method="POST">
+
+{% csrf_token %}
+
+<div class="form-grid">
+
+<input type="text" name="full_name" placeholder="Full Name" required>
+
+<input type="number" name="age" placeholder="Age" required>
+
+<select name="gender" required>
+<option value="">Gender</option>
+<option value="Male">Male</option>
+<option value="Female">Female</option>
+<option value="Other">Other</option>
+</select>
+
+<input type="text" name="contact_number" placeholder="Contact Number" required>
+
+<input type="email" name="email" placeholder="Email">
+
+<textarea name="address" placeholder="Address"></textarea>
+
+<textarea name="notes" placeholder="Additional Notes"></textarea>
+
+<select name="sample_collection">
+
+<option value="Lab Visit">Lab Visit</option>
+<option value="Home Collection">Home Sample Collection</option>
+
+</select>
+
+</div>
+
+<button type="submit" class="confirm-btn">
+
+Confirm Booking
+
+</button>
+
+</form>
+
+</div>
+
+</div>
+
+</body>
+</html>

@@ -1,0 +1,231 @@
+/* =============================
+GLOBAL
+============================= */
+
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+}
+
+body{
+font-family:'Poppins',sans-serif;
+background:linear-gradient(135deg,#1e3c72,#2a5298);
+min-height:100vh;
+display:flex;
+align-items:center;
+justify-content:center;
+animation:fadeIn 1s ease;
+}
+
+/* =============================
+CONTAINER
+============================= */
+
+.booking-container{
+width:100%;
+display:flex;
+justify-content:center;
+padding:30px;
+}
+
+/* =============================
+CARD
+============================= */
+
+.booking-card{
+background:white;
+padding:40px;
+border-radius:20px;
+width:900px;
+text-align:center;
+box-shadow:0 20px 40px rgba(0,0,0,0.25);
+animation:cardFloat 0.8s ease;
+}
+
+.booking-card h1{
+font-size:32px;
+margin-bottom:5px;
+}
+
+.booking-card h2{
+color:#555;
+margin-bottom:10px;
+}
+
+.test-name{
+color:#777;
+margin-bottom:30px;
+font-size:14px;
+}
+
+/* =============================
+SLOTS
+============================= */
+
+.slots{
+display:flex;
+flex-wrap:wrap;
+justify-content:center;
+gap:15px;
+margin-bottom:25px;
+}
+
+.slot-btn{
+padding:12px 30px;
+border-radius:30px;
+background:#eef2ff;
+text-decoration:none;
+color:#3b5bdb;
+font-weight:500;
+transition:all 0.3s ease;
+border:1px solid transparent;
+}
+
+/* slot hover animation */
+
+.slot-btn:hover{
+background:#3b5bdb;
+color:white;
+transform:translateY(-3px);
+box-shadow:0 5px 15px rgba(0,0,0,0.2);
+}
+
+/* =============================
+BACK BUTTON
+============================= */
+
+.back-btn{
+display:inline-block;
+margin-top:20px;
+color:white;
+background:#3b5bdb;
+padding:12px 35px;
+border-radius:30px;
+text-decoration:none;
+transition:0.3s;
+}
+
+.back-btn:hover{
+background:#2743c7;
+transform:scale(1.05);
+}
+
+/* =============================
+FORM
+============================= */
+
+.form-grid{
+display:grid;
+grid-template-columns:1fr 1fr;
+gap:18px;
+margin-top:20px;
+}
+
+.form-grid input,
+.form-grid select,
+.form-grid textarea{
+padding:12px;
+border-radius:8px;
+border:1px solid #ccc;
+font-size:14px;
+transition:0.3s;
+}
+
+/* input focus animation */
+
+.form-grid input:focus,
+.form-grid select:focus,
+.form-grid textarea:focus{
+outline:none;
+border-color:#3b5bdb;
+box-shadow:0 0 5px rgba(59,91,219,0.5);
+transform:scale(1.02);
+}
+
+/* textarea full width */
+
+.form-grid textarea{
+grid-column:span 2;
+}
+
+/* =============================
+CONFIRM BUTTON
+============================= */
+
+.confirm-btn{
+margin-top:25px;
+padding:14px 45px;
+border:none;
+background:#3b5bdb;
+color:white;
+font-size:16px;
+border-radius:30px;
+cursor:pointer;
+transition:all 0.3s ease;
+}
+
+/* button hover */
+
+.confirm-btn:hover{
+background:#2743c7;
+transform:translateY(-2px);
+box-shadow:0 5px 15px rgba(0,0,0,0.2);
+}
+
+/* =============================
+ANIMATIONS
+============================= */
+
+@keyframes fadeIn{
+
+from{
+opacity:0;
+transform:translateY(10px);
+}
+
+to{
+opacity:1;
+transform:translateY(0);
+}
+
+}
+
+@keyframes cardFloat{
+
+from{
+opacity:0;
+transform:translateY(40px);
+}
+
+to{
+opacity:1;
+transform:translateY(0);
+}
+
+}
+
+/* =============================
+RESPONSIVE
+============================= */
+
+@media(max-width:768px){
+
+.booking-card{
+width:100%;
+padding:25px;
+}
+
+.form-grid{
+grid-template-columns:1fr;
+}
+
+.form-grid textarea{
+grid-column:span 1;
+}
+
+.slots{
+gap:10px;
+}
+
+}

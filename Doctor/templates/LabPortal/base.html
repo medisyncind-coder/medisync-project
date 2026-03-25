@@ -1,0 +1,112 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MediSync Lab Portal</title>  
+
+<link rel="stylesheet" href="{% static 'Doctor/lab_dashboard.css' %}">
+
+<link rel="stylesheet"
+href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+</head>
+
+<body>
+
+<div class="container">
+
+<!-- SIDEBAR -->
+
+<div class="sidebar">
+
+<h2>MediSync Lab</h2>
+
+<ul>
+
+<li>
+<a href="{% url 'home' %}">
+<i class="fa fa-home"></i> Home
+</a>
+</li>
+
+<li>
+<a href="{% url 'lab_dashboard' %}">
+<i class="fa fa-chart-pie"></i> Dashboard
+</a>
+</li>
+
+<li>
+<a href="{% url 'lab_bookings' %}">
+<i class="fa fa-calendar-check"></i> Bookings
+</a>
+</li>
+
+<li>
+<a href="{% url 'lab_reports' %}">
+<i class="fa fa-file-medical-alt"></i> Reports
+</a>
+</li>
+
+<li>
+<a href="{% url 'lab_services' %}">
+<i class="fa fa-flask"></i> Lab Services
+</a>
+</li>
+
+<li>
+<a href="{% url 'lab_availability' %}">
+<i class="fa fa-toggle-on"></i> Availability
+</a>
+</li>
+
+<!-- NEW: Edit Profile (Working Hours removed) -->
+<li>
+<a href="{% url 'lab_edit_profile' %}">
+<i class="fa fa-user-edit"></i> Edit Profile
+</a>
+</li>
+
+<li>
+<a href="{% url 'lab_logout' %}">
+<i class="fa fa-sign-out-alt"></i> Logout
+</a>
+</li>
+
+</ul>
+
+</div>
+
+<!-- MAIN -->
+
+<div class="main">
+
+<div class="topbar">
+
+<h1>Lab Portal</h1>
+
+<div class="icons">
+<i class="fa fa-bell"></i> 
+<i class="fa fa-user-circle"></i>
+</div>
+
+</div>
+
+<div class="content">
+
+{% block content %}
+
+{% endblock %}
+
+</div>
+
+</div>
+
+</div>
+
+</body>
+</html>

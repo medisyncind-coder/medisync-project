@@ -1,0 +1,29 @@
+{% extends 'DoctorPortal/base.html' %}
+{% load static %}
+
+{% block content %}
+
+<link rel="stylesheet" href="{% static 'Doctor/notifications.css' %}">
+
+<div class="notifications-container">
+
+<h2>Notifications</h2>
+
+<ul class="notification-list">
+
+{% for n in notifications %}
+
+<li>
+
+<p>{{ n.message }}</p>
+<span>{{ n.created_at }}</span>
+
+</li>
+
+{% endfor %}
+
+</ul>
+
+</div>
+
+{% endblock %}

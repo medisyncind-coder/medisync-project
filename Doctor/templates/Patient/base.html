@@ -1,0 +1,212 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>{% block title %}MediSync{% endblock %}</title>
+
+<link rel="stylesheet" href="{% static 'Doctor/patient_base.css' %}">
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+<style>
+
+/* ===== AVATAR IMAGE ===== */
+.avatar-img{
+    width:70px;
+    height:70px;
+    border-radius:50%;
+    object-fit:cover;
+    border:3px solid #3b82f6;
+}
+
+/* HEADER SMALL AVATAR */
+.header-avatar-img{
+    width:45px;
+    height:45px;
+    border-radius:50%;
+    object-fit:cover;
+    border:2px solid #3b82f6;
+}
+
+/* FALLBACK TEXT AVATAR */
+.avatar-text{
+    width:70px;
+    height:70px;
+    border-radius:50%;
+    background:#3b82f6;
+    color:#fff;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-weight:600;
+}
+
+.header-avatar-text{
+    width:45px;
+    height:45px;
+    border-radius:50%;
+    background:#3b82f6;
+    color:#fff;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-weight:600;
+    font-size:14px;
+}
+
+</style>
+
+</head>
+<body>
+
+<div class="container">
+
+<!-- ================= SIDEBAR ================= -->
+<div class="sidebar">
+
+    <h2>MediSync</h2>
+
+    <!-- PROFILE -->
+    <div class="sidebar-profile">
+
+        {% if request.user.patient_profile.profile_photo %}
+            <img src="{{ request.user.patient_profile.profile_photo.url }}" class="avatar-img">
+        {% else %}
+            <div class="avatar-text">
+                {{ request.user.email|slice:":2"|upper }}
+            </div>
+        {% endif %}
+
+        <h3>{{ request.user.patient_profile.name|title }}</h3>
+    </div>
+
+    <!-- MENU -->
+
+    <a href="{% url 'home' %}">
+        <i class="fa fa-house"></i> Home
+    </a>
+
+    <a href="{% url 'patient_dashboard' %}">
+        <i class="fa fa-chart-line"></i> Dashboard
+    </a>
+
+    <a href="{% url 'past_appointments' %}">
+        <i class="fa fa-clock-rotate-left"></i> Appointments History
+    </a>
+
+    <a href="{% url 'my_bookings' %}">
+        <i class="fa fa-calendar-check"></i> My Bookings
+    </a>
+
+    <a href="{% url 'patient_reports' %}">
+        <i class="fa fa-file-medical"></i> Reports
+    </a>
+
+    <a href="{% url 'user_profile' %}">
+        <i class="fa fa-user-pen"></i> Edit Profile
+    </a>
+
+    <a href="{% url 'user_logout' %}">
+        <i class="fa fa-right-from-bracket"></i> Logout
+    </a>
+
+</div>
+
+<!-- ================= MAIN ================= -->
+<div class="main">
+
+    <!-- HEADER -->
+    <div class="header">
+
+        <!-- LEFT -->
+        <div class="header-left">
+            <h1>{% block page_title %}Dashboard{% endblock %}</h1>
+
+            <div class="search-box">
+                <input type="text" placeholder="Search doctors, labs...">
+                <i class="fa fa-search"></i>
+            </div>
+        </div>
+
+        <!-- RIGHT -->
+        <div class="header-right">
+
+            <!-- NOTIFICATION -->
+            <div class="notification-icon">
+                <i class="fa fa-bell"></i>
+                <span class="badge">3</span>
+            </div>
+
+            <!-- PROFILE -->
+            <div class="header-profile">
+
+                {% if request.user.patient_profile.profile_photo %}
+                    <img src="{{ request.user.patient_profile.profile_photo.url }}" class="header-avatar-img">
+                {% else %}
+                    <div class="header-avatar-text">
+                        {{ request.user.email|slice:":2"|upper }}
+                    </div>
+                {% endif %}
+
+                <div>
+                    <strong>{{ request.user.patient_profile.name|title }}</strong><br>
+                    <small>{{ request.user.email }}</small>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- QUICK ACTIONS -->
+    <div class="quick-actions">
+
+        <a href="{% url 'doctor_page' %}" class="action-btn">
+            <i class="fa fa-user-md"></i> Book Appointment
+        </a>
+
+        <a href="{% url 'lab_list' %}" class="action-btn">
+            <i class="fa fa-flask"></i> Book Lab Test
+        </a>
+
+        <a href="{% url 'patient_reports' %}" class="action-btn">
+            <i class="fa fa-file-medical"></i> View Reports
+        </a>
+
+    </div>
+
+    <!-- CONTENT -->
+    <div class="content">
+        {% block content %}
+        {% endblock %}
+    </div>
+
+</div>
+
+</div>
+
+<script>
+window.onload = () => {
+    const cards = document.querySelectorAll('.card');
+
+    cards.forEach((card, index) => {
+        card.style.opacity = 0;
+        card.style.transform = "translateY(20px)";
+
+        setTimeout(() => {
+            card.style.transition = "0.4s ease";
+            card.style.opacity = 1;
+            card.style.transform = "translateY(0)";
+        }, index * 150);
+    });
+};
+</script>
+
+</body>
+</html>

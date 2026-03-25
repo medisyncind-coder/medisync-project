@@ -7,70 +7,155 @@
 
 <div class="dashboard-container">
 
-    <!-- ================= STATS CARDS ================= -->
-    <div class="stats-grid fade-in">
+<!-- ================= HEADER ================= -->
 
-        <div class="stat-card">
-            <div class="stat-info">
-                <h4>Today's Appointments</h4>
-                <h2>{{ appointments|length }}</h2>
-            </div>
-            <div class="stat-icon">📅</div>
-        </div>
-
-        <div class="stat-card">
-            <div class="stat-info">
-                <h4>Specialization</h4>
-                <h2>{{ doctor.specialization }}</h2>
-            </div>
-            <div class="stat-icon">🩺</div>
-        </div>
-
-        <div class="stat-card">
-            <div class="stat-info">
-                <h4>Date</h4>
-                <h2>{{ today }}</h2>
-            </div>
-            <div class="stat-icon">📆</div>
-        </div>
-
-    </div>
+<div class="dashboard-header">
+<h2>Welcome Dr. {{ doctor.name }}</h2>
+<p>Here is your activity overview for today</p>
+</div>
 
 
-    <!-- ================= APPOINTMENTS SECTION ================= -->
-    <div class="appointments-section slide-up">
-        <div class="section-header">
-            <h2>Today's Appointments</h2>
-        </div>
+<!-- ================= STATS CARDS ================= -->
 
-        {% if appointments %}
-        <div class="appointments-grid">
-            {% for a in appointments %}
-            <div class="appointment-card">
-                <div class="patient-avatar">
-                    {{ a.full_name|first }}
-                </div>
+<div class="stats-grid">
 
-                <div class="appointment-details">
-                    <h3>{{ a.full_name }}</h3>
-                    <p><strong>Time:</strong> {{ a.preferred_time }}</p>
-                    <p><strong>Contact:</strong> {{ a.contact_number }}</p>
-                </div>
+<div class="stat-card">
 
-                <div class="appointment-actions">
-                    <button class="btn accept">Accept</button>
-                    <button class="btn reject">Decline</button>
-                </div>
-            </div>
-            {% endfor %}
-        </div>
-        {% else %}
-        <div class="no-appointment">
-            <p>No appointments scheduled for today</p>
-        </div>
-        {% endif %}
-    </div>
+<div class="stat-icon">📅</div>
+
+<div class="stat-info">
+<h4>Today's Appointments</h4>
+<h2>{{ appointments|length }}</h2>
+</div>
 
 </div>
+
+
+<div class="stat-card">
+
+<div class="stat-icon">🩺</div>
+
+<div class="stat-info">
+<h4>Specialization</h4>
+<h2>{{ doctor.specialization }}</h2>
+</div>
+
+</div>
+
+
+<div class="stat-card">
+
+<div class="stat-icon">📆</div>
+
+<div class="stat-info">
+<h4>Date</h4>
+<h2>{{ today }}</h2>
+</div>
+
+</div>
+
+</div>
+
+
+
+<!-- ================= APPOINTMENTS SECTION ================= -->
+
+<div class="appointments-section">
+
+<div class="section-header">
+<h2>Today's Appointments</h2>
+</div>
+
+
+{% if appointments %}
+
+<div class="appointments-grid">
+
+{% for a in appointments %}
+
+<div class="appointment-card">
+
+<div class="patient-avatar">
+{{ a.full_name|default:"P"|first|upper }}
+</div>
+
+
+<div class="appointment-details">
+
+<h3>{{ a.full_name }}</h3>
+
+<div class="meta">
+
+<p><strong>Time:</strong> {{ a.preferred_time }}</p>
+<p><strong>Contact:</strong> {{ a.contact_number }}</p>
+
+</div>
+
+<p>
+
+<strong>Status:</strong>
+
+<span class="status {{ a.status|lower }}">
+{{ a.status }}
+</span>
+
+</p>
+
+</div>
+
+
+<div class="appointment-actions">
+
+<a href="{% url 'approve_appointment' a.id %}" class="btn accept">
+Accept
+</a>
+
+<a href="{% url 'reject_appointment' a.id %}" class="btn reject">
+Decline
+</a>
+
+</div>
+
+</div>
+
+{% endfor %}
+
+</div>
+
+{% else %}
+
+<div class="empty-card">
+<p>No appointments scheduled for today</p>
+</div>
+
+{% endif %}
+
+</div>
+
+</div>
+
+
+<script>
+
+document.addEventListener("DOMContentLoaded",()=>{
+
+const cards = document.querySelectorAll(".appointment-card")
+
+cards.forEach((card,index)=>{
+
+card.style.opacity="0"
+card.style.transform="translateY(20px)"
+
+setTimeout(()=>{
+card.style.transition="0.4s"
+card.style.opacity="1"
+card.style.transform="translateY(0)"
+},index*120)
+
+})
+
+})
+
+</script>
 
 {% endblock %}

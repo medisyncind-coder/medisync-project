@@ -1,0 +1,25 @@
+.settings-container{
+padding:30px;
+max-width:400px;
+}
+
+.settings-container form{
+display:flex;
+flex-direction:column;
+gap:10px;
+}
+
+.settings-container input{
+padding:10px;
+border-radius:6px;
+border:1px solid #ddd;
+}
+
+.settings-container button{
+background:#2563eb;
+color:white;
+border:none;
+padding:10px;
+border-radius:6px;
+cursor:pointer;
+}

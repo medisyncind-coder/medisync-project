@@ -1,0 +1,279 @@
+{% extends "Patient/base.html" %}
+{% load static %}
+
+{% block content %}
+
+<style>
+body{
+    background:#f1f5f9;
+}
+
+/* CONTAINER */
+.profile-container{
+    max-width:1100px;
+    margin:40px auto;
+    background:#ffffff;
+    padding:35px;
+    border-radius:18px;
+    box-shadow:0 10px 25px rgba(0,0,0,0.08);
+}
+
+/* HEADER */
+.profile-header{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:25px;
+}
+
+.profile-header h2{
+    font-weight:600;
+    color:#1e293b;
+}
+
+/* BUTTON */
+.edit-btn{
+    background:#3b82f6;
+    color:#fff;
+    border:none;
+    padding:10px 18px;
+    border-radius:8px;
+    cursor:pointer;
+    transition:0.3s;
+}
+.edit-btn:hover{
+    background:#2563eb;
+}
+
+/* FORM */
+.profile-form{
+    display:flex;
+    gap:40px;
+}
+
+/* IMAGE */
+.profile-image{
+    width:30%;
+    text-align:center;
+}
+
+.profile-image img{
+    width:140px;
+    height:140px;
+    border-radius:50%;
+    border:4px solid #3b82f6;
+    object-fit:cover;
+    transition:0.3s;
+}
+.profile-image img:hover{
+    transform:scale(1.05);
+}
+
+.profile-image input{
+    margin-top:15px;
+}
+
+/* FIELDS */
+.profile-fields{
+    width:70%;
+}
+
+.grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:18px;
+}
+
+.input-group{
+    display:flex;
+    flex-direction:column;
+}
+
+.input-group label{
+    font-size:14px;
+    color:#64748b;
+    margin-bottom:5px;
+}
+
+/* INPUT STYLE */
+.input-group input,
+textarea,
+select{
+    padding:12px;
+    border:1px solid #e2e8f0;
+    border-radius:10px;
+    background:#f8fafc;
+    transition:0.3s;
+}
+
+.input-group input:focus,
+textarea:focus,
+select:focus{
+    border-color:#3b82f6;
+    outline:none;
+    background:#fff;
+}
+
+/* TEXTAREA */
+textarea{
+    resize:none;
+}
+
+/* SAVE BUTTON */
+.save-btn{
+    margin-top:25px;
+    padding:14px;
+    width:100%;
+    background:#10b981;
+    color:#fff;
+    border:none;
+    border-radius:10px;
+    font-size:16px;
+    font-weight:500;
+    display:none;
+    transition:0.3s;
+}
+.save-btn:hover{
+    background:#059669;
+}
+
+/* RESPONSIVE */
+@media(max-width:768px){
+    .profile-form{
+        flex-direction:column;
+    }
+    .profile-image,
+    .profile-fields{
+        width:100%;
+    }
+    .grid{
+        grid-template-columns:1fr;
+    }
+}
+</style>
+
+<div class="profile-container">
+
+<!-- HEADER -->
+<div class="profile-header">
+    <h2>My Profile</h2>
+    <button class="edit-btn" onclick="enableEdit()">Edit Profile</button>
+</div>
+
+<form method="POST" enctype="multipart/form-data">
+{% csrf_token %}
+
+<div class="profile-form">
+
+<!-- IMAGE -->
+<div class="profile-image">
+{% if patient.profile_photo %}
+<img src="{{ patient.profile_photo.url }}">
+{% else %}
+<img src="https://ui-avatars.com/api/?name={{ patient.name }}">
+{% endif %}
+
+<input type="file" name="profile_image" id="img" disabled>
+</div>
+
+<!-- FIELDS -->
+<div class="profile-fields">
+
+<div class="grid">
+
+<div class="input-group">
+<label>Name</label>
+<input type="text" value="{{ patient.name }}" readonly>
+</div>
+
+<div class="input-group">
+<label>Email</label>
+<input type="email" value="{{ user.email }}" readonly>
+</div>
+
+<div class="input-group">
+<label>Phone</label>
+<input type="text" name="phone" value="{{ patient.phone|default:'' }}" readonly>
+</div>
+
+<div class="input-group">
+<label>Date of Birth</label>
+<input type="date" name="dob" value="{{ patient.date_of_birth|date:'Y-m-d' }}" readonly>
+</div>
+
+<div class="input-group">
+<label>Gender</label>
+<select name="gender" disabled>
+<option value="Male" {% if patient.gender == "Male" %}selected{% endif %}>Male</option>
+<option value="Female" {% if patient.gender == "Female" %}selected{% endif %}>Female</option>
+<option value="Other" {% if patient.gender == "Other" %}selected{% endif %}>Other</option>
+</select>
+</div>
+
+<div class="input-group">
+<label>Blood Group</label>
+<input type="text" name="blood_group" value="{{ patient.blood_group|default:'' }}" readonly>
+</div>
+
+</div>
+
+<div class="input-group">
+<label>Address</label>
+<textarea name="address" readonly>{{ patient.address|default:'' }}</textarea>
+</div>
+
+<div class="input-group">
+<label>Full Address</label>
+<textarea name="full_address" readonly>{{ patient.full_address|default:'' }}</textarea>
+</div>
+
+<div class="grid">
+
+<div class="input-group">
+<label>Pincode</label>
+<input type="text" name="pincode" value="{{ patient.pincode|default:'' }}" readonly>
+</div>
+
+<div class="input-group">
+<label>Emergency Contact</label>
+<input type="text" name="emergency_contact" value="{{ patient.emergency_contact|default:'' }}" readonly>
+</div>
+
+</div>
+
+<div class="input-group">
+<label>Allergies</label>
+<textarea name="allergies" readonly>{{ patient.allergies|default:'' }}</textarea>
+</div>
+
+<div class="input-group">
+<label>Medical Conditions</label>
+<textarea name="medical_conditions" readonly>{{ patient.medical_conditions|default:'' }}</textarea>
+</div>
+
+<button type="submit" class="save-btn" id="saveBtn">Save Changes</button>
+
+</div>
+</div>
+
+</form>
+
+</div>
+
+<script>
+function enableEdit(){
+    document.querySelectorAll("input, textarea").forEach(el=>{
+        el.removeAttribute("readonly");
+    });
+
+    document.querySelectorAll("select").forEach(el=>{
+        el.removeAttribute("disabled");
+    });
+
+    document.getElementById("img").removeAttribute("disabled");
+
+    document.getElementById("saveBtn").style.display="block";
+}
+</script>
+
+{% endblock %}

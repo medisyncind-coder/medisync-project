@@ -1,173 +1,318 @@
 {% load static %}
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
+
 <meta charset="UTF-8">
 <title>Lab Registration | MediSync</title>
+
 <link rel="stylesheet" href="{% static 'Doctor/lab_styles.css' %}">
+
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+
 </head>
+
 <body>
 
 <div class="page-wrapper">
 
-    <div class="form-card fade-in">
+<div class="form-card fade-in">
 
-        <div class="form-header">
-            <h1>Register Diagnostic Lab</h1>
-            <p>Join MediSync & manage test bookings professionally</p>
-        </div>
+<div class="form-header">
+<h1>Register Diagnostic Lab</h1>
+<p>Join MediSync & manage your lab professionally</p>
+</div>
 
-        <form method="POST" enctype="multipart/form-data">
-            {% csrf_token %}
 
-            <!-- ================= AUTH SECTION ================= -->
-            <div class="section-title">Account Credentials</div>
-            <div class="form-grid">
+<form method="POST" enctype="multipart/form-data">
 
-                <div class="form-group">
-                    {{ form.email.label_tag }}
-                    {{ form.email }}
-                    {{ form.email.errors }}
-                </div>
+{% csrf_token %}
 
-                <div class="form-group">
-                    {{ form.password.label_tag }}
-                    {{ form.password }}
-                    {{ form.password.errors }}
-                </div>
+<!-- ACCOUNT -->
 
-                <div class="form-group">
-                    {{ form.confirm_password.label_tag }}
-                    {{ form.confirm_password }}
-                    {{ form.confirm_password.errors }}
-                </div>
+<h3 class="section-title">Account Credentials</h3>
 
-            </div>
+<div class="form-grid">
 
-            <!-- ================= BASIC INFO ================= -->
-            <div class="section-title">Basic Information</div>
-            <div class="form-grid">
+<div class="form-group">
+{{ form.email.label_tag }}
+{{ form.email }}
+</div>
 
-                <div class="form-group">
-                    {{ form.lab_name.label_tag }}
-                    {{ form.lab_name }}
-                    {{ form.lab_name.errors }}
-                </div>
+<div class="form-group">
+{{ form.password.label_tag }}
+{{ form.password }}
+</div>
 
-                <div class="form-group">
-                    {{ form.owner_name.label_tag }}
-                    {{ form.owner_name }}
-                    {{ form.owner_name.errors }}
-                </div>
-
-                <div class="form-group">
-                    {{ form.registration_number.label_tag }}
-                    {{ form.registration_number }}
-                    {{ form.registration_number.errors }}
-                </div>
-
-                <div class="form-group">
-                    {{ form.contact_number.label_tag }}
-                    {{ form.contact_number }}
-                    {{ form.contact_number.errors }}
-                </div>
-
-                <div class="form-group">
-                    {{ form.emergency_number.label_tag }}
-                    {{ form.emergency_number }}
-                    {{ form.emergency_number.errors }}
-                </div>
-
-            </div>
-
-            <!-- ================= ADDRESS ================= -->
-            <div class="section-title">Address Information</div>
-            <div class="form-grid">
-
-                <div class="form-group">
-                    {{ form.address.label_tag }}
-                    {{ form.address }}
-                    {{ form.address.errors }}
-                </div>
-
-                <div class="form-group">
-                    {{ form.city.label_tag }}
-                    {{ form.city }}
-                    {{ form.city.errors }}
-                </div>
-
-                <div class="form-group">
-                    {{ form.state.label_tag }}
-                    {{ form.state }}
-                    {{ form.state.errors }}
-                </div>
-
-                <div class="form-group">
-                    {{ form.pincode.label_tag }}
-                    {{ form.pincode }}
-                    {{ form.pincode.errors }}
-                </div>
-
-            </div>
-
-            <!-- ================= OPERATIONS ================= -->
-            <div class="section-title">Operational Details</div>
-            <div class="form-grid">
-
-                <div class="form-group">
-                    {{ form.lab_type.label_tag }}
-                    {{ form.lab_type }}
-                    {{ form.lab_type.errors }}
-                </div>
-
-                <div class="form-group checkbox-group">
-                    <label>
-                        {{ form.home_sample_collection }}
-                        Home Sample Collection
-                    </label>
-                </div>
-
-                <div class="form-group">
-                    {{ form.operating_days.label_tag }}
-                    {{ form.operating_days }}
-                    {{ form.operating_days.errors }}
-                </div>
-
-                <div class="form-group">
-                    {{ form.opening_time.label_tag }}
-                    {{ form.opening_time }}
-                    {{ form.opening_time.errors }}
-                </div>
-
-                <div class="form-group">
-                    {{ form.closing_time.label_tag }}
-                    {{ form.closing_time }}
-                    {{ form.closing_time.errors }}
-                </div>
-
-                <div class="form-group">
-                    {{ form.average_report_time.label_tag }}
-                    {{ form.average_report_time }}
-                    {{ form.average_report_time.errors }}
-                </div>
-
-            </div>
-
-            <button type="submit" class="submit-btn">
-                Register & Send OTP
-            </button>
-
-        </form>
-
-    </div>
+<div class="form-group">
+{{ form.confirm_password.label_tag }}
+{{ form.confirm_password }}
+</div>
 
 </div>
 
+
+<!-- BASIC -->
+
+<h3 class="section-title">Basic Information</h3>
+
+<div class="form-grid">
+
+<div class="form-group">
+{{ form.lab_name.label_tag }}
+{{ form.lab_name }}
+</div>
+
+<div class="form-group">
+{{ form.owner_name.label_tag }}
+{{ form.owner_name }}
+</div>
+
+<div class="form-group">
+{{ form.registration_number.label_tag }}
+{{ form.registration_number }}
+</div>
+
+<div class="form-group">
+{{ form.contact_number.label_tag }}
+{{ form.contact_number }}
+</div>
+
+<div class="form-group">
+{{ form.emergency_number.label_tag }}
+{{ form.emergency_number }}
+</div>
+
+</div>
+
+
+<!-- ADDRESS -->
+
+<h3 class="section-title">Address Information</h3>
+
+<div class="form-grid">
+
+<div class="form-group">
+{{ form.address.label_tag }}
+{{ form.address }}
+</div>
+
+<div class="form-group">
+{{ form.city.label_tag }}
+{{ form.city }}
+</div>
+
+<div class="form-group">
+{{ form.state.label_tag }}
+{{ form.state }}
+</div>
+
+<div class="form-group">
+{{ form.pincode.label_tag }}
+{{ form.pincode }}
+</div>
+
+</div>
+
+
+<!-- OPERATION -->
+
+<h3 class="section-title">Operational Details</h3>
+
+<div class="form-grid">
+
+<div class="form-group">
+{{ form.lab_type.label_tag }}
+{{ form.lab_type }}
+</div>
+
+<div class="form-group checkbox">
+<label>
+{{ form.home_sample_collection }}
+Home Sample Collection Available
+</label>
+</div>
+
+</div>
+
+
+<!-- OPERATING DAYS -->
+
+<div class="form-group">
+
+<label>Operating Days</label>
+
+<div class="days-grid">
+
+{% for checkbox in form.operating_days %}
+
+<label class="day-option">
+
+{{ checkbox.tag }}
+
+{{ checkbox.choice_label }}
+
+</label>
+
+{% endfor %}
+
+</div>
+
+</div>
+
+
+<div class="form-grid">
+
+<div class="form-group">
+{{ form.opening_time.label_tag }}
+{{ form.opening_time }}
+</div>
+
+<div class="form-group">
+{{ form.closing_time.label_tag }}
+{{ form.closing_time }}
+</div>
+
+<div class="form-group">
+{{ form.average_report_time.label_tag }}
+{{ form.average_report_time }}
+</div>
+
+</div>
+
+
+<!-- TEST SECTION -->
+
+<h3 class="section-title">Lab Tests & Price</h3>
+
+<div id="tests-container">
+
+<div class="test-row">
+
+<select name="test_id[]" class="form-control">
+
+<option value="">Select Test</option>
+
+{% for test in tests %}
+<option value="{{ test.id }}">{{ test.name }}</option>
+{% endfor %}
+
+</select>
+
+<input type="number" name="test_price[]" placeholder="Price ₹">
+
+<button type="button" class="remove-btn" onclick="removeTest(this)">✖</button>
+
+</div>
+
+</div>
+
+
+<button type="button" class="add-test-btn" onclick="addTest()">
++ Add Another Test
+</button>
+
+
+<!-- CUSTOM TEST -->
+
+<h3 class="section-title">Add Custom Test</h3>
+
+<div id="custom-tests">
+
+<div class="test-row">
+
+<input type="text" name="custom_test_name[]" placeholder="Test Name">
+
+<input type="number" name="custom_test_price[]" placeholder="Price ₹">
+
+<button type="button" class="remove-btn" onclick="removeTest(this)">✖</button>
+
+</div>
+
+</div>
+
+<button type="button" class="add-test-btn" onclick="addCustomTest()">
++ Add Custom Test
+</button>
+
+
+<!-- SUBMIT -->
+
+<button type="submit" class="submit-btn">
+Register Lab & Send OTP
+</button>
+
+
+</form>
+
+</div>
+
+</div>
+
+
 <script>
-document.addEventListener("DOMContentLoaded", function() {
-    document.querySelector(".fade-in").classList.add("show");
-});
+
+function addTest(){
+
+let container = document.getElementById("tests-container")
+
+let row = document.createElement("div")
+
+row.classList.add("test-row")
+
+row.innerHTML = `
+
+<select name="test_id[]" class="form-control">
+
+<option value="">Select Test</option>
+
+{% for test in tests %}
+<option value="{{ test.id }}">{{ test.name }}</option>
+{% endfor %}
+
+</select>
+
+<input type="number" name="test_price[]" placeholder="Price ₹">
+
+<button type="button" class="remove-btn" onclick="removeTest(this)">✖</button>
+
+`
+
+container.appendChild(row)
+
+}
+
+function addCustomTest(){
+
+let container = document.getElementById("custom-tests")
+
+let row = document.createElement("div")
+
+row.classList.add("test-row")
+
+row.innerHTML = `
+
+<input type="text" name="custom_test_name[]" placeholder="Test Name">
+
+<input type="number" name="custom_test_price[]" placeholder="Price ₹">
+
+<button type="button" class="remove-btn" onclick="removeTest(this)">✖</button>
+
+`
+
+container.appendChild(row)
+
+}
+
+function removeTest(button){
+button.parentElement.remove()
+}
+
+document.addEventListener("DOMContentLoaded",function(){
+document.querySelector(".fade-in").classList.add("show")
+})
+
 </script>
 
 </body>

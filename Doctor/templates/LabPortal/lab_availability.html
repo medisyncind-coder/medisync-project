@@ -1,0 +1,57 @@
+{% extends "LabPortal/base.html" %}
+
+{% block content %}
+
+<div class="content">
+
+<h2>Lab Availability</h2>
+
+<div class="availability-box">
+
+<div class="availability-info">
+
+<h3>Booking Status</h3>
+
+<p>
+Turn ON to allow patients to book lab tests.  
+Turn OFF to temporarily stop bookings.
+</p>
+
+</div>
+
+<div class="availability-toggle">
+
+<form method="POST" action="{% url 'toggle_lab_availability' %}">
+{% csrf_token %}
+
+<label class="switch">
+
+<input
+type="checkbox"
+name="is_available"
+{% if availability.is_available %}checked{% endif %}
+onchange="this.form.submit()">
+
+<span class="slider"></span>
+
+</label>
+
+<span class="status-text">
+
+{% if availability.is_available %}
+Open for bookings
+{% else %}
+Closed for bookings
+{% endif %}
+
+</span>
+
+</form>
+
+</div>
+
+</div>
+
+</div>
+
+{% endblock %}

@@ -1,0 +1,114 @@
+{% extends "LabPortal/base.html" %}
+
+{% block content %}
+
+<div class="content">
+
+<h2>Lab Bookings</h2>
+
+<div class="table-box">
+
+<table>
+
+<thead>
+<tr>
+<th>ID</th>
+<th>Patient Name</th>
+<th>Phone</th>
+<th>Email</th>
+<th>Test</th>
+<th>Date</th>
+<th>Status</th>
+<th>Action</th>
+</tr>
+</thead>
+
+<tbody>
+
+{% for appointment in appointments %}
+
+<tr>
+
+<td>{{ appointment.id }}</td>
+
+<!-- ✅ CORRECT: Direct field -->
+<td>{{ appointment.full_name }}</td>
+
+<!-- ✅ CORRECT -->
+<td>{{ appointment.contact_number|default:"-" }}</td>
+
+<!-- ✅ CORRECT -->
+<td>{{ appointment.appointment_time }}</td>
+
+<!-- ✅ CORRECT -->
+<td>{{ appointment.test_name }}</td>
+
+<!-- ✅ Date -->
+<td>{{ appointment.appointment_date }}</td>
+
+<!-- ✅ Status -->
+<td>
+{% if appointment.status == "Pending" %}
+<span class="status pending">Pending</span>
+
+{% elif appointment.status == "Approved" %}
+<span class="status approved">Approved</span>
+
+{% elif appointment.status == "Completed" %}
+<span class="status completed">Completed</span>
+
+{% elif appointment.status == "Cancelled" %}
+<span class="status cancelled">Cancelled</span>
+{% endif %}
+</td>
+
+<!-- ✅ Action -->
+<td>
+
+{% if appointment.status == "Pending" %}
+
+<a href="{% url 'approve_lab_appointment' appointment.id %}" class="btn">
+Approve
+</a>
+
+<a href="{% url 'reject_lab_appointment' appointment.id %}" class="btn">
+Reject
+</a>
+
+{% elif appointment.status == "Approved" %}
+
+<a href="{% url 'complete_lab_appointment' appointment.id %}" class="btn">
+Complete
+</a>
+
+{% elif appointment.status == "Completed" %}
+
+<span class="status completed">Done</span>
+
+{% else %}
+
+<span style="color:#999;">-</span>
+
+{% endif %}
+
+</td>
+
+</tr>
+
+{% empty %}
+
+<tr>
+<td colspan="8" style="text-align:center;">No bookings available</td>
+</tr>
+
+{% endfor %}
+
+</tbody>
+
+</table>
+
+</div>
+
+</div>
+
+{% endblock %}

@@ -1,0 +1,131 @@
+body{
+    font-family:'Poppins',sans-serif;
+    background:linear-gradient(135deg,#0f2027,#203a43,#2c5364);
+    margin:0;
+    padding:40px;
+}
+
+/* Main Card */
+
+.booking-card{
+    background:#ffffff;
+    max-width:1000px;
+    margin:auto;
+    padding:40px;
+    border-radius:16px;
+    box-shadow:0 10px 40px rgba(0,0,0,0.2);
+}
+
+/* Title */
+
+.page-title{
+    text-align:center;
+    margin-bottom:10px;
+    font-size:32px;
+    font-weight:600;
+}
+
+/* Doctor Section */
+
+.doctor-section{
+    text-align:center;
+    margin-bottom:30px;
+}
+
+.doctor-section h2{
+    margin:0;
+    font-weight:600;
+}
+
+.doctor-section p{
+    color:#777;
+    margin-top:5px;
+}
+
+/* Alert */
+
+.alert-container{
+    display:flex;
+    justify-content:center;
+    margin-bottom:20px;
+}
+
+.alert-box{
+    background:#fff3cd;
+    color:#856404;
+    padding:12px 20px;
+    border-radius:8px;
+    font-size:14px;
+    border-left:5px solid #ffc107;
+}
+
+/* Slots Grid */
+
+.slots-container{
+    display:grid;
+    grid-template-columns:repeat(auto-fill,minmax(140px,1fr));
+    gap:15px;
+}
+
+/* Slot Button */
+
+.slot-btn{
+    background:#f0f4ff;
+    color:#4c5cff;
+    text-align:center;
+    padding:12px;
+    border-radius:30px;
+    font-weight:500;
+    transition:0.3s;
+    border:2px solid transparent;
+}
+
+/* Hover */
+
+.slot-btn:hover{
+    background:#4c5cff;
+    color:white;
+    transform:scale(1.05);
+}
+
+/* Selected */
+
+.slot-btn.selected{
+    background:#4c5cff;
+    color:white;
+}
+
+/* Slot Link */
+
+.slot-link{
+    text-decoration:none;
+}
+
+/* No Slot */
+
+.no-slot{
+    text-align:center;
+    padding:20px;
+    font-size:18px;
+    color:#e74c3c;
+}
+
+/* Back Button */
+
+.back-btn{
+    text-align:center;
+    margin-top:30px;
+}
+
+.back-btn a{
+    text-decoration:none;
+    background:#4c5cff;
+    color:white;
+    padding:10px 25px;
+    border-radius:25px;
+    transition:0.3s;
+}
+
+.back-btn a:hover{
+    background:#2c3ee0;
+}

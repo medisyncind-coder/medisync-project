@@ -2,67 +2,200 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+
 <meta charset="UTF-8">
 <title>Verified Labs | MediSync</title>
 
 <link rel="stylesheet" href="{% static 'Doctor/lab_list.css' %}">
+
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
 
 </head>
+
 <body>
+
+
+<!-- NAVBAR -->
+
+<div class="navbar">
+
+<div class="nav-left">
+
+<h2 class="logo">
+<i class="fa-solid fa-heart-pulse"></i>
+MediSync
+</h2>
+
+</div>
+
+<div class="nav-right">
+
+<a href="/" class="nav-link">
+<i class="fa fa-home"></i>
+Home
+</a>
+
+</div>
+
+</div>
+
+
+
+<!-- PAGE CONTAINER -->
 
 <div class="page-container">
 
-    <!-- HEADER -->
-    <div class="header">
-        <h1><i class="fa-solid fa-hospital"></i> Verified Labs</h1>
-        <p>Trusted diagnostic centers available on MediSync</p>
-    </div>
 
-    {% if labs %}
-    <div class="labs-wrapper">
-        {% for lab in labs %}
-        <div class="lab-card">
+<!-- HEADER -->
 
-            <div class="lab-left">
-                <div class="lab-logo">
-                    <i class="fa-solid fa-flask"></i>
-                </div>
-            </div>
+<div class="header">
 
-            <div class="lab-content">
-                <div class="lab-top">
-                    <h3>{{ lab.lab_name }}</h3>
-                    <span class="verified-badge">
-                        <i class="fa-solid fa-circle-check"></i> Verified
-                    </span>
-                </div>
+<h1>
+<i class="fa-solid fa-hospital"></i>
+Verified Labs
+</h1>
 
-                <div class="lab-meta">
-                    <div><i class="fa-solid fa-layer-group"></i> {{ lab.lab_type }}</div>
-                    <div><i class="fa-solid fa-location-dot"></i> {{ lab.city }}</div>
-                    <div><i class="fa-solid fa-phone"></i> {{ lab.contact_number }}</div>
-                </div>
-
-                <div class="lab-actions">
-                    <a href="{% url 'view_lab_tests' lab.id %}" class="btn-primary">
-                        View Tests →
-                    </a>
-                </div>
-            </div>
-
-        </div>
-        {% endfor %}
-    </div>
-    {% else %}
-        <div class="empty-state">
-            <i class="fa-solid fa-hospital"></i>
-            <p>No verified labs available yet.</p>
-        </div>
-    {% endif %}
+<p>Trusted diagnostic centers available on MediSync</p>
 
 </div>
+
+
+
+<!-- FILTER BAR -->
+
+<div class="filter-bar">
+
+<form method="GET" class="filter-form">
+
+<div class="search-box">
+
+<i class="fa fa-search"></i>
+
+<input type="text" name="search" placeholder="Search lab or clinic name">
+
+</div>
+
+
+<select name="city">
+
+<option value="">All Locations</option>
+
+{% for city in cities %}
+<option value="{{ city }}">{{ city }}</option>
+{% endfor %}
+
+</select>
+
+
+<button class="search-btn">
+
+<i class="fa fa-search"></i>
+Search
+
+</button>
+
+</form>
+
+</div>
+
+
+
+<!-- LAB GRID -->
+
+{% if labs %}
+
+<div class="labs-wrapper">
+
+{% for lab in labs %}
+
+<a href="{% url 'lab_detail' lab.id %}" class="lab-link">
+
+<div class="lab-card">
+
+<div class="lab-icon">
+
+<i class="fa-solid fa-flask"></i>
+
+</div>
+
+
+<div class="lab-info">
+
+<div class="lab-top">
+
+<h3>{{ lab.lab_name }}</h3>
+
+<span class="verified">
+
+<i class="fa fa-check-circle"></i>
+Verified
+
+</span>
+
+</div>
+
+
+<div class="lab-meta">
+
+<span>
+
+<i class="fa fa-layer-group"></i>
+{{ lab.lab_type }}
+
+</span>
+
+<span>
+
+<i class="fa fa-location-dot"></i>
+{{ lab.city }}
+
+</span>
+
+<span>
+
+<i class="fa fa-phone"></i>
+{{ lab.contact_number }}
+
+</span>
+
+</div>
+
+
+<button class="details-btn">
+
+View Details →
+
+</button>
+
+</div>
+
+</div>
+
+</a>
+
+{% endfor %}
+
+</div>
+
+{% else %}
+
+
+<div class="empty">
+
+<i class="fa fa-flask"></i>
+
+<h3>No Labs Found</h3>
+
+<p>Try searching another city or clinic name</p>
+
+</div>
+
+{% endif %}
+
+</div>
+
 
 </body>
 </html>

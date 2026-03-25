@@ -2,49 +2,216 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>Doctor Dashboard</title>
 
-    <!-- Google Font -->
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+<meta charset="UTF-8">
+<title>MediSync Doctor Panel</title>
 
-    <link rel="stylesheet" href="{% static 'Doctor/Doctor_Portal_base.css' %}">
+<!-- Google Font -->
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+<!-- Icons -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+<link rel="stylesheet" href="{% static 'Doctor/Doctor_Portal_base.css' %}">
+
 </head>
+
 <body>
 
 <div class="layout">
 
-    <!-- ================= SIDEBAR ================= -->
-    <aside class="sidebar">
-        <div class="sidebar-header">
-            <h2>🩺 MediSync</h2>
-            <p>Dr. {{ doctor.name }}</p>
-        </div>
+<!-- ================= SIDEBAR ================= -->
+<aside class="sidebar">
 
-        <nav>
-            <ul>
-                <li><a href="{% url 'doctor_dashboard' %}" class="active">Dashboard</a></li>
-                <li><a href="{% url 'doctor_availability' %}">Availability</a></li>
-                <li><a href="#">Appointments</a></li>
-                <li><a href="#">Profile</a></li>
-                <li><a href="{% url 'doctor_logout' %}">Logout</a></li>
-            </ul>
-        </nav>
-    </aside>
+<div class="logo">
+<h2><i class="fa-solid fa-stethoscope"></i> MediSync</h2>
 
-    <!-- ================= MAIN CONTENT ================= -->
-    <main class="main-content">
-        <header class="topbar">
-            <h1>Doctor Panel</h1>
-            <span class="date">Welcome Back 👋</span>
-        </header>
-
-        <section class="content">
-            {% block content %}{% endblock %}
-        </section>
-    </main>
+{% if doctor %}
+<p>Dr. {{ doctor.name }}</p>
+{% else %}
+<p>Doctor Panel</p>
+{% endif %}
 
 </div>
+
+<nav>
+<ul>
+
+<li>
+<a href="{% url 'home' %}">
+<i class="fa-solid fa-house"></i> Home
+</a>
+</li>
+
+<li>
+<a href="{% url 'doctor_dashboard' %}">
+<i class="fa-solid fa-chart-line"></i> Dashboard
+</a>
+</li>
+
+<li>
+<a href="{% url 'doctor_appointments' %}">
+<i class="fa-solid fa-calendar-check"></i> Appointments
+</a>
+</li>
+
+<li>
+<a href="{% url 'doctor_availability' %}">
+<i class="fa-solid fa-clock"></i> Availability
+</a>
+</li>
+
+<li>
+<a href="{% url 'doctor_patients' %}">
+<i class="fa-solid fa-user"></i> Patients
+</a>
+</li>
+
+<li>
+<a href="{% url 'doctor_appointments' %}">
+<i class="fa-solid fa-file-prescription"></i> Prescriptions
+</a>
+</li>
+
+<li>
+<a href="{% url 'doctor_payments' %}">
+<i class="fa-solid fa-wallet"></i> Payments
+</a>
+</li>
+
+<li>
+<a href="{% url 'doctor_notifications' %}">
+<i class="fa-solid fa-bell"></i> Notifications
+</a>
+</li>
+
+<li>
+<a href="{% url 'doctor_profile_edit' %}">
+<i class="fa-solid fa-user-pen"></i> Edit Profile
+</a>
+</li>
+
+<li>
+<a href="{% url 'doctor_settings' %}">
+<i class="fa-solid fa-gear"></i> Settings
+</a>
+</li>
+
+<li>
+<a href="{% url 'doctor_logout' %}">
+<i class="fa-solid fa-right-from-bracket"></i> Logout
+</a>
+</li>
+
+</ul>
+</nav>
+
+</aside>
+
+
+<!-- ================= MAIN CONTENT ================= -->
+<main class="main">
+
+<header class="topbar">
+
+<div class="search-box">
+<input type="text" placeholder="Search patients, appointments...">
+<i class="fa fa-search"></i>
+</div>
+
+<div class="topbar-right">
+
+<div class="notification">
+<i class="fa-solid fa-bell"></i>
+<span class="badge">3</span>
+</div>
+
+<!-- DOCTOR PROFILE -->
+<div class="doctor-profile">
+
+{% if doctor and doctor.profile_photo %}
+<img src="{{ doctor.profile_photo.url }}" alt="Doctor">
+{% else %}
+<img src="{% static 'Doctor/doctor-avatar.png' %}" alt="Doctor">
+{% endif %}
+
+<span>
+{% if doctor %}
+Dr. {{ doctor.name }}
+{% else %}
+Doctor
+{% endif %}
+</span>
+
+</div>
+
+</div>
+
+</header>
+
+
+<!-- ================= PAGE CONTENT ================= -->
+<div class="content-area">
+
+{% block content %}
+{% endblock %}
+
+</div>
+
+</main>
+
+</div>
+
+
+<!-- 🔔 Notification Sound -->
+<audio id="notifySound">
+<source src="{% static 'Doctor/sounds/notification.mp3' %}" type="audio/mpeg">
+</audio>
+
+
+<script>
+
+const menuLinks = document.querySelectorAll(".sidebar a");
+
+menuLinks.forEach(link=>{
+link.addEventListener("click",function(){
+menuLinks.forEach(l=>l.classList.remove("active"));
+this.classList.add("active");
+})
+})
+
+</script>
+
+
+<!-- 🔔 Appointment Notification Script -->
+<script>
+
+let lastCount = 0;
+
+function checkAppointments(){
+
+fetch("/doctor/check-appointments/")
+.then(response => response.json())
+.then(data => {
+
+if(data.count > lastCount){
+
+document.getElementById("notifySound").play()
+
+alert("New Appointment Received!")
+
+}
+
+lastCount = data.count
+
+})
+
+}
+
+setInterval(checkAppointments, 5000)
+
+</script>
+
 
 </body>
 </html>

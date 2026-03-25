@@ -1,0 +1,16 @@
+.notifications-container{
+padding:30px;
+}
+
+.notification-list{
+list-style:none;
+padding:0;
+}
+
+.notification-list li{
+background:white;
+padding:15px;
+margin-bottom:10px;
+border-radius:8px;
+box-shadow:0 5px 15px rgba(0,0,0,0.05);
+}
