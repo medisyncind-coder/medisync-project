@@ -54,6 +54,9 @@ urlpatterns = [
     path('verify-otp/', DoctorViews.verify_otp_page, name='verify_otp_page'),
     path('doctor-login/', DoctorViews.doctor_login, name='doctor_login'),
     path('doctor-login-submit/', DoctorViews.do_doctor_login, name='do_doctor_login'),
+    path('doctor/patient/<int:appointment_id>/',DoctorViews.patient,name='doctor_patient'),
+    path('doctor/add-prescription/<int:appointment_id>/',DoctorViews.add_prescription,name='add_prescription'),
+     
 
 
     # ==========================
@@ -182,6 +185,7 @@ urlpatterns = [
 
     # ================= LOGOUT =================
     path('logout/', UserViews.user_logout, name='user_logout'),
+    path('cancel-appointment/<str:type>/<int:id>/',UserViews.cancel_appointment,name='cancel_appointment'),
 
 ]
 

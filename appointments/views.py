@@ -101,6 +101,50 @@ def book_slot(request, doctor_id):
 # 📋 CONFIRM BOOKING
 # =====================================================
 
+# @login_required
+# def confirm_booking(request, doctor_id, slot_time):
+
+#     doctor = get_object_or_404(Doctor, id=doctor_id)
+
+#     try:
+#         slot_time_obj = datetime.strptime(slot_time, "%H:%M:%S").time()
+#     except ValueError:
+#         messages.error(request, "Invalid slot selected.")
+#         return redirect("book_slot", doctor_id=doctor.id)
+
+#     if request.method == "POST":
+
+#         form = AppointmentForm(request.POST)
+
+#         if form.is_valid():
+
+#             appointment = form.save(commit=False)
+
+#             appointment.doctor = doctor
+#             appointment.patient = request.user
+#             appointment.appointment_date = datetime.today().date()
+#             appointment.appointment_time = slot_time_obj
+#             appointment.payment_type = "Online"
+#             appointment.status = "Pending"
+
+#             appointment.save()
+
+#             messages.success(request, "Appointment booked successfully!")
+
+#             return redirect("home")
+
+#         else:
+#             messages.error(request, "Please correct the form errors.")
+
+#     else:
+#         form = AppointmentForm()
+
+#     return render(request, "appointments/confirm_booking.html", {
+#         "form": form,
+#         "doctor": doctor,
+#         "slot_time": slot_time_obj
+#     })
+
 @login_required
 def confirm_booking(request, doctor_id, slot_time):
 
@@ -111,6 +155,19 @@ def confirm_booking(request, doctor_id, slot_time):
     except ValueError:
         messages.error(request, "Invalid slot selected.")
         return redirect("book_slot", doctor_id=doctor.id)
+
+    # 🔥 ADD THIS
+    consultation_fee = doctor.consultation_fee
+
+    if request.method == "GET":
+        form = AppointmentForm()
+
+        return render(request, "appointments/confirm_booking.html", {
+            "form": form,
+            "doctor": doctor,
+            "slot_time": slot_time_obj,
+            "fee": consultation_fee   # ✅ PASS
+        })
 
     if request.method == "POST":
 
@@ -127,22 +184,23 @@ def confirm_booking(request, doctor_id, slot_time):
             appointment.payment_type = "Online"
             appointment.status = "Pending"
 
+            # 🔥 SAVE FEE IN APPOINTMENT (IMPORTANT)
+            appointment.amount = consultation_fee
+
             appointment.save()
 
-            messages.success(request, "Appointment booked successfully!")
-
-            return redirect("home")
+            return render(request, "appointments/booking_success.html", {
+                "appointment": appointment
+            })
 
         else:
             messages.error(request, "Please correct the form errors.")
 
-    else:
-        form = AppointmentForm()
-
     return render(request, "appointments/confirm_booking.html", {
         "form": form,
         "doctor": doctor,
-        "slot_time": slot_time_obj
+        "slot_time": slot_time_obj,
+        "fee": consultation_fee
     })
 
 

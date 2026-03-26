@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Appointment Confirmed | MediSync</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+
+/* ===== GLOBAL ===== */
+body{
+    margin:0;
+    font-family:'Poppins', sans-serif;
+    background:linear-gradient(135deg, #0f172a, #1e293b);
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    height:100vh;
+}
+
+/* ===== CARD ===== */
+.success-card{
+    background:#020617;
+    padding:35px;
+    border-radius:16px;
+    width:420px;
+    text-align:center;
+    color:#fff;
+    box-shadow:0 20px 50px rgba(0,0,0,0.6);
+    animation:fadeUp 0.8s ease;
+}
+
+/* ===== TEXT ===== */
+h2{
+    color:#22c55e;
+    margin-top:10px;
+}
+
+.sub-text{
+    color:#94a3b8;
+    font-size:14px;
+    margin-bottom:20px;
+}
+
+/* ===== DETAILS ===== */
+.details{
+    margin-top:15px;
+}
+
+.row{
+    display:flex;
+    justify-content:space-between;
+    background:#0f172a;
+    padding:10px 12px;
+    border-radius:8px;
+    margin-bottom:8px;
+    font-size:14px;
+}
+
+.status{
+    color:#38bdf8;
+}
+
+.amount{
+    color:#22c55e;
+}
+
+/* ===== BUTTONS ===== */
+.actions{
+    margin-top:20px;
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+}
+
+.btn{
+    padding:10px;
+    border-radius:8px;
+    text-decoration:none;
+    color:#fff;
+    font-weight:500;
+    transition:0.3s;
+}
+
+.primary{
+    background:#3b82f6;
+}
+
+.primary:hover{
+    background:#2563eb;
+}
+
+.secondary{
+    background:#6366f1;
+}
+
+.secondary:hover{
+    background:#4f46e5;
+}
+
+/* ===== BACK BUTTON ===== */
+.back-btn{
+    margin-top:15px;
+    display:inline-block;
+    color:#94a3b8;
+    text-decoration:none;
+    font-size:13px;
+}
+
+/* ===== ANIMATION ===== */
+@keyframes fadeUp{
+    from{
+        opacity:0;
+        transform:translateY(30px);
+    }
+    to{
+        opacity:1;
+        transform:translateY(0);
+    }
+}
+
+/* ===== CHECKMARK ===== */
+.checkmark-circle{
+    width:80px;
+    height:80px;
+    position:relative;
+    margin:auto;
+    border-radius:50%;
+    background:#22c55e;
+    animation:pop 0.5s ease;
+}
+
+.checkmark{
+    position:absolute;
+    top:22px;
+    left:22px;
+    width:25px;
+    height:50px;
+    border-right:5px solid white;
+    border-bottom:5px solid white;
+    transform:rotate(45deg);
+    opacity:0;
+}
+
+.draw{
+    animation:drawCheck 0.6s forwards 0.4s;
+}
+
+@keyframes drawCheck{
+    to{opacity:1;}
+}
+
+@keyframes pop{
+    0%{transform:scale(0);}
+    80%{transform:scale(1.1);}
+    100%{transform:scale(1);}
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="success-card">
+
+    <!-- ✅ Animated Tick -->
+    <div class="checkmark-circle">
+        <div class="checkmark draw"></div>
+    </div>
+
+    <h2>Appointment Confirmed</h2>
+    <p class="sub-text">Your booking has been successfully completed</p>
+
+    <!-- DETAILS -->
+    <div class="details">
+        <div class="row">
+            <span>Doctor</span>
+            <strong>Dr. {{ appointment.doctor.name }}</strong>
+        </div>
+
+        <div class="row">
+            <span>Date</span>
+            <strong>{{ appointment.appointment_date }}</strong>
+        </div>
+
+        <div class="row">
+            <span>Time</span>
+            <strong>{{ appointment.appointment_time }}</strong>
+        </div>
+
+        <div class="row">
+            <span>Status</span>
+            <strong class="status">{{ appointment.status }}</strong>
+        </div>
+
+        <div class="row">
+            <span>Amount Paid</span>
+            <strong class="amount">₹{{ appointment.amount }}</strong>
+        </div>
+    </div>
+
+    <!-- ACTION BUTTONS -->
+    <div class="actions">
+        <a href="{% url 'home' %}" class="btn primary">🏠 Home</a>
+
+        <a href="{% url 'doctor_detail' appointment.doctor.id %}" class="btn secondary">
+            🔍 Doctor Details
+        </a>
+    </div>
+
+    <!-- 🔙 BACK BUTTON -->
+    <a href="{% url 'doctor_detail' appointment.doctor.id %}" class="back-btn">
+        ⬅ Go Back to Doctor Page
+    </a>
+
+</div>
+
+<script>
+
+// 🎉 slight background animation effect
+setTimeout(()=>{
+    document.body.style.background = "linear-gradient(135deg,#020617,#0f172a)";
+},1000);
+
+</script>
+
+</body>
+</html>

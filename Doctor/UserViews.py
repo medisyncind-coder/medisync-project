@@ -347,35 +347,6 @@ def cancel_appointment(request, type, id):
 
     return redirect("my_bookings")
 
-# ================= RESCHEDULE ================= #
-# @login_required
-# def reschedule_appointment(request, appointment_id):
-
-#     appointment = get_object_or_404(Appointment, id=appointment_id, user=request.user)
-
-#     if request.method == "POST":
-#         appointment.appointment_date = request.POST.get("date")
-#         appointment.appointment_time = request.POST.get("time")
-#         appointment.status = "Pending"
-#         appointment.save()
-
-#         messages.success(request, "Appointment rescheduled")
-#         return redirect("user_dashboard")
-
-#     return render(request, "UserPortal/reschedule.html", {"appointment": appointment})
-
-
-# ================= SEARCH LABS ================= #
-# @login_required
-# def search_labs(request):
-
-#     query = request.GET.get("q", "")
-#     labs = Lab.objects.all()
-
-#     if query:
-#         labs = labs.filter(name__icontains=query)
-
-#     return render(request, "UserPortal/search_labs.html", {"labs": labs})
 
 
 # ================= BOOK LAB ================= #
@@ -414,17 +385,17 @@ def patient_reports(request):
 
         if not file:
             messages.error(request, "Please select a file")
-            return redirect("patient_reports")  # 🔥 FIXED
+            return redirect("patient_reports")
 
         if file.size > 5 * 1024 * 1024:
             messages.error(request, "File too large (Max 5MB)")
-            return redirect("patient_reports")  # 🔥 FIXED
+            return redirect("patient_reports")
 
         allowed_types = ["application/pdf", "image/jpeg", "image/png"]
 
         if file.content_type not in allowed_types:
             messages.error(request, "Only PDF, JPG, PNG allowed")
-            return redirect("patient_reports")  # 🔥 FIXED
+            return redirect("patient_reports")
 
         MedicalRecord.objects.create(
             patient=patient,
@@ -432,7 +403,7 @@ def patient_reports(request):
         )
 
         messages.success(request, "Record uploaded successfully ✅")
-        return redirect("patient_reports")  # 🔥 FIXED
+        return redirect("patient_reports")
 
 
     # ================= LAB REPORTS =================
@@ -448,18 +419,22 @@ def patient_reports(request):
     ).order_by("-uploaded_at")
 
 
-    # ================= DOCTOR PRESCRIPTIONS (🔥 NEW) =================
+    # ================= DOCTOR PRESCRIPTIONS (🔥 FIXED) =================
+    from django.db.models import Q
+
     doctor_prescriptions = Appointment.objects.filter(
-        patient=patient,
-        status="Completed"
-    ).prefetch_related("prescriptions").order_by("-appointment_date")
+        patient=patient
+    ).filter(
+        Q(prescription_file__isnull=False) |   # file upload
+        Q(prescriptions__isnull=False)         # medicine added
+    ).distinct().prefetch_related("prescriptions").order_by("-appointment_date")
 
 
     # ================= CONTEXT =================
     context = {
         "reports": reports,
         "records": records,
-        "doctor_prescriptions": doctor_prescriptions,  # 🔥 NEW
+        "doctor_reports": doctor_prescriptions,  # 🔥 MATCH TEMPLATE
         "total_reports": reports.count(),
         "total_records": records.count(),
     }

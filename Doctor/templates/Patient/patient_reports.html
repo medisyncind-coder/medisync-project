@@ -1,7 +1,6 @@
 {% extends "Patient/base.html" %}
 
-{% block title %}Lab Reports{% endblock %}
-{% block page_title %}My Reports{% endblock %}
+{% block title %}My Reports{% endblock %}
 
 {% block content %}
 
@@ -64,7 +63,7 @@
 .view{ background:#3b82f6; color:#fff; }
 .download{ background:#22c55e; color:#fff; }
 
-/* ===== UPLOAD BOX (🔥 FIXED) ===== */
+/* ===== UPLOAD BOX ===== */
 .upload-box{
     background:linear-gradient(135deg,#1e293b,#0f172a);
     padding:25px;
@@ -96,12 +95,10 @@
     padding:8px 16px;
     border-radius:6px;
     cursor:pointer;
-    font-size:14px;
 }
 
 #fileName{
     color:#cbd5f5;
-    font-size:13px;
 }
 
 /* BUTTON */
@@ -125,32 +122,101 @@
     margin-top:10px;
 }
 
+/* ===== MEDICINE BOX ===== */
+.medicine-box{
+    background:#020617;
+    color:#ffffff;
+    padding:10px;
+    border-radius:8px;
+}
+
 </style>
 
-
 <!-- ================= UPLOAD ================= -->
-
 <div class="upload-box">
 
-    <h3 class="upload-title">📤 Upload Medical Record</h3>
+<h3 class="upload-title">📤 Upload Medical Record</h3>
 
-    <form method="POST" enctype="multipart/form-data">
-        {% csrf_token %}
+<form method="POST" enctype="multipart/form-data">
+{% csrf_token %}
 
-        <div class="file-input-wrapper">
-            <input type="file" name="file" id="fileInput" required>
-            <label for="fileInput" class="file-label">Choose File</label>
-            <span id="fileName">No file chosen</span>
-        </div>
+<div class="file-input-wrapper">
+<input type="file" name="file" id="fileInput" required>
+<label for="fileInput" class="file-label">Choose File</label>
+<span id="fileName">No file chosen</span>
+</div>
 
-        <button type="submit" class="upload-btn">Upload</button>
-    </form>
+<button type="submit" class="upload-btn">Upload</button>
+
+</form>
 
 </div>
 
+<!-- ================= DOCTOR REPORTS ================= -->
+<div class="section">
+<h2>🩺 Doctor Prescriptions</h2>
+
+{% if doctor_reports %}
+
+<table class="dark-table">
+<tr>
+<th>ID</th>
+<th>Doctor</th>
+<th>Date</th>
+<th>Status</th>
+<th>Prescription</th>
+</tr>
+
+{% for d in doctor_reports %}
+<tr>
+
+<td>#{{ d.booking_id }}</td>
+<td>{{ d.doctor.name }}</td>
+<td>{{ d.appointment_date|date:"d M Y" }}</td>
+
+<td>
+<span class="status {{ d.status|lower }}">
+{{ d.status }}
+</span>
+</td>
+
+<td>
+
+{% if d.prescription_file %}
+<a href="{{ d.prescription_file.url }}" target="_blank" class="btn view">View</a>
+<a href="{{ d.prescription_file.url }}" download class="btn download">Download</a>
+
+{% elif d.prescriptions.exists %}
+<div class="medicine-box">
+
+{% for p in d.prescriptions.all|slice:":4" %}
+<div>💊 {{ p.medicine }} ({{ p.dosage }})</div>
+{% endfor %}
+
+{% if d.prescriptions.count > 4 %}
+<div style="color:#38bdf8;">+ more...</div>
+{% endif %}
+
+</div>
+
+{% else %}
+<span class="status pending">No Data</span>
+{% endif %}
+
+</td>
+
+</tr>
+{% endfor %}
+
+</table>
+
+{% else %}
+<div class="empty">No doctor prescriptions found</div>
+{% endif %}
+
+</div>
 
 <!-- ================= LAB REPORTS ================= -->
-
 <div class="section">
 <h2>🧪 Lab Test History</h2>
 
@@ -170,16 +236,13 @@
 <tr>
 
 <td>#{{ report.booking_id }}</td>
-
 <td>{{ report.lab.lab_name }}</td>
-
 <td>{{ report.test_name }}</td>
-
 <td>{{ report.appointment_date|date:"d M Y" }}</td>
 
 <td>
 <span class="status {{ report.status|lower }}">
-    {{ report.status }}
+{{ report.status }}
 </span>
 </td>
 
@@ -203,9 +266,7 @@
 
 </div>
 
-
 <!-- ================= UPLOADED RECORDS ================= -->
-
 <div class="section">
 <h2>📁 Uploaded Records</h2>
 
@@ -222,7 +283,6 @@
 <tr>
 
 <td>{{ r.file.name|cut:"records/" }}</td>
-
 <td>{{ r.uploaded_at|date:"d M Y" }}</td>
 
 <td>
@@ -240,7 +300,6 @@
 {% endif %}
 
 </div>
-
 
 <!-- 🔥 FILE NAME SCRIPT -->
 <script>

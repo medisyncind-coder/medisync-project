@@ -180,37 +180,72 @@ this.classList.add("active");
 })
 })
 
-</script>
+<!-- 🔔 Notification Sound -->
+<audio id="notifySound" preload="auto">
+    <source src="{% static 'Doctor/sounds/notification.mp3' %}" type="audio/mpeg">
+</audio>
 
-
-<!-- 🔔 Appointment Notification Script -->
 <script>
 
-let lastCount = 0;
+document.addEventListener("DOMContentLoaded", function(){
 
-function checkAppointments(){
+    /* ================= SIDEBAR ACTIVE LINK ================= */
+    const menuLinks = document.querySelectorAll(".sidebar a");
 
-fetch("/doctor/check-appointments/")
-.then(response => response.json())
-.then(data => {
+    menuLinks.forEach(link => {
+        link.addEventListener("click", function(){
+            menuLinks.forEach(l => l.classList.remove("active"));
+            this.classList.add("active");
+        });
+    });
 
-if(data.count > lastCount){
 
-document.getElementById("notifySound").play()
+    /* ================= 🔔 APPOINTMENT NOTIFICATION ================= */
 
-alert("New Appointment Received!")
+    let lastCount = null;
+    const notifySound = document.getElementById("notifySound");
 
-}
+    function checkAppointments(){
 
-lastCount = data.count
+        fetch("/doctor/check-appointments/")
+        .then(response => response.json())
+        .then(data => {
 
-})
+            // ✅ First load → sirf set karo (no alert)
+            if(lastCount === null){
+                lastCount = data.count;
+                return;
+            }
 
-}
+            // ✅ New appointment aaya tab hi trigger
+            if(data.count > lastCount){
 
-setInterval(checkAppointments, 5000)
+                // 🔊 Sound play safely
+                if(notifySound){
+                    notifySound.currentTime = 0;
+                    notifySound.play().catch(() => {});
+                }
+
+                // 🔔 Alert
+                alert("New Appointment Received!");
+            }
+
+            lastCount = data.count;
+
+        })
+        .catch(error => {
+            console.log("Error checking appointments:", error);
+        });
+
+    }
+
+    // ⏱ Har 5 sec me check
+    setInterval(checkAppointments, 5000);
+
+});
 
 </script>
+
 
 
 </body>

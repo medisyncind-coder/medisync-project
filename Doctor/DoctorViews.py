@@ -14,6 +14,7 @@ from accounts.emails import send_otp_via_email
 from appointments.models import *
 from .models import Doctor, DoctorAvailability, MedicalRecord
 from .forms import DoctorRegistrationForm
+from django.db.models import Q
 
 
 
@@ -42,8 +43,31 @@ def generate_otp():
 # 👨‍⚕️ DOCTOR LIST
 # ======================================================
 def doctor_page(request):
+
+    search = request.GET.get('search')
+    city = request.GET.get('city')
+
     doctors = Doctor.objects.filter(user__is_verified=True)
-    return render(request, 'Doctor/doctor_page.html', {'doctors': doctors})
+
+    if search:
+        doctors = doctors.filter(
+            Q(name__icontains=search) |
+            Q(specialization__icontains=search)
+        )
+
+    # ❗ CHANGE HERE
+    if city:
+        doctors = doctors.filter(address__icontains=city)
+
+    # ❗ CHANGE HERE
+    cities = Doctor.objects.values_list('address', flat=True).distinct()
+
+    context = {
+        'doctors': doctors,
+        'cities': cities
+    }
+
+    return render(request, 'Doctor/doctor_page.html', context)
 
 
 # ======================================================
@@ -361,14 +385,8 @@ def doctor_appointments(request):
     }
 
     return render(request, "DoctorPortal/appointments.html", context)
-
-from django.contrib.auth.decorators import login_required
-from django.shortcuts import render, redirect, get_object_or_404
-from django.contrib import messages
-from django.utils import timezone
-
 @login_required
-def doctor_patient_detail(request, appointment_id):
+def patient(request, appointment_id):
 
     doctor = get_object_or_404(Doctor, user=request.user)
 
@@ -407,42 +425,83 @@ def doctor_patient_detail(request, appointment_id):
             appointment.save()
 
         messages.success(request, "Prescription saved ✅")
-        return redirect("doctor_patient_detail", appointment_id=appointment.id)
+
+        # 🔥 SAME PAGE RELOAD (NO ERROR)
+        return redirect("doctor_patient", appointment_id=appointment.id)
 
 
     # ================= PATIENT HISTORY =================
 
-    # 🧪 LAB REPORTS
     lab_reports = LabAppointment.objects.filter(
         patient=patient,
         report_file__isnull=False
     ).order_by("-appointment_date")
 
-    # 📁 USER UPLOADED RECORDS
     records = MedicalRecord.objects.filter(
         patient=patient
     ).order_by("-uploaded_at")
 
-    # 💊 OLD PRESCRIPTIONS (EXCLUDE CURRENT)
     past_appointments = Appointment.objects.filter(
         patient=patient,
         prescription_file__isnull=False
     ).exclude(id=appointment.id).order_by("-appointment_date")
 
-    # 💊 CURRENT MEDICINES
     prescriptions = appointment.prescriptions.all()
 
+    # 🔥 IMPORTANT (LEFT PANEL KE LIYE)
+    all_patients = Appointment.objects.filter(doctor=doctor, appointment_date=today)
 
     # ================= CONTEXT =================
     context = {
         "appointment": appointment,
+        "patients": all_patients,   # 🔥 IMPORTANT
         "lab_reports": lab_reports,
         "records": records,
         "past_appointments": past_appointments,
         "prescriptions": prescriptions,
     }
 
-    return render(request, "DoctorPortal/patient_detail.html", context)
+    return render(request, "DoctorPortal/patients.html", context)
+
+@login_required
+def add_prescription(request, appointment_id):
+
+    doctor = get_object_or_404(Doctor, user=request.user)
+
+    appointment = get_object_or_404(
+        Appointment,
+        id=appointment_id,
+        doctor=doctor
+    )
+
+    if request.method == "POST":
+
+        medicine = request.POST.get("medicine")
+        dosage = request.POST.get("dosage")
+        instructions = request.POST.get("instructions")
+
+        # ✅ SAVE MEDICINE
+        if medicine:
+            Prescription.objects.create(
+                appointment=appointment,
+                medicine=medicine,
+                dosage=dosage,
+                instructions=instructions
+            )
+
+        # ✅ SAVE FILE
+        file = request.FILES.get("prescription_file")
+        if file:
+            appointment.prescription_file = file
+            appointment.save()
+
+        messages.success(request, "Prescription saved ✅")
+
+        # 🔥 FINAL FIX (IMPORTANT)
+        return redirect("doctor_patient", appointment_id=appointment.id)
+
+    return redirect("doctor_patient", appointment_id=appointment.id)
+
 # # ======================================================
 # # 🔢 BOOKING ID GENERATOR
 # # ======================================================
@@ -511,44 +570,7 @@ def doctor_patients(request):
         "patients":patients
     })
     
-@login_required
-def add_prescription(request, appointment_id):
 
-    doctor = get_object_or_404(Doctor, user=request.user)
-
-    appointment = get_object_or_404(
-        Appointment,
-        id=appointment_id,
-        doctor=doctor
-    )
-
-    if request.method == "POST":
-
-        medicine = request.POST.get("medicine")
-        dosage = request.POST.get("dosage")
-        instructions = request.POST.get("instructions")
-
-        # 🔥 Save medicine
-        Prescription.objects.create(
-            appointment=appointment,
-            medicine=medicine,
-            dosage=dosage,
-            instructions=instructions
-        )
-
-        # 🔥 File (optional)
-        file = request.FILES.get("prescription_file")
-        if file:
-            appointment.prescription_file = file
-            appointment.save()
-
-        messages.success(request, "Prescription added ✅")
-        return redirect("doctor_patient_detail", appointment_id=appointment.id)
-
-    return render(request, "DoctorPortal/add_prescription.html", {
-        "appointment": appointment
-    })
-    
 @login_required
 def doctor_payments(request):
 

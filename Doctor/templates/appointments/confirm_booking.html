@@ -17,11 +17,31 @@
             <p>Please review your details before confirming</p>
         </div>
 
+        <!-- 🔥 DOCTOR INFO -->
         <div class="doctor-info">
+
             <div class="info-box">
                 <span>Doctor</span>
-                <strong>{{ doctor.name }}</strong>
+                <strong>Dr. {{ doctor.name }}</strong>
             </div>
+
+            <div class="info-box">
+                <span>Time Slot</span>
+                <strong>{{ slot_time }}</strong>
+            </div>
+
+            <div class="info-box">
+                <span>Consultation Fee</span>
+                <strong>₹{{ fee }}</strong>
+            </div>
+
+        </div>
+
+        <!-- 🔥 ACTION BUTTON (BACK TO DOCTOR DETAIL) -->
+        <div style="text-align:center; margin-bottom:15px;">
+            <a href="{% url 'doctor_detail' doctor.id %}" class="back-btn">
+                ⬅ Back to Doctor
+            </a>
         </div>
 
         <form method="POST" class="appointment-form" id="appointmentForm">
@@ -99,6 +119,30 @@ form.addEventListener("submit", function() {
     btn.style.opacity = "0.8";
 });
 </script>
+
+<style>
+.back-btn{
+    display:inline-block;
+    padding:8px 15px;
+    background:#334155;
+    color:#fff;
+    border-radius:6px;
+    text-decoration:none;
+    font-size:14px;
+}
+.back-btn:hover{
+    background:#475569;
+}
+.info-box{
+    display:flex;
+    justify-content:space-between;
+    margin-bottom:10px;
+    padding:10px;
+    background:#0f172a;
+    border-radius:8px;
+    color:white;
+}
+</style>
 
 </body>
 </html>
