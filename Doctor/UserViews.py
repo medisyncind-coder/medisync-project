@@ -146,7 +146,7 @@ def patient_verify_otp(request):
                 messages.success(request, "Account verified & logged in successfully")
 
                 # 🚀 DIRECT DASHBOARD
-                return redirect('Patient/patient_dashboard.html')
+                return redirect('patient_dashboard')
 
             else:
                 messages.error(request, "Invalid OTP")

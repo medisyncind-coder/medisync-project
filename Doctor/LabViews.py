@@ -202,6 +202,7 @@ def verify_lab_otp(request):
     email = request.session.get("lab_email")
 
     if not email:
+        messages.error(request, "Session expired. Please register again.")
         return redirect("lab_registration")
 
     user = get_object_or_404(User, email=email)
@@ -211,7 +212,8 @@ def verify_lab_otp(request):
 
         otp = request.POST.get("otp")
 
-        if user.otp and user.otp == otp:
+        # 🔥 SAFE OTP CHECK
+        if user.otp and str(user.otp) == str(otp):
 
             # ✅ verify user
             user.is_verified = True
@@ -222,7 +224,7 @@ def verify_lab_otp(request):
             lab.is_verified = True
             lab.save()
 
-            # 🔥 LOGIN KARO
+            # 🔥 LOGIN
             login(request, user)
 
             # 🧹 session clean
@@ -230,8 +232,8 @@ def verify_lab_otp(request):
 
             messages.success(request, "Lab verified & logged in successfully")
 
-            # 🚀 DIRECT DASHBOARD
-            return redirect("LabPortal/lab_dashboard.html")
+            # 🚀 REDIRECT
+            return redirect("lab_dashboard")
 
         else:
             messages.error(request, "Invalid OTP")
@@ -239,7 +241,6 @@ def verify_lab_otp(request):
     return render(request, "Lab/verify_lab_otp.html", {
         "lab": lab
     })
-
 
 # ======================================================
 # LAB LOGIN

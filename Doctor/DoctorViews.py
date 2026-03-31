@@ -171,16 +171,16 @@ def verify_otp_page(request):
                 user.otp = None
                 user.save()
 
-                # 🔥 LOGIN KARO YAHI PE
+                # 🔥 LOGIN
                 login(request, user)
 
-                # 🧹 session clean (optional but best)
+                # 🧹 session clean
                 request.session.pop('otp_email', None)
 
                 messages.success(request, "Doctor verified & logged in successfully")
 
-                # 🚀 DIRECT DASHBOARD
-                return redirect('DoctorPortsl/doctor_dashboard.html')
+                # ✅ CORRECT REDIRECT
+                return redirect('doctor_dashboard')   # 🔥 FIXED
 
             else:
                 messages.error(request, "Invalid OTP")
