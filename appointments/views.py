@@ -275,27 +275,42 @@ def generate_lab_slots(start_time, end_time, duration):
 # 🧪 LAB BOOK SLOT PAGE
 # =====================================================
 
+from datetime import datetime
+
 def lab_book_slot(request, lab_id, test_id):
 
     lab = get_object_or_404(Lab, id=lab_id)
     test = get_object_or_404(LabTest, id=test_id)
 
-    availability, created = LabAvailability.objects.get_or_create(lab=lab)
+    today = datetime.today().date()
+    today_day_full = today.strftime("%A")   # Monday, Tuesday
 
-    # LAB CLOSED CHECK
-    if not availability.is_available:
+    # 🔥 STEP 1: CHECK OPERATING DAYS
+    lab_days = [d.strip() for d in (lab.operating_days or "").split(",") if d]
+
+    if today_day_full not in lab_days:
         return render(request, "Lab/lab_closed.html", {
-            "lab": lab
+            "lab": lab,
+            "message": "Lab is closed today"
         })
 
-    today = datetime.today().date()
+    # 🔥 STEP 2: CHECK TOGGLE (LAB AVAILABILITY)
+    availability, created = LabAvailability.objects.get_or_create(lab=lab)
 
+    if not availability.is_available:
+        return render(request, "Lab/lab_closed.html", {
+            "lab": lab,
+            "message": "Lab is currently not accepting bookings"
+        })
+
+    # 🔥 STEP 3: GENERATE SLOTS
     start = lab.opening_time
     end = lab.closing_time
     duration = 15
 
     slots = generate_lab_slots(start, end, duration)
 
+    # 🔥 STEP 4: REMOVE BOOKED SLOTS
     booked_slots = LabAppointment.objects.filter(
         lab=lab,
         appointment_date=today,

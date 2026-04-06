@@ -72,6 +72,11 @@ href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
 
 <p><i class="fa fa-file-medical"></i> Report Time: {{ lab.average_report_time }}</p>
 
+<p class="operating-days">
+    <i class="fa fa-calendar-days"></i> 
+    <span>Operating Days:</span> 
+    <strong>{{ operating_days|join:", " }}</strong>
+</p>
 </div>
 
 </div>

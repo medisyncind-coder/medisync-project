@@ -14,9 +14,25 @@
 </div>
 
 <div class="form-row">
-<input type="time" name="opening_time" value="{{ lab.opening_time }}">
-<input type="time" name="closing_time" value="{{ lab.closing_time }}">
+<!-- ✅ TIME FORMAT FIX -->
+<input type="time" name="opening_time" value="{{ lab.opening_time|time:'H:i' }}">
+<input type="time" name="closing_time" value="{{ lab.closing_time|time:'H:i' }}">
 <input type="text" name="report_time" value="{{ lab.average_report_time }}" placeholder="Report Time">
+</div>
+
+<!-- 🔥 WORKING DAYS SECTION -->
+<div class="form-row">
+<label><strong>Select Working Days:</strong></label>
+
+<div class="days-container">
+    {% for day in days_list %}
+    <label class="day-box">
+        <input type="checkbox" name="working_days" value="{{ day }}"
+        {% if day in selected_days %}checked{% endif %}>
+        {{ day }}
+    </label>
+    {% endfor %}
+</div>
 </div>
 
 <button type="submit" class="save-btn">Save Changes</button>
@@ -76,9 +92,7 @@ Enable
 </select>
 
 <input type="text" name="custom_name[]" placeholder="Or Custom Test Name">
-
 <input type="text" name="description[]" placeholder="Description">
-
 <input type="number" name="price[]" placeholder="Price">
 
 </div>
@@ -86,13 +100,36 @@ Enable
 </div>
 
 <button type="button" onclick="addMore()" class="add-btn">+ Add More</button>
-
 <button type="submit" class="save-btn">Save Tests</button>
 
 </form>
 
 </div>
 
+<!-- ✅ CSS -->
+<style>
+.days-container{
+    display:flex;
+    gap:10px;
+    flex-wrap:wrap;
+    margin-top:10px;
+}
+
+.day-box{
+    background:#1e293b;
+    color:white;
+    padding:8px 12px;
+    border-radius:8px;
+    cursor:pointer;
+    font-size:14px;
+}
+
+.day-box input{
+    margin-right:6px;
+}
+</style>
+
+<!-- JS -->
 <script>
 function addMore(){
     let container = document.getElementById("test-container");

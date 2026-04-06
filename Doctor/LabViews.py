@@ -64,6 +64,9 @@ def lab_detail(request, lab_id):
         lab=lab
     ).select_related("test").order_by("test__name")
 
+    # 🔥 FIX: correct split
+    operating_days = lab.operating_days.split(",") if lab.operating_days else []
+
     context = {
         "lab": lab,
         "tests": tests,
@@ -71,7 +74,7 @@ def lab_detail(request, lab_id):
         "home_collection": lab.home_sample_collection,
         "opening_time": lab.opening_time,
         "closing_time": lab.closing_time,
-        "operating_days": lab.operating_days
+        "operating_days": operating_days   # ✅ correct
     }
 
     return render(request, "Lab/lab_detail.html", context)
@@ -527,6 +530,12 @@ def lab_profile(request):
 def lab_edit_profile(request):
     lab = Lab.objects.get(user=request.user)
 
+    # ✅ Full day names (IMPORTANT)
+    days_list = [
+        "Monday", "Tuesday", "Wednesday",
+        "Thursday", "Friday", "Saturday", "Sunday"
+    ]
+
     if request.method == "POST":
         lab.address = request.POST.get("address")
         lab.contact_number = request.POST.get("contact")
@@ -534,22 +543,28 @@ def lab_edit_profile(request):
         lab.closing_time = request.POST.get("closing_time")
         lab.average_report_time = request.POST.get("report_time")
 
+        # 🔥 FIX: operating days save
+        selected_days = request.POST.getlist("working_days")
+        lab.operating_days = ",".join(selected_days)
+
         lab.save()
 
         messages.success(request, "Profile Updated Successfully")
         return redirect("lab_edit_profile")
 
-    # all tests
-    lab_tests = LabTest.objects.filter(lab=lab)
+    # existing selected days (for checkbox checked)
+    selected_days = lab.operating_days.split(",") if lab.operating_days else []
 
+    lab_tests = LabTest.objects.filter(lab=lab)
     all_tests = Test.objects.all()
 
     return render(request, "LabPortal/lab_edit_profile.html", {
         "lab": lab,
         "lab_tests": lab_tests,
-        "all_tests": all_tests
+        "all_tests": all_tests,
+        "selected_days": selected_days,
+        "days_list": days_list   # 🔥 IMPORTANT
     })
-
 
 # ======================================================
 # LAB AVAILABILITY
