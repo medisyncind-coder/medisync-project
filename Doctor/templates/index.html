@@ -5,14 +5,17 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>Welcome to MediSync</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
     <link href="{% static 'Doctor/hello.css' %}" rel="stylesheet">
 </head>
 <body>
 
-    <!-- Enhanced Navbar -->
+    <!-- Navbar -->
     <nav class="navbar">
-        <div class="container nav-container">
-            <a class="navbar-brand" href="#">MediSync</a>
+        <div class="nav-container">
+            <a class="navbar-brand" href="#">
+                <span class="brand-icon">⚕</span> MediSync
+            </a>
             <ul class="navbar-links">
                 <li><a href="{% url 'lab_login' %}">LabsPortal</a></li>
                 <li><a href="{% url 'patient_login' %}">PatientPortal</a></li>
@@ -22,112 +25,208 @@
                 <li><a href="{% url 'patient_register' %}">Patient Register</a></li>
                 <li><a href="{% url 'doctor_register' %}">Doctor Register</a></li>
                 <li><a href="{% url 'lab_registration' %}">Lab Register</a></li>
-                <li><a href="#">Login</a></li>
+                <li><a href="#" class="login-btn">Login</a></li>
             </ul>
         </div>
     </nav>
 
     <!-- Hero Section -->
     <header class="hero">
-        <div class="hero-overlay">
-            <div class="hero-content">
-                <h1><span class="highlight">Welcome to</span> <span>MediSync</span></h1>
-                <p><em>Book appointments with doctors and labs easily in your city.</em></p>
-                <a href="{% url 'doctor_page' %}" class="btn-primary">Book Now</a>
+        <div class="hero-bg-pattern"></div>
+        <div class="hero-content">
+            <div class="hero-badge">🏥 Trusted Healthcare Platform</div>
+            <h1>Welcome to <span class="highlight">MediSync</span></h1>
+            <p class="hero-sub">Book appointments with doctors and labs easily in your city. Fast, reliable, and always available.</p>
+            <div class="hero-buttons">
+                <a href="{% url 'doctor_page' %}" class="btn-primary">Book a Doctor</a>
+                <a href="{% url 'lab_list' %}" class="btn-outline">Find a Lab</a>
+            </div>
+            <div class="hero-wave-bottom">
+                <svg viewBox="0 0 1440 80" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none">
+                    <path d="M0,40 C360,80 1080,0 1440,40 L1440,80 L0,80 Z" fill="#ffffff"/>
+                </svg>
             </div>
         </div>
     </header>
 
-    <!-- Secondary Hero -->
-    <header class="hero-secondary">
-        <div class="container secondary-container">
-            <div class="hero-image">
-                <img src="{% static 'Doctor/image/pp1.jpg' %}" alt="Exercise and Health">
+    <!-- About Section -->
+    <section class="about-section">
+        <div class="container about-grid">
+            <div class="about-visual">
+                <div class="visual-card card-1">
+                    <span class="vc-icon">👨‍⚕️</span>
+                    <span>Expert Doctors</span>
+                </div>
+                <div class="visual-card card-2">
+                    <span class="vc-icon">🧪</span>
+                    <span>Certified Labs</span>
+                </div>
+                <div class="visual-card card-3">
+                    <span class="vc-icon">📋</span>
+                    <span>Digital Reports</span>
+                </div>
+                <div class="big-circle"></div>
             </div>
-            <div class="hero-text">
-                <h1>Feeling better starts with <span>moving better</span></h1>
-                <p>At <strong>MediSync</strong>, we are here to make healthcare simple and available for everyone. Our website helps you easily find local doctors and labs, book appointments, and access your test reports — all from one place. Whether you need a doctor’s advice or lab tests, MediSync is your trusted partner for better health. We care about your well-being and want to make sure you get the right care, when you need it most. Start moving toward a healthier life with us!</p>
-                <a href="#" class="btn-secondary">Book Now</a>
+            <div class="about-text">
+                <span class="section-label">About Us</span>
+                <h2>Feeling better starts with <span class="text-blue">moving better</span></h2>
+                <p>At <strong>MediSync</strong>, we make healthcare simple and available for everyone. Easily find local doctors and labs, book appointments, and access your test reports — all from one place.</p>
+                <p>Whether you need a doctor's advice or lab tests, MediSync is your trusted partner for better health. We care about your well-being and want to make sure you get the right care, when you need it most.</p>
+                <a href="#" class="btn-primary">Get Started</a>
             </div>
         </div>
-    </header>
+    </section>
 
     <!-- Search Section -->
     <section class="search-section">
-        <h2>Find Doctors or Labs</h2>
-        <div class="search-container">
-            <input type="text" placeholder="Search by name or specialization">
-            <select>
-                <option value="">Select Location</option>
-                <option value="city1">City 1</option>
-                <option value="city2">City 2</option>
-            </select>
-            <button>Search</button>
+        <div class="container">
+            <span class="section-label">Quick Search</span>
+            <h2>Find Doctors or Labs Near You</h2>
+            <div class="search-box">
+                <div class="search-input-wrap">
+                    <span class="search-icon">🔍</span>
+                    <input type="text" placeholder="Search by name or specialization">
+                </div>
+                <select>
+                    <option value="">📍 Select Location</option>
+                    <option value="city1">City 1</option>
+                    <option value="city2">City 2</option>
+                </select>
+                <button class="btn-primary">Search</button>
+            </div>
         </div>
     </section>
 
     <!-- Services Section -->
-    <section class="services">
-        <h2>What we offer</h2>
-        <div class="service-cards">
-            <div class="service-card">
-                <img src="{% static 'Doctor/image/Lab1.jpg' %}" alt="Lab Test">
-                <h3>Lab Test Scheduling</h3>
-            </div>
-            <div class="service-card">
-                <img src="{% static 'Doctor/image/record.jpg' %}" alt="Records">
-                <h3>Health Records Management</h3>
+    <section class="services-section">
+        <div class="container">
+            <span class="section-label">Our Services</span>
+            <h2>What We Offer</h2>
+            <div class="service-cards">
+                <div class="service-card">
+                    <div class="service-icon">🏥</div>
+                    <h3>Doctor Appointments</h3>
+                    <p>Book appointments with verified local doctors based on specialization and real-time availability.</p>
+                </div>
+                <div class="service-card">
+                    <div class="service-icon">🧪</div>
+                    <h3>Lab Test Scheduling</h3>
+                    <p>Find certified labs, browse available tests, and schedule diagnostic appointments with ease.</p>
+                </div>
+                <div class="service-card">
+                    <div class="service-icon">📁</div>
+                    <h3>Health Records Management</h3>
+                    <p>Access and manage your digital health records and test reports securely from one place.</p>
+                </div>
+                <div class="service-card">
+                    <div class="service-icon">🔔</div>
+                    <h3>Real-Time Notifications</h3>
+                    <p>Stay updated with instant alerts for appointments, booking confirmations, and report uploads.</p>
+                </div>
             </div>
         </div>
     </section>
 
     <!-- Statistics Section -->
-    <section class="statistics">
-        <div class="stat">
-            <h3>150+</h3>
-            <p>Doctors</p>
+    <section class="statistics-section">
+        <div class="container stats-grid">
+            <div class="stat-card">
+                <h3>150+</h3>
+                <p>Doctors</p>
+            </div>
+            <div class="stat-card">
+                <h3>80+</h3>
+                <p>Labs</p>
+            </div>
+            <div class="stat-card">
+                <h3>500+</h3>
+                <p>Appointments</p>
+            </div>
+            <div class="stat-card">
+                <h3>1000+</h3>
+                <p>Satisfied Users</p>
+            </div>
         </div>
-        <div class="stat">
-            <h3>80+</h3>
-            <p>Labs</p>
-        </div>
-        <div class="stat">
-            <h3>500+</h3>
-            <p>Appointments</p>
-        </div>
-        <div class="stat">
-            <h3>1000+</h3>
-            <p>Satisfied Users</p>
+    </section>
+
+    <!-- Portals Section -->
+    <section class="portals-section">
+        <div class="container">
+            <span class="section-label">Quick Access</span>
+            <h2>Access Your Portal</h2>
+            <div class="portal-cards">
+                <a href="{% url 'patient_login' %}" class="portal-card">
+                    <div class="portal-icon">🧑‍🦯</div>
+                    <h3>Patient Portal</h3>
+                    <p>Book appointments, view reports, manage your health history.</p>
+                    <span class="portal-arrow">→</span>
+                </a>
+                <a href="{% url 'doctor_dashboard' %}" class="portal-card">
+                    <div class="portal-icon">👨‍⚕️</div>
+                    <h3>Doctor Portal</h3>
+                    <p>Manage appointments, view patient schedules, provide prescriptions.</p>
+                    <span class="portal-arrow">→</span>
+                </a>
+                <a href="{% url 'lab_login' %}" class="portal-card">
+                    <div class="portal-icon">🔬</div>
+                    <h3>Lab Portal</h3>
+                    <p>Manage test bookings, upload reports, configure lab services.</p>
+                    <span class="portal-arrow">→</span>
+                </a>
+            </div>
         </div>
     </section>
 
     <!-- Feedback Section -->
-    <section>
-        <div id="feedback-form" class="feedback-form-container">
-            <h2>Feedback from our clients</h2>
-            <textarea id="user-feedback" placeholder="Enter your feedback..." rows="4"></textarea>
-            <input type="text" id="user-name" placeholder="Your name" />
-            <button onclick="submitFeedback()">Submit</button>
-        </div>
-        <div id="feedback-cards" class="feedback-container" style="display: none;">
-            <div class="feedback-card">
-                <div class="stars">★★★★★</div>
-                <div class="feedback-text">
-                    Boost your product and service’s credibility by adding testimonials from your clients. People love recommendations so feedback from others who’ve tried it is invaluable.
-                </div>
-                <div class="client-name">Casper Berkley</div>
+    <section class="feedback-section">
+        <div class="container">
+            <span class="section-label">Testimonials</span>
+            <h2>Feedback from Our Clients</h2>
+
+            <div id="feedback-form" class="feedback-form-wrap">
+                <textarea id="user-feedback" placeholder="Share your experience with MediSync..." rows="4"></textarea>
+                <input type="text" id="user-name" placeholder="Your name" />
+                <button class="btn-primary" onclick="submitFeedback()">Submit Feedback</button>
             </div>
-            <div class="feedback-card">
-                <div class="stars">★★★★★</div>
-                <div class="feedback-text" id="feedback2"></div>
-                <div class="client-name" id="client2"></div>
+
+            <div id="feedback-cards" class="feedback-cards-wrap" style="display:none;">
+                <div class="feedback-card">
+                    <div class="stars">★★★★★</div>
+                    <p class="feedback-text">MediSync has completely changed how I book doctor appointments. No more long queues or phone calls — everything is just a click away. Highly recommended!</p>
+                    <div class="client-name">— Casper Berkley</div>
+                </div>
+                <div class="feedback-card" id="user-feedback-card" style="display:none;">
+                    <div class="stars">★★★★★</div>
+                    <p class="feedback-text" id="feedback2"></p>
+                    <div class="client-name" id="client2"></div>
+                </div>
             </div>
         </div>
     </section>
 
     <!-- Footer -->
-    <footer>
-        <p>&copy; MediSync. Shivansh.</p>
+    <footer class="footer">
+        <div class="container footer-inner">
+            <div class="footer-brand">
+                <span class="brand-icon">⚕</span> MediSync
+                <p>Your trusted healthcare appointment platform.</p>
+            </div>
+            <div class="footer-links">
+                <h4>Quick Links</h4>
+                <a href="{% url 'doctor_page' %}">Doctors</a>
+                <a href="{% url 'lab_list' %}">Labs</a>
+                <a href="{% url 'patient_register' %}">Register</a>
+            </div>
+            <div class="footer-links">
+                <h4>Portals</h4>
+                <a href="{% url 'patient_login' %}">Patient Login</a>
+                <a href="{% url 'doctor_dashboard' %}">Doctor Login</a>
+                <a href="{% url 'lab_login' %}">Lab Login</a>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2026 MediSync. Developed by Shivansh Srivastav & Rudransh Chaturwedi | UNSIET, Jaunpur</p>
+        </div>
     </footer>
 
     <!-- JavaScript -->
@@ -136,7 +235,7 @@
         const feedback = document.getElementById("user-feedback").value.trim();
         const name = document.getElementById("user-name").value.trim();
 
-        if(feedback === "" || name === "") {
+        if (feedback === "" || name === "") {
             alert("Please fill in both fields!");
             return;
         }
@@ -145,8 +244,23 @@
         const cards = document.getElementById("feedback-cards");
         cards.style.display = "flex";
         document.getElementById("feedback2").innerText = feedback;
-        document.getElementById("client2").innerText = name;
+        document.getElementById("client2").innerText = "— " + name;
+        document.getElementById("user-feedback-card").style.display = "block";
     }
+
+    // Scroll reveal animation
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(e => {
+            if (e.isIntersecting) {
+                e.target.classList.add('visible');
+            }
+        });
+    }, { threshold: 0.1 });
+
+    document.querySelectorAll('.service-card, .stat-card, .portal-card, .feedback-card, .about-grid').forEach(el => {
+        el.classList.add('reveal');
+        observer.observe(el);
+    });
     </script>
 
 </body>
