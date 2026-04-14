@@ -27,6 +27,28 @@
 
 <p>{{ doctor.specialization }}</p>
 
+<div id="avail-badge" style="margin:14px 0;text-align:center;">
+    <span style="color:#94a3b8;font-size:13px;">Checking availability...</span>
+</div>
+
+<script>
+(function checkAvailability() {
+    fetch('/doctor/live-status/{{ doctor.id }}/')
+        .then(res => res.json())
+        .then(data => {
+            const badge = document.getElementById('avail-badge');
+            if (!badge) return;
+            if (data.is_available) {
+                badge.innerHTML = '<span style="background:#bbf7d0;color:#065f46;padding:6px 16px;border-radius:20px;font-size:13px;font-weight:600;">✓ Doctor is Available — ' + data.total_queue + ' patient(s) in queue</span>';
+            } else {
+                badge.innerHTML = '<span style="background:#fde68a;color:#92400e;padding:6px 16px;border-radius:20px;font-size:13px;font-weight:600;">⚠ Doctor is Currently Busy — ' + data.total_queue + ' patient(s) waiting</span>';
+            }
+        })
+        .catch(function() {});
+    setTimeout(checkAvailability, 30000);
+})();
+</script>
+
 </div>
 
 

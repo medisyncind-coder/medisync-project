@@ -81,6 +81,7 @@ urlpatterns = [
     path('doctor/logout/', DoctorViews.doctor_logout, name='doctor_logout'),
     path("doctor/check-appointments/", DoctorViews.check_new_appointments, name="check_appointments"),
 
+    path('doctor/live-status/<int:doctor_id>/', DoctorViews.doctor_live_status, name='doctor_live_status'),
 
     # ==========================
     # LAB SYSTEM

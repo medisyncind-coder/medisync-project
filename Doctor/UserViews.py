@@ -287,8 +287,10 @@ def my_bookings(request):
             "date": a.appointment_date,
             "time": a.appointment_time,
             "status": a.status,
-            "id": a.id
+            "id": a.id,
+            "doctor_id": a.doctor.id,        # ← only new line
         })
+
 
     for l in lab_bookings:
         bookings.append({

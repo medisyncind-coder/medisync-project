@@ -33,6 +33,54 @@ def check_new_appointments(request):
     return JsonResponse({"count": count})
 
 # ======================================================
+# 📡 LIVE DOCTOR STATUS API (Patient polling endpoint)
+# ======================================================
+def doctor_live_status(request, doctor_id):
+
+    doctor = get_object_or_404(Doctor, id=doctor_id)
+
+    # Get availability toggle
+    availability = DoctorAvailability.objects.filter(doctor=doctor).first()
+    is_available = availability.is_available if availability else True
+
+    today = timezone.now().date()
+
+    # All active (pending + approved) appointments today, in time order
+    active_queue = Appointment.objects.filter(
+        doctor=doctor,
+        appointment_date=today,
+        status__in=['Pending', 'Approved']
+    ).order_by('appointment_time')
+
+    total_queue = active_queue.count()
+    queue_position = None
+    estimated_wait = None
+
+    # If a specific appointment_id is passed, calculate that patient's position
+    appointment_id = request.GET.get('appointment_id')
+    if appointment_id:
+        try:
+            patient_appt = Appointment.objects.get(
+                id=int(appointment_id),
+                doctor=doctor
+            )
+            ahead = active_queue.filter(
+                appointment_time__lt=patient_appt.appointment_time
+            ).count()
+            queue_position = ahead + 1
+            duration = doctor.appointment_duration or 15
+            estimated_wait = ahead * duration  # minutes
+        except (Appointment.DoesNotExist, ValueError):
+            pass
+
+    return JsonResponse({
+        'is_available': is_available,
+        'queue_position': queue_position,
+        'estimated_wait': estimated_wait,
+        'total_queue': total_queue,
+    })
+
+# ======================================================
 # 🔢 OTP GENERATOR
 # ======================================================
 def generate_otp():

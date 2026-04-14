@@ -132,6 +132,8 @@
                     <th>Time</th>
                     <th>Status</th>
                     <th>Action</th>
+                    <th>Live Status</th>
+
                 </tr>
             </thead>
 
@@ -165,13 +167,21 @@
 
                     <td>
                         {% if b.status == "Pending" or b.status == "Approved" %}
-                            <a href="{% url 'cancel_appointment' b.type|lower b.id %}" 
+                            <a href="{% url 'cancel_appointment' b.type|lower b.id %}"
                                class="cancel-btn"
                                onclick="return confirm('Are you sure you want to cancel this booking?')">
                                Cancel
                             </a>
                         {% else %}
                             -
+                        {% endif %}
+                    </td>
+
+                    <td id="live-{{ b.type|lower }}-{{ b.id }}">
+                        {% if b.type == "Doctor" and b.status != "Cancelled" and b.status != "Completed" and b.status != "Rejected" %}
+                            <span style="color:#94a3b8;font-size:12px;">Loading...</span>
+                        {% else %}
+                            <span style="color:#94a3b8;font-size:12px;">—</span>
                         {% endif %}
                     </td>
 
@@ -200,5 +210,63 @@
     {% endif %}
 
 </div>
+
+<script>
+/* jshint ignore:start */
+const doctorBookings = [
+    {% for b in bookings %}
+    {% if b.type == "Doctor" and b.status != "Cancelled" and b.status != "Completed" and b.status != "Rejected" %}
+    { id: {{ b.id }}, doctorId: {{ b.doctor_id }}, status: "{{ b.status }}" },
+    {% endif %}
+    {% endfor %}
+];
+/* jshint ignore:end */
+
+function updateLiveStatus(booking) {
+    fetch(`/doctor/live-status/${booking.doctorId}/?appointment_id=${booking.id}`)
+        .then(res => res.json())
+        .then(data => {
+            const cell = document.getElementById(`live-doctor-${booking.id}`);
+            if (!cell) return;
+
+            let html = '';
+
+            if (!data.is_available) {
+                html = `<span style="background:#fde68a;color:#92400e;
+                            padding:4px 10px;border-radius:12px;
+                            font-size:11px;font-weight:600;display:inline-block;">
+                            ⚠ Doctor Busy
+                        </span>`;
+                if (data.estimated_wait !== null && data.queue_position !== null) {
+                    html += `<div style="color:#6b7280;font-size:11px;margin-top:4px;">
+                                Queue #${data.queue_position} &nbsp;|&nbsp; ~${data.estimated_wait} min wait
+                             </div>`;
+                }
+            } else {
+                let queueText = '';
+                if (data.queue_position !== null) {
+                    queueText = `<div style="color:#6b7280;font-size:11px;margin-top:4px;">
+                                    You are #${data.queue_position} in queue
+                                 </div>`;
+                }
+                html = `<span style="background:#bbf7d0;color:#065f46;
+                            padding:4px 10px;border-radius:12px;
+                            font-size:11px;font-weight:600;display:inline-block;">
+                            ✓ Available
+                        </span>${queueText}`;
+            }
+
+            cell.innerHTML = html;
+        })
+        .catch(() => {});
+}
+
+function pollAll() {
+    doctorBookings.forEach(b => updateLiveStatus(b));
+}
+
+pollAll();
+setInterval(pollAll, 30000);
+</script>
 
 {% endblock %}
