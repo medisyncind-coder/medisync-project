@@ -4,18 +4,16 @@ Django settings for Doctor project.
 
 from pathlib import Path
 import os
+from decouple import config
 
 # ================= BASE DIR =================
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # ================= SECURITY =================
-SECRET_KEY = 'django-insecure-cu#-nm1*oeeev$ypmk&j#g*sunpl#&f^ph@#!68_6$7qy@rs)h'
-DEBUG = True
+SECRET_KEY = config('SECRET_KEY', default='django-insecure-cu#-nm1*oeeev$ypmk&j#g*sunpl#&f^ph@#!68_6$7qy@rs)h')
+DEBUG = config('DEBUG', default=False, cast=bool)
 
-ALLOWED_HOSTS = [
-    '127.0.0.1',
-    'localhost',
-]
+ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='127.0.0.1,localhost').split(',')
 
 # ================= CUSTOM USER =================
 AUTH_USER_MODEL = 'accounts.User'
@@ -39,6 +37,7 @@ INSTALLED_APPS = [
 # ================= MIDDLEWARE =================
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
 
     'django.middleware.common.CommonMiddleware',
@@ -98,6 +97,8 @@ USE_TZ = True
 # ================= STATIC FILES =================
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [os.path.join(BASE_DIR, 'Doctor/static')]
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 # ================= MEDIA FILES =================
 MEDIA_URL = '/media/'
@@ -110,10 +111,10 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # 🔐 CSRF & SESSION FIX (THIS FIXES 403 ERROR)
 # ======================================================
 
-CSRF_TRUSTED_ORIGINS = [
-    'http://127.0.0.1:8000',
-    'http://localhost:8000',
-]
+CSRF_TRUSTED_ORIGINS = config(
+    'CSRF_TRUSTED_ORIGINS',
+    default='http://127.0.0.1:8000,http://localhost:8000'
+).split(',')
 
 CSRF_COOKIE_SECURE = False
 CSRF_COOKIE_HTTPONLY = False
@@ -133,8 +134,8 @@ EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 
-EMAIL_HOST_USER = 'medisyncind@gmail.com'
-EMAIL_HOST_PASSWORD = 'lyckxlehhysmzhab'  # Gmail App Password
+EMAIL_HOST_USER = config('EMAIL_HOST_USER', default='medisyncind@gmail.com')
+EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD', default='')
 
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 
