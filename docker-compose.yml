@@ -1,15 +1,29 @@
 version: '3.8'
 
 services:
+
   web:
     build: .
-    ports:
-      - "8000:8000"
+    expose:
+      - "8000"
     env_file:
       - .env
     volumes:
       - media_data:/app/media
       - sqlite_data:/app/db.sqlite3
+    restart: always
+    depends_on:
+      - nginx
+
+  nginx:
+    image: nginx:alpine
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf
+      - media_data:/app/media
+    depends_on:
+      - web
     restart: always
 
 volumes:

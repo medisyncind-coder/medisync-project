@@ -162,16 +162,22 @@ Sunday
 <textarea name="bio">{{ doctor.bio }}</textarea>
 </div>
 
-<!-- PROFILE PHOTO (LOCKED) -->
+<!-- PROFILE PHOTO -->
 <div class="form-group">
 <label>Profile Photo</label><br>
 
 {% if doctor.profile_photo %}
-<img src="{{ doctor.profile_photo.url }}" width="80" style="border-radius:50%">
+    <img src="{{ doctor.profile_photo.url }}" id="photo-preview" width="90" style="border-radius:50%;object-fit:cover;height:90px;display:block;margin-bottom:10px;">
+{% else %}
+    <div id="photo-preview" style="width:90px;height:90px;border-radius:50%;background:#3b82f6;color:#fff;display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:700;margin-bottom:10px;">
+        {{ doctor.name|first|upper }}
+    </div>
 {% endif %}
 
-<p style="color:#888;font-size:13px;">Profile photo cannot be changed</p>
-
+<input type="file" name="profile_photo" accept="image/*" id="photo-input"
+    style="margin-top:6px;"
+    onchange="previewPhoto(event)">
+<p style="color:#6b7280;font-size:12px;margin-top:4px;">JPG, PNG — Max 5MB</p>
 </div>
 
 </div>
@@ -181,5 +187,34 @@ Sunday
 </form>
 
 </div>
+
+<script>
+function previewPhoto(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    if (file.size > 5 * 1024 * 1024) {
+        alert("File too large. Max 5MB allowed.");
+        event.target.value = "";
+        return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        const preview = document.getElementById("photo-preview");
+        if (preview.tagName === "IMG") {
+            preview.src = e.target.result;
+        } else {
+            // Replace the initials div with an img
+            const img = document.createElement("img");
+            img.src = e.target.result;
+            img.id = "photo-preview";
+            img.style = "width:90px;height:90px;border-radius:50%;object-fit:cover;display:block;margin-bottom:10px;";
+            preview.replaceWith(img);
+        }
+    };
+    reader.readAsDataURL(file);
+}
+</script>
 
 {% endblock %}

@@ -13,19 +13,28 @@
     <!-- Navbar -->
     <nav class="navbar">
         <div class="nav-container">
-            <a class="navbar-brand" href="#">
+            <a class="navbar-brand" href="/">
                 <span class="brand-icon">⚕</span> MediSync
             </a>
             <ul class="navbar-links">
-                <li><a href="{% url 'lab_login' %}">LabsPortal</a></li>
-                <li><a href="{% url 'patient_login' %}">PatientPortal</a></li>
-                <li><a href="{% url 'doctor_dashboard' %}">DoctorPortal</a></li>
                 <li><a href="{% url 'doctor_page' %}">Doctors</a></li>
                 <li><a href="{% url 'lab_list' %}">Labs</a></li>
-                <li><a href="{% url 'patient_register' %}">Patient Register</a></li>
-                <li><a href="{% url 'doctor_register' %}">Doctor Register</a></li>
-                <li><a href="{% url 'lab_registration' %}">Lab Register</a></li>
-                <li><a href="#" class="login-btn">Login</a></li>
+                <li class="login-dropdown">
+                    <a href="#" class="register-btn">Register ▾</a>
+                    <ul class="dropdown-menu">
+                        <li><a href="{% url 'patient_register' %}">Patient Register</a></li>
+                        <li><a href="{% url 'doctor_register' %}">Doctor Register</a></li>
+                        <li><a href="{% url 'lab_registration' %}">Lab Register</a></li>
+                    </ul>
+                </li>
+                <li class="login-dropdown">
+                    <a href="#" class="login-btn">Login ▾</a>
+                    <ul class="dropdown-menu">
+                        <li><a href="{% url 'patient_login' %}">Patient Login</a></li>
+                        <li><a href="{% url 'doctor_login' %}">Doctor Login</a></li>
+                        <li><a href="{% url 'lab_login' %}">Lab Login</a></li>
+                    </ul>
+                </li>
             </ul>
         </div>
     </nav>
@@ -72,7 +81,7 @@
                 <h2>Feeling better starts with <span class="text-blue">moving better</span></h2>
                 <p>At <strong>MediSync</strong>, we make healthcare simple and available for everyone. Easily find local doctors and labs, book appointments, and access your test reports — all from one place.</p>
                 <p>Whether you need a doctor's advice or lab tests, MediSync is your trusted partner for better health. We care about your well-being and want to make sure you get the right care, when you need it most.</p>
-                <a href="#" class="btn-primary">Get Started</a>
+                <a href="{% url 'patient_register' %}" class="btn-primary">Get Started</a>
             </div>
         </div>
     </section>
@@ -82,18 +91,15 @@
         <div class="container">
             <span class="section-label">Quick Search</span>
             <h2>Find Doctors or Labs Near You</h2>
-            <div class="search-box">
-                <div class="search-input-wrap">
-                    <span class="search-icon">🔍</span>
-                    <input type="text" placeholder="Search by name or specialization">
+            <form action="{% url 'doctor_page' %}" method="GET">
+                <div class="search-box">
+                    <div class="search-input-wrap">
+                        <span class="search-icon">🔍</span>
+                        <input type="text" name="search" placeholder="Search by name or specialization">
+                    </div>
+                    <button type="submit" class="btn-primary">Search Doctors</button>
                 </div>
-                <select>
-                    <option value="">📍 Select Location</option>
-                    <option value="city1">City 1</option>
-                    <option value="city2">City 2</option>
-                </select>
-                <button class="btn-primary">Search</button>
-            </div>
+            </form>
         </div>
     </section>
 
@@ -131,19 +137,19 @@
     <section class="statistics-section">
         <div class="container stats-grid">
             <div class="stat-card">
-                <h3>150+</h3>
+                <h3>{{ total_doctors }}+</h3>
                 <p>Doctors</p>
             </div>
             <div class="stat-card">
-                <h3>80+</h3>
+                <h3>{{ total_labs }}+</h3>
                 <p>Labs</p>
             </div>
             <div class="stat-card">
-                <h3>500+</h3>
+                <h3>{{ total_appointments }}+</h3>
                 <p>Appointments</p>
             </div>
             <div class="stat-card">
-                <h3>1000+</h3>
+                <h3>{{ total_patients }}+</h3>
                 <p>Satisfied Users</p>
             </div>
         </div>
@@ -156,7 +162,7 @@
             <h2>Access Your Portal</h2>
             <div class="portal-cards">
                 <a href="{% url 'patient_login' %}" class="portal-card">
-                    <div class="portal-icon">🧑‍🦯</div>
+                    <div class="portal-icon">👤</div>
                     <h3>Patient Portal</h3>
                     <p>Book appointments, view reports, manage your health history.</p>
                     <span class="portal-arrow">→</span>
@@ -220,7 +226,7 @@
             <div class="footer-links">
                 <h4>Portals</h4>
                 <a href="{% url 'patient_login' %}">Patient Login</a>
-                <a href="{% url 'doctor_dashboard' %}">Doctor Login</a>
+                <a href="{% url 'doctor_login' %}">Doctor Login</a>
                 <a href="{% url 'lab_login' %}">Lab Login</a>
             </div>
         </div>

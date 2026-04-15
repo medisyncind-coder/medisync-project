@@ -545,7 +545,6 @@ class Patient(models.Model):
     # -------- STRING --------
     def __str__(self):
         return f"{self.name} ({self.user.email})"
-        return self.name
     
     
 class MedicalRecord(models.Model):

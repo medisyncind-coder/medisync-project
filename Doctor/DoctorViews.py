@@ -321,10 +321,10 @@ def doctor_dashboard(request):
         status="Completed"
     ).count()
 
-    # Total patients (unique phone numbers)
+    # Total patients (unique patients)
     total_patients = Appointment.objects.filter(
         doctor=doctor
-    ).values('contact_number').distinct().count()
+    ).values('patient').distinct().count()
 
     # Monthly earnings (example calculation)
     monthly_completed = Appointment.objects.filter(
@@ -342,11 +342,17 @@ def doctor_dashboard(request):
     # Context Data
     # ==========================
 
+    # Availability status
+    availability = DoctorAvailability.objects.filter(doctor=doctor).first()
+    is_available = availability.is_available if availability else True
+
     context = {
 
         "doctor": doctor,
 
         "today": today,
+
+        "is_available": is_available,
 
         "appointments": appointments,
 
@@ -574,7 +580,8 @@ def doctor_logout(request):
 @login_required
 def approve_appointment(request, appointment_id):
 
-    appointment = get_object_or_404(Appointment, id=appointment_id)
+    doctor = get_object_or_404(Doctor, user=request.user)
+    appointment = get_object_or_404(Appointment, id=appointment_id, doctor=doctor)
 
     appointment.status = "Approved"
     appointment.save()
@@ -585,7 +592,8 @@ def approve_appointment(request, appointment_id):
 @login_required
 def reject_appointment(request, appointment_id):
 
-    appointment = get_object_or_404(Appointment, id=appointment_id)
+    doctor = get_object_or_404(Doctor, user=request.user)
+    appointment = get_object_or_404(Appointment, id=appointment_id, doctor=doctor)
 
     appointment.status = "Rejected"
     appointment.save()
@@ -593,11 +601,11 @@ def reject_appointment(request, appointment_id):
     return redirect("doctor_appointments")
 
 
-
 @login_required
 def complete_appointment(request, appointment_id):
 
-    appointment = get_object_or_404(Appointment, id=appointment_id)
+    doctor = get_object_or_404(Doctor, user=request.user)
+    appointment = get_object_or_404(Appointment, id=appointment_id, doctor=doctor)
 
     appointment.status = "Completed"
     appointment.save()
@@ -658,11 +666,9 @@ def doctor_profile_edit(request):
 
     if request.method == "POST":
 
-        # ❌ Ye fields change nahi honge
-        # doctor.name
-        # doctor.qualification
-        # doctor.clinic_name
-        # doctor.profile_photo
+        # ✅ Profile photo update
+        if request.FILES.get("profile_photo"):
+            doctor.profile_photo = request.FILES["profile_photo"]
 
         # ✅ Editable Fields
         doctor.specialization = request.POST.get("specialization")

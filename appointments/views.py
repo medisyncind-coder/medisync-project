@@ -184,9 +184,6 @@ def confirm_booking(request, doctor_id, slot_time):
             appointment.payment_type = "Online"
             appointment.status = "Pending"
 
-            # 🔥 SAVE FEE IN APPOINTMENT (IMPORTANT)
-            appointment.amount = consultation_fee
-
             appointment.save()
 
             return render(request, "appointments/booking_success.html", {

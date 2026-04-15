@@ -55,8 +55,6 @@ urlpatterns = [
     path('doctor-login/', DoctorViews.doctor_login, name='doctor_login'),
     path('doctor-login-submit/', DoctorViews.do_doctor_login, name='do_doctor_login'),
     path('doctor/patient/<int:appointment_id>/',DoctorViews.patient,name='doctor_patient'),
-    path('doctor/add-prescription/<int:appointment_id>/',DoctorViews.add_prescription,name='add_prescription'),
-     
 
 
     # ==========================
@@ -102,12 +100,8 @@ urlpatterns = [
 # BOOKINGS
     path('lab/bookings/', LabViews.lab_bookings, name='lab_bookings'),
 
-    path('lab/approve/<int:appointment_id>/', LabViews.approve_lab_appointment, name='approve_lab_appointment'),
-
 # REPORTS
     path('lab/reports/', LabViews.lab_reports, name='lab_reports'),
-
-    path('lab/upload-report/<int:appointment_id>/', LabViews.upload_lab_report, name='upload_lab_report'),
 
 # SERVICES
     path('lab/services/', LabViews.lab_services, name='lab_services'),
@@ -123,8 +117,6 @@ urlpatterns = [
     path('Lab/<int:lab_id>/', LabViews.lab_detail, name='lab_detail'),
     path("lab/availability/",LabViews.lab_availability,name="lab_availability"),
     path("lab/toggle-availability/",LabViews.toggle_lab_availability,name="toggle_lab_availability"),
-    path('lab/dashboard/', LabViews.lab_dashboard, name="lab_dashboard"),
-
     path('lab/appointments/', LabViews.lab_appointments, name="lab_appointments"),
 
     path('lab/appointment/approve/<int:appointment_id>/', LabViews.approve_lab_appointment, name="approve_lab_appointment"),
@@ -161,17 +153,14 @@ urlpatterns = [
     path('user/dashboard/', UserViews.user_dashboard, name='patient_dashboard'),
 
     # ================= DOCTORS & LABS =================
-    path('doctors/', UserViews.user_doctors, name='user_doctors'),
-    path('labs/', UserViews.user_labs, name='user_labs'),
+    path('user/doctors/', UserViews.user_doctors, name='user_doctors'),
+    path('user/labs/', UserViews.user_labs, name='user_labs'),
 
     # ================= BOOKINGS =================
     path('my-bookings/', UserViews.my_bookings, name='my_bookings'),
 
     # ================= PAST =================
     path('past-appointments/', UserViews.past_appointments, name='past_appointments'),
-
-    # ================= CANCEL =================
-    path('cancel/<str:type>/<int:id>/', UserViews.cancel_appointment, name='cancel_booking'),
 
     # ================= LAB =================
     path('lab/book/<int:lab_id>/', UserViews.book_lab_test, name='book_lab_test'),

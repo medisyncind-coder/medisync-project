@@ -98,7 +98,13 @@ Search
 <div class="doctor-card">
 
 <div class="doctor-left">
+{% if doctor.profile_photo %}
 <img src="{{ doctor.profile_photo.url }}" class="doctor-img">
+{% else %}
+<div class="doctor-img" style="background:#3b82f6;color:#fff;display:flex;align-items:center;justify-content:center;font-size:32px;font-weight:700;">
+    {{ doctor.name|first|upper }}
+</div>
+{% endif %}
 </div>
 
 <div class="doctor-right">

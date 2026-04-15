@@ -10,7 +10,6 @@ from django.contrib.auth import get_user_model
 
 import random
 
-from urllib3 import request
 
 from accounts.emails import send_otp_via_email
 from .forms import *
@@ -48,13 +47,17 @@ def register_patient(request):
             full_name = form.cleaned_data['name']
 
             try:
-                with transaction.atomic():
-
-                    # ✅ Duplicate email check
-                    if User.objects.filter(email__iexact=email).exists():
-                        messages.error(request, "Email already registered")
+                # ✅ Handle existing unverified user (stale/incomplete registration)
+                existing_user = User.objects.filter(email__iexact=email).first()
+                if existing_user:
+                    if existing_user.is_verified:
+                        messages.error(request, "Email already registered. Please login.")
                         return render(request, 'Patient/patient_register.html', {'form': form})
+                    else:
+                        # Delete stale unverified user and their patient record
+                        existing_user.delete()
 
+                with transaction.atomic():
                     # ✅ Split name
                     name_parts = full_name.strip().split()
                     first_name = name_parts[0]
@@ -62,52 +65,47 @@ def register_patient(request):
 
                     # ✅ Create user
                     user = User.objects.create_user(
-                        username=email,
                         email=email,
                         password=password
                     )
-
                     user.first_name = first_name
                     user.last_name = last_name
-
-                    # ✅ USER EXTRA DATA SAVE
-                    user.contact_number = form.cleaned_data.get("phone") or ""
-                    user.address = form.cleaned_data.get("address") or ""
-
-                    # ✅ OTP (UNCHANGED 🔒)
                     user.is_verified = False
                     otp = generate_otp()
                     user.otp = otp
                     user.save()
 
+                    # ✅ Signal already created a blank Patient — just update it
+                    patient = Patient.objects.get(user=user)
+                    patient.name                = form.cleaned_data.get("name") or ""
+                    patient.phone               = form.cleaned_data.get("phone") or ""
+                    patient.address             = form.cleaned_data.get("address") or ""
+                    patient.date_of_birth       = form.cleaned_data.get("date_of_birth")
+                    patient.gender              = form.cleaned_data.get("gender") or ""
+                    patient.blood_group         = form.cleaned_data.get("blood_group") or ""
+                    patient.full_address        = form.cleaned_data.get("full_address") or ""
+                    patient.pincode             = form.cleaned_data.get("pincode") or ""
+                    patient.emergency_contact   = form.cleaned_data.get("emergency_contact") or ""
+                    patient.allergies           = form.cleaned_data.get("allergies") or ""
+                    patient.medical_conditions  = form.cleaned_data.get("medical_conditions") or ""
+                    if form.cleaned_data.get("profile_photo"):
+                        patient.profile_photo   = form.cleaned_data.get("profile_photo")
+                    patient.save()
+
+                # ✅ Send OTP outside transaction so email failure doesn't rollback DB
+                try:
                     send_otp_via_email(email, otp, role="Patient")
+                except Exception as email_error:
+                    print("❌ EMAIL ERROR:", email_error)
 
-                    # 🔥 PATIENT CREATE (ALL FIELDS SAFE)
-                    Patient.objects.create(
-                        user=user,
-                        name=form.cleaned_data.get("name") or "",
-                        phone=form.cleaned_data.get("phone") or "",
-                        address=form.cleaned_data.get("address") or "",
-                        date_of_birth=form.cleaned_data.get("date_of_birth"),  # required
-                        gender=form.cleaned_data.get("gender") or "",
-                        blood_group=form.cleaned_data.get("blood_group") or "",
-                        full_address=form.cleaned_data.get("full_address") or "",
-                        pincode=form.cleaned_data.get("pincode") or "",
-                        emergency_contact=form.cleaned_data.get("emergency_contact") or "",
-                        allergies=form.cleaned_data.get("allergies") or "",
-                        medical_conditions=form.cleaned_data.get("medical_conditions") or "",
-                        profile_photo=form.cleaned_data.get("profile_photo"),
-                    )
-
-                    # ✅ Session
-                    request.session['otp_email'] = email
-
-                    messages.success(request, "OTP sent successfully")
-                    return redirect('patient_verify_otp')
+                request.session['otp_email'] = email
+                messages.success(request, "OTP sent to your email.")
+                return redirect('patient_verify_otp')
 
             except Exception as e:
-                print("❌ REGISTER ERROR:", e)
-                messages.error(request, "Registration failed")
+                import traceback
+                traceback.print_exc()
+                messages.error(request, f"Registration failed: {str(e)}")
 
         else:
             print("❌ FORM ERRORS:", form.errors)

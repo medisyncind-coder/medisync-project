@@ -5,157 +5,168 @@
 
 <link rel="stylesheet" href="{% static 'Doctor/doctor_dashboard.css' %}">
 
+<style>
+.avail-badge{display:inline-block;padding:4px 14px;border-radius:20px;font-size:13px;font-weight:600;}
+.avail-on{background:#bbf7d0;color:#065f46;}
+.avail-off{background:#fde68a;color:#92400e;}
+.stats-grid-full{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:16px;margin-bottom:24px;}
+.stat-card-full{background:#fff;border-radius:12px;padding:20px;box-shadow:0 2px 8px rgba(0,0,0,0.07);display:flex;align-items:center;gap:14px;}
+.stat-card-full .stat-icon{font-size:28px;}
+.stat-card-full h4{font-size:12px;color:#6b7280;margin:0;}
+.stat-card-full h2{font-size:22px;font-weight:700;color:#111827;margin:4px 0 0;}
+.quick-links{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:24px;}
+.quick-link{padding:8px 16px;background:#f1f5f9;border-radius:8px;font-size:13px;font-weight:500;color:#1e293b;text-decoration:none;border:1px solid #e2e8f0;}
+.quick-link:hover{background:#e2e8f0;}
+.completed-row{display:flex;align-items:center;gap:10px;background:#f0fdf4;border-radius:10px;padding:12px 16px;margin-bottom:20px;font-size:14px;color:#065f46;font-weight:500;}
+</style>
+
 <div class="dashboard-container">
 
 <!-- ================= HEADER ================= -->
-
 <div class="dashboard-header">
-<h2>Welcome Dr. {{ doctor.name }}</h2>
-<p>Here is your activity overview for today</p>
+    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;">
+        <div>
+            <h2>Welcome Dr. {{ doctor.name }}</h2>
+            <p>{{ today }} &nbsp;|&nbsp; {{ doctor.specialization }}</p>
+        </div>
+        <span class="avail-badge {% if is_available %}avail-on{% else %}avail-off{% endif %}">
+            {% if is_available %}● Available{% else %}● Unavailable{% endif %}
+        </span>
+    </div>
 </div>
 
+<!-- ================= QUICK LINKS ================= -->
+<div class="quick-links">
+    <a href="{% url 'doctor_appointments' %}" class="quick-link">📋 All Appointments</a>
+    <a href="{% url 'doctor_availability' %}" class="quick-link">🔘 Manage Availability</a>
+    <a href="{% url 'doctor_patients' %}" class="quick-link">👥 My Patients</a>
+    <a href="{% url 'doctor_payments' %}" class="quick-link">💰 Payments</a>
+</div>
 
 <!-- ================= STATS CARDS ================= -->
+<div class="stats-grid-full">
 
-<div class="stats-grid">
+    <div class="stat-card-full">
+        <div class="stat-icon">📅</div>
+        <div class="stat-info">
+            <h4>Today's Active</h4>
+            <h2>{{ appointments|length }}</h2>
+        </div>
+    </div>
 
-<div class="stat-card">
+    <div class="stat-card-full">
+        <div class="stat-icon">⏳</div>
+        <div class="stat-info">
+            <h4>Pending</h4>
+            <h2>{{ pending_count }}</h2>
+        </div>
+    </div>
 
-<div class="stat-icon">📅</div>
+    <div class="stat-card-full">
+        <div class="stat-icon">✅</div>
+        <div class="stat-info">
+            <h4>Approved</h4>
+            <h2>{{ approved_count }}</h2>
+        </div>
+    </div>
 
-<div class="stat-info">
-<h4>Today's Appointments</h4>
-<h2>{{ appointments|length }}</h2>
-</div>
+    <div class="stat-card-full">
+        <div class="stat-icon">🏁</div>
+        <div class="stat-info">
+            <h4>Completed</h4>
+            <h2>{{ completed_count }}</h2>
+        </div>
+    </div>
 
-</div>
+    <div class="stat-card-full">
+        <div class="stat-icon">👥</div>
+        <div class="stat-info">
+            <h4>Total Patients</h4>
+            <h2>{{ total_patients }}</h2>
+        </div>
+    </div>
 
-
-<div class="stat-card">
-
-<div class="stat-icon">🩺</div>
-
-<div class="stat-info">
-<h4>Specialization</h4>
-<h2>{{ doctor.specialization }}</h2>
-</div>
-
-</div>
-
-
-<div class="stat-card">
-
-<div class="stat-icon">📆</div>
-
-<div class="stat-info">
-<h4>Date</h4>
-<h2>{{ today }}</h2>
-</div>
-
-</div>
-
-</div>
-
-
-
-<!-- ================= APPOINTMENTS SECTION ================= -->
-
-<div class="appointments-section">
-
-<div class="section-header">
-<h2>Today's Appointments</h2>
-</div>
-
-
-{% if appointments %}
-
-<div class="appointments-grid">
-
-{% for a in appointments %}
-
-<div class="appointment-card">
-
-<div class="patient-avatar">
-{{ a.full_name|default:"P"|first|upper }}
-</div>
-
-
-<div class="appointment-details">
-
-<h3>{{ a.full_name }}</h3>
-
-<div class="meta">
-
-<p><strong>Time:</strong> {{ a.preferred_time }}</p>
-<p><strong>Contact:</strong> {{ a.contact_number }}</p>
+    <div class="stat-card-full">
+        <div class="stat-icon">💰</div>
+        <div class="stat-info">
+            <h4>Monthly Earnings</h4>
+            <h2>₹{{ monthly_earnings }}</h2>
+        </div>
+    </div>
 
 </div>
 
-<p>
-
-<strong>Status:</strong>
-
-<span class="status {{ a.status|lower }}">
-{{ a.status }}
-</span>
-
-</p>
-
+<!-- ================= COMPLETED TODAY ================= -->
+{% if completed_today %}
+<div class="completed-row">
+    ✅ {{ completed_today|length }} appointment(s) completed today
 </div>
-
-
-<div class="appointment-actions">
-
-<a href="{% url 'approve_appointment' a.id %}" class="btn accept">
-Accept
-</a>
-
-<a href="{% url 'reject_appointment' a.id %}" class="btn reject">
-Decline
-</a>
-
-</div>
-
-</div>
-
-{% endfor %}
-
-</div>
-
-{% else %}
-
-<div class="empty-card">
-<p>No appointments scheduled for today</p>
-</div>
-
 {% endif %}
 
-</div>
+<!-- ================= APPOINTMENTS SECTION ================= -->
+<div class="appointments-section">
+
+    <div class="section-header">
+        <h2>Today's Appointments</h2>
+    </div>
+
+    {% if appointments %}
+    <div class="appointments-grid">
+        {% for a in appointments %}
+        <div class="appointment-card">
+
+            <div class="patient-avatar">
+                {{ a.full_name|default:"P"|first|upper }}
+            </div>
+
+            <div class="appointment-details">
+                <h3>{{ a.full_name }}</h3>
+                <div class="meta">
+                    <p><strong>Time:</strong> {{ a.appointment_time }}</p>
+                    <p><strong>Contact:</strong> {{ a.contact_number }}</p>
+                </div>
+                <p>
+                    <strong>Status:</strong>
+                    <span class="status {{ a.status|lower }}">{{ a.status }}</span>
+                </p>
+            </div>
+
+            <div class="appointment-actions">
+                {% if a.status == "Pending" %}
+                    <a href="{% url 'approve_appointment' a.id %}" class="btn accept">Accept</a>
+                    <a href="{% url 'reject_appointment' a.id %}" class="btn reject">Decline</a>
+                {% elif a.status == "Approved" %}
+                    <a href="{% url 'complete_appointment' a.id %}" class="btn accept">Complete</a>
+                    <a href="{% url 'reject_appointment' a.id %}" class="btn reject">Cancel</a>
+                {% endif %}
+            </div>
+
+        </div>
+        {% endfor %}
+    </div>
+
+    {% else %}
+    <div class="empty-card">
+        <p>No appointments scheduled for today</p>
+    </div>
+    {% endif %}
 
 </div>
-
+</div>
 
 <script>
-
-document.addEventListener("DOMContentLoaded",()=>{
-
-const cards = document.querySelectorAll(".appointment-card")
-
-cards.forEach((card,index)=>{
-
-card.style.opacity="0"
-card.style.transform="translateY(20px)"
-
-setTimeout(()=>{
-card.style.transition="0.4s"
-card.style.opacity="1"
-card.style.transform="translateY(0)"
-},index*120)
-
-})
-
-})
-
+document.addEventListener("DOMContentLoaded", () => {
+    const cards = document.querySelectorAll(".appointment-card");
+    cards.forEach((card, index) => {
+        card.style.opacity = "0";
+        card.style.transform = "translateY(20px)";
+        setTimeout(() => {
+            card.style.transition = "0.4s";
+            card.style.opacity = "1";
+            card.style.transform = "translateY(0)";
+        }, index * 120);
+    });
+});
 </script>
 
 {% endblock %}

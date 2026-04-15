@@ -6,16 +6,98 @@
 <meta charset="UTF-8">
 <title>MediSync Doctor Panel</title>
 
-<!-- Google Font -->
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-
-<!-- Icons -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-
 <link rel="stylesheet" href="{% static 'Doctor/Doctor_Portal_base.css' %}">
 
-</head>
+<style>
+/* ===== TOPBAR RIGHT FIXES ===== */
+.topbar-right {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+}
 
+/* ===== NOTIFICATION BELL ===== */
+.notification {
+    position: relative;
+    cursor: pointer;
+    text-decoration: none;
+    color: #374151;
+    font-size: 18px;
+}
+
+.notification .badge {
+    position: absolute;
+    top: -6px;
+    right: -8px;
+    background: #ef4444;
+    color: #fff;
+    font-size: 10px;
+    font-weight: 700;
+    border-radius: 50%;
+    width: 18px;
+    height: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.notification .badge.hidden {
+    display: none;
+}
+
+/* ===== PROFILE DROPDOWN ===== */
+.profile-dropdown {
+    position: relative;
+    cursor: pointer;
+}
+
+.profile-dropdown .doctor-profile {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.profile-dropdown .dropdown-menu {
+    display: none;
+    position: absolute;
+    right: 0;
+    top: 110%;
+    background: #fff;
+    border-radius: 10px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+    min-width: 170px;
+    padding: 8px 0;
+    z-index: 9999;
+    list-style: none;
+}
+
+.profile-dropdown:hover .dropdown-menu {
+    display: block;
+}
+
+.profile-dropdown .dropdown-menu li a {
+    display: block;
+    padding: 10px 16px;
+    font-size: 13px;
+    color: #374151;
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.profile-dropdown .dropdown-menu li a:hover {
+    background: #f1f5f9;
+    color: #1e293b;
+}
+
+.profile-dropdown .dropdown-menu li.divider {
+    border-top: 1px solid #f1f5f9;
+    margin: 4px 0;
+}
+</style>
+
+</head>
 <body>
 
 <div class="layout">
@@ -24,83 +106,81 @@
 <aside class="sidebar">
 
 <div class="logo">
-<h2><i class="fa-solid fa-stethoscope"></i> MediSync</h2>
-
-{% if doctor %}
-<p>Dr. {{ doctor.name }}</p>
-{% else %}
-<p>Doctor Panel</p>
-{% endif %}
-
+    <h2><i class="fa-solid fa-stethoscope"></i> MediSync</h2>
+    {% if doctor %}
+    <p>Dr. {{ doctor.name }}</p>
+    {% else %}
+    <p>Doctor Panel</p>
+    {% endif %}
 </div>
 
 <nav>
 <ul>
 
 <li>
-<a href="{% url 'home' %}">
-<i class="fa-solid fa-house"></i> Home
-</a>
+    <a href="{% url 'home' %}">
+        <i class="fa-solid fa-house"></i> Home
+    </a>
 </li>
 
 <li>
-<a href="{% url 'doctor_dashboard' %}">
-<i class="fa-solid fa-chart-line"></i> Dashboard
-</a>
+    <a href="{% url 'doctor_dashboard' %}">
+        <i class="fa-solid fa-chart-line"></i> Dashboard
+    </a>
 </li>
 
 <li>
-<a href="{% url 'doctor_appointments' %}">
-<i class="fa-solid fa-calendar-check"></i> Appointments
-</a>
+    <a href="{% url 'doctor_appointments' %}">
+        <i class="fa-solid fa-calendar-check"></i> Appointments
+    </a>
 </li>
 
 <li>
-<a href="{% url 'doctor_availability' %}">
-<i class="fa-solid fa-clock"></i> Availability
-</a>
+    <a href="{% url 'doctor_availability' %}">
+        <i class="fa-solid fa-clock"></i> Availability
+    </a>
 </li>
 
 <li>
-<a href="{% url 'doctor_patients' %}">
-<i class="fa-solid fa-user"></i> Patients
-</a>
+    <a href="{% url 'doctor_patients' %}">
+        <i class="fa-solid fa-user"></i> Patients
+    </a>
 </li>
 
 <li>
-<a href="{% url 'doctor_appointments' %}">
-<i class="fa-solid fa-file-prescription"></i> Prescriptions
-</a>
+    <a href="{% url 'doctor_appointments' %}">
+        <i class="fa-solid fa-file-prescription"></i> Prescriptions
+    </a>
 </li>
 
 <li>
-<a href="{% url 'doctor_payments' %}">
-<i class="fa-solid fa-wallet"></i> Payments
-</a>
+    <a href="{% url 'doctor_payments' %}">
+        <i class="fa-solid fa-wallet"></i> Payments
+    </a>
 </li>
 
 <li>
-<a href="{% url 'doctor_notifications' %}">
-<i class="fa-solid fa-bell"></i> Notifications
-</a>
+    <a href="{% url 'doctor_notifications' %}">
+        <i class="fa-solid fa-bell"></i> Notifications
+    </a>
 </li>
 
 <li>
-<a href="{% url 'doctor_profile_edit' %}">
-<i class="fa-solid fa-user-pen"></i> Edit Profile
-</a>
+    <a href="{% url 'doctor_profile_edit' %}">
+        <i class="fa-solid fa-user-pen"></i> Edit Profile
+    </a>
 </li>
 
 <li>
-<a href="{% url 'doctor_settings' %}">
-<i class="fa-solid fa-gear"></i> Settings
-</a>
+    <a href="{% url 'doctor_settings' %}">
+        <i class="fa-solid fa-gear"></i> Settings
+    </a>
 </li>
 
 <li>
-<a href="{% url 'doctor_logout' %}">
-<i class="fa-solid fa-right-from-bracket"></i> Logout
-</a>
+    <a href="{% url 'doctor_logout' %}">
+        <i class="fa-solid fa-right-from-bracket"></i> Logout
+    </a>
 </li>
 
 </ul>
@@ -114,139 +194,115 @@
 
 <header class="topbar">
 
-<div class="search-box">
-<input type="text" placeholder="Search patients, appointments...">
-<i class="fa fa-search"></i>
-</div>
+    <div class="search-box">
+        <form action="{% url 'doctor_appointments' %}" method="GET" style="display:flex;align-items:center;gap:6px;">
+            <input type="text" name="search" placeholder="Search appointments...">
+            <button type="submit" style="background:none;border:none;cursor:pointer;">
+                <i class="fa fa-search"></i>
+            </button>
+        </form>
+    </div>
 
-<div class="topbar-right">
+    <div class="topbar-right">
 
-<div class="notification">
-<i class="fa-solid fa-bell"></i>
-<span class="badge">3</span>
-</div>
+        <!-- NOTIFICATION BELL -->
+        <a href="{% url 'doctor_notifications' %}" class="notification" title="Notifications">
+            <i class="fa-solid fa-bell"></i>
+            <span class="badge hidden" id="notif-badge">0</span>
+        </a>
 
-<!-- DOCTOR PROFILE -->
-<div class="doctor-profile">
+        <!-- PROFILE DROPDOWN -->
+        <div class="profile-dropdown">
+            <div class="doctor-profile">
+                {% if doctor and doctor.profile_photo %}
+                    <img src="{{ doctor.profile_photo.url }}" alt="Doctor" style="width:36px;height:36px;border-radius:50%;object-fit:cover;">
+                {% else %}
+                    <div style="width:36px;height:36px;border-radius:50%;background:#3b82f6;color:#fff;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;">
+                        {% if doctor %}{{ doctor.name|first|upper }}{% else %}D{% endif %}
+                    </div>
+                {% endif %}
+                <span>
+                    {% if doctor %}Dr. {{ doctor.name }}{% else %}Doctor{% endif %}
+                </span>
+                <i class="fa-solid fa-chevron-down" style="font-size:11px;color:#6b7280;"></i>
+            </div>
+            <ul class="dropdown-menu">
+                <li><a href="{% url 'doctor_dashboard' %}"><i class="fa-solid fa-chart-line"></i> &nbsp;Dashboard</a></li>
+                <li><a href="{% url 'doctor_profile_edit' %}"><i class="fa-solid fa-user-pen"></i> &nbsp;Edit Profile</a></li>
+                <li><a href="{% url 'doctor_settings' %}"><i class="fa-solid fa-gear"></i> &nbsp;Settings</a></li>
+                <li class="divider"></li>
+                <li><a href="{% url 'doctor_logout' %}" style="color:#ef4444;"><i class="fa-solid fa-right-from-bracket"></i> &nbsp;Logout</a></li>
+            </ul>
+        </div>
 
-{% if doctor and doctor.profile_photo %}
-<img src="{{ doctor.profile_photo.url }}" alt="Doctor">
-{% else %}
-<img src="{% static 'Doctor/doctor-avatar.png' %}" alt="Doctor">
-{% endif %}
-
-<span>
-{% if doctor %}
-Dr. {{ doctor.name }}
-{% else %}
-Doctor
-{% endif %}
-</span>
-
-</div>
-
-</div>
+    </div>
 
 </header>
 
 
 <!-- ================= PAGE CONTENT ================= -->
 <div class="content-area">
-
 {% block content %}
 {% endblock %}
-
 </div>
 
 </main>
 
 </div>
 
-
-<!-- 🔔 Notification Sound -->
-<audio id="notifySound">
-<source src="{% static 'Doctor/sounds/notification.mp3' %}" type="audio/mpeg">
-</audio>
-
-
-<script>
-
-const menuLinks = document.querySelectorAll(".sidebar a");
-
-menuLinks.forEach(link=>{
-link.addEventListener("click",function(){
-menuLinks.forEach(l=>l.classList.remove("active"));
-this.classList.add("active");
-})
-})
-
-<!-- 🔔 Notification Sound -->
+<!-- Notification Sound -->
 <audio id="notifySound" preload="auto">
     <source src="{% static 'Doctor/sounds/notification.mp3' %}" type="audio/mpeg">
 </audio>
 
 <script>
+document.addEventListener("DOMContentLoaded", function () {
 
-document.addEventListener("DOMContentLoaded", function(){
-
-    /* ================= SIDEBAR ACTIVE LINK ================= */
-    const menuLinks = document.querySelectorAll(".sidebar a");
-
-    menuLinks.forEach(link => {
-        link.addEventListener("click", function(){
-            menuLinks.forEach(l => l.classList.remove("active"));
-            this.classList.add("active");
-        });
+    /* ===== SIDEBAR ACTIVE LINK ===== */
+    const currentPath = window.location.pathname;
+    document.querySelectorAll(".sidebar a").forEach(link => {
+        if (link.getAttribute("href") === currentPath) {
+            link.classList.add("active");
+        }
     });
 
-
-    /* ================= 🔔 APPOINTMENT NOTIFICATION ================= */
-
+    /* ===== NOTIFICATION BELL — REAL COUNT ===== */
     let lastCount = null;
     const notifySound = document.getElementById("notifySound");
+    const badge = document.getElementById("notif-badge");
 
-    function checkAppointments(){
-
+    function checkAppointments() {
         fetch("/doctor/check-appointments/")
-        .then(response => response.json())
-        .then(data => {
+            .then(res => res.json())
+            .then(data => {
+                const count = data.count;
 
-            // ✅ First load → sirf set karo (no alert)
-            if(lastCount === null){
-                lastCount = data.count;
-                return;
-            }
-
-            // ✅ New appointment aaya tab hi trigger
-            if(data.count > lastCount){
-
-                // 🔊 Sound play safely
-                if(notifySound){
-                    notifySound.currentTime = 0;
-                    notifySound.play().catch(() => {});
+                // Update badge
+                if (count > 0) {
+                    badge.textContent = count > 9 ? "9+" : count;
+                    badge.classList.remove("hidden");
+                } else {
+                    badge.classList.add("hidden");
                 }
 
-                // 🔔 Alert
-                alert("New Appointment Received!");
-            }
+                // Play sound on new appointment (not first load)
+                if (lastCount !== null && count > lastCount) {
+                    if (notifySound) {
+                        notifySound.currentTime = 0;
+                        notifySound.play().catch(() => {});
+                    }
+                }
 
-            lastCount = data.count;
-
-        })
-        .catch(error => {
-            console.log("Error checking appointments:", error);
-        });
-
+                lastCount = count;
+            })
+            .catch(() => {});
     }
 
-    // ⏱ Har 5 sec me check
-    setInterval(checkAppointments, 5000);
+    checkAppointments();
+    setInterval(checkAppointments, 10000);
 
 });
-
 </script>
-
-
 
 </body>
 </html>

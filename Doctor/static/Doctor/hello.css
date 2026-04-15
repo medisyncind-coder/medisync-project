@@ -141,6 +141,20 @@ img {
     background: var(--blue-ultra);
 }
 
+.navbar-links li a.register-btn {
+    background: #f1f5f9;
+    color: var(--blue-dark);
+    padding: 8px 18px;
+    border-radius: 50px;
+    font-weight: 600;
+    border: 1px solid #e2e8f0;
+}
+
+.navbar-links li a.register-btn:hover {
+    background: #e2e8f0;
+    color: var(--blue-dark);
+}
+
 .navbar-links li a.login-btn {
     background: var(--blue-main);
     color: var(--white);
@@ -152,6 +166,55 @@ img {
 .navbar-links li a.login-btn:hover {
     background: var(--blue-dark);
     color: var(--white);
+}
+
+/* ===== LOGIN DROPDOWN ===== */
+.login-dropdown {
+    position: relative;
+    list-style: none;
+}
+
+.login-dropdown .dropdown-menu {
+    display: none !important;
+    position: absolute !important;
+    right: 0;
+    top: 110%;
+    background: #ffffff;
+    border-radius: 10px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+    min-width: 170px;
+    padding: 8px 0;
+    list-style: none !important;
+    z-index: 9999;
+    flex-direction: column !important;
+    flex-wrap: nowrap !important;
+    gap: 0 !important;
+    margin: 0;
+}
+
+.login-dropdown:hover .dropdown-menu {
+    display: block !important;
+}
+
+.login-dropdown .dropdown-menu li {
+    display: block !important;
+    width: 100%;
+}
+
+.login-dropdown .dropdown-menu li a {
+    display: block !important;
+    padding: 10px 18px;
+    color: #1e293b !important;
+    font-size: 14px;
+    font-weight: 500;
+    background: none !important;
+    border-radius: 0 !important;
+    white-space: nowrap;
+}
+
+.login-dropdown .dropdown-menu li a:hover {
+    background: #f1f5f9 !important;
+    color: var(--blue-main) !important;
 }
 
 /* ========================================

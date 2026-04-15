@@ -419,16 +419,7 @@ class PatientRegistrationForm(forms.ModelForm):
     class Meta:
         model = Patient
 
-        # 🔥 FIX: user ko bhi exclude karo
-        exclude = [
-            "user",   # ✅ MOST IMPORTANT FIX
-            "last_login",
-            "is_superuser",
-            "is_staff",
-            "is_active",
-            "groups",
-            "user_permissions"
-        ]
+        exclude = ["user"]
 
         widgets = {
             "name": forms.TextInput(attrs={"class": "form-control"}),

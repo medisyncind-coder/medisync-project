@@ -31,13 +31,29 @@
 
         <h2>Create Account</h2>
 
+        <!-- DJANGO MESSAGES -->
+        {% if messages %}
+            {% for message in messages %}
+                <div class="error-box" style="background:{% if message.tags == 'success' %}#d1fae5;color:#065f46{% else %}#fee2e2;color:#7f1d1d{% endif %};padding:10px 14px;border-radius:8px;margin-bottom:12px;font-size:14px;">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+
         <form method="POST" enctype="multipart/form-data" id="registerForm">
             {% csrf_token %}
 
-            <!-- 🔴 FORM ERRORS -->
+            <!-- FORM FIELD ERRORS -->
             {% if form.errors %}
-                <div class="error-box">
-                    Please correct the errors below.
+                <div class="error-box" style="background:#fee2e2;color:#7f1d1d;padding:10px 14px;border-radius:8px;margin-bottom:12px;font-size:13px;">
+                    {% for field in form %}
+                        {% for error in field.errors %}
+                            <div>{{ field.label }}: {{ error }}</div>
+                        {% endfor %}
+                    {% endfor %}
+                    {% for error in form.non_field_errors %}
+                        <div>{{ error }}</div>
+                    {% endfor %}
                 </div>
             {% endif %}
 

@@ -10,7 +10,7 @@ from decouple import config
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # ================= SECURITY =================
-SECRET_KEY = config('SECRET_KEY', default='django-insecure-cu#-nm1*oeeev$ypmk&j#g*sunpl#&f^ph@#!68_6$7qy@rs)h')
+SECRET_KEY = config('SECRET_KEY')
 DEBUG = config('DEBUG', default=False, cast=bool)
 
 ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='127.0.0.1,localhost').split(',')
@@ -116,11 +116,11 @@ CSRF_TRUSTED_ORIGINS = config(
     default='http://127.0.0.1:8000,http://localhost:8000'
 ).split(',')
 
-CSRF_COOKIE_SECURE = False
+CSRF_COOKIE_SECURE = config('CSRF_COOKIE_SECURE', default=False, cast=bool)
 CSRF_COOKIE_HTTPONLY = False
 CSRF_USE_SESSIONS = False
 
-SESSION_COOKIE_SECURE = False
+SESSION_COOKIE_SECURE = config('SESSION_COOKIE_SECURE', default=False, cast=bool)
 SESSION_COOKIE_SAMESITE = 'Lax'
 CSRF_COOKIE_SAMESITE = 'Lax'
 
@@ -143,4 +143,14 @@ DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 LOGIN_URL = '/doctor-login/'
 LOGIN_REDIRECT_URL = '/doctor/dashboard/'
 LOGOUT_REDIRECT_URL = '/'
+
+# ======================================================
+# 🔒 PRODUCTION SECURITY HEADERS
+# ======================================================
+SECURE_BROWSER_XSS_FILTER = True
+SECURE_CONTENT_TYPE_NOSNIFF = True
+X_FRAME_OPTIONS = 'DENY'
+SECURE_SSL_REDIRECT = config('SECURE_SSL_REDIRECT', default=False, cast=bool)
+SECURE_HSTS_SECONDS = config('SECURE_HSTS_SECONDS', default=0, cast=int)
+SECURE_HSTS_INCLUDE_SUBDOMAINS = config('SECURE_HSTS_INCLUDE_SUBDOMAINS', default=False, cast=bool)
 
