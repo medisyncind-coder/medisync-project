@@ -12,8 +12,6 @@ services:
       - media_data:/app/media
       - sqlite_data:/app/data
     restart: always
-    depends_on:
-      - nginx
 
   nginx:
     image: nginx:alpine
