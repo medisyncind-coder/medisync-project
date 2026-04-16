@@ -26,4 +26,4 @@ RUN mkdir -p /app/data
 EXPOSE 8000
 
 # Run migrations, collect static, and start gunicorn
-CMD ["sh", "-c", "python manage.py migrate --noinput && python manage.py collectstatic --noinput && gunicorn Doctor.wsgi:application --bind 0.0.0.0:8000 --workers 2"]
+CMD ["sh", "-c", "mkdir -p /app/data && python manage.py migrate --noinput && python manage.py collectstatic --noinput && gunicorn Doctor.wsgi:application --bind 0.0.0.0:8000 --workers 2"]
