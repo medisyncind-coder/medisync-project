@@ -10,7 +10,7 @@ services:
       - .env
     volumes:
       - media_data:/app/media
-      - sqlite_data:/app/db.sqlite3
+      - sqlite_data:/app/data
     restart: always
     depends_on:
       - nginx
