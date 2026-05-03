@@ -21,11 +21,14 @@
             <a class="navbar-brand" href="/">
                 <span class="brand-icon">⚕</span> MediSync
             </a>
-            <ul class="navbar-links">
+            <button class="hamburger" id="hamburger" aria-label="Toggle menu">
+                <span></span><span></span><span></span>
+            </button>
+            <ul class="navbar-links" id="navbar-links">
                 <li><a href="{% url 'doctor_page' %}">Doctors</a></li>
                 <li><a href="{% url 'lab_list' %}">Labs</a></li>
                 <li class="login-dropdown">
-                    <a href="#" class="register-btn">Register ▾</a>
+                    <a href="#" class="register-btn" id="register-toggle">Register ▾</a>
                     <ul class="dropdown-menu">
                         <li><a href="{% url 'patient_register' %}">Patient Register</a></li>
                         <li><a href="{% url 'doctor_register' %}">Doctor Register</a></li>
@@ -33,7 +36,7 @@
                     </ul>
                 </li>
                 <li class="login-dropdown">
-                    <a href="#" class="login-btn">Login ▾</a>
+                    <a href="#" class="login-btn" id="login-toggle">Login ▾</a>
                     <ul class="dropdown-menu">
                         <li><a href="{% url 'patient_login' %}">Patient Login</a></li>
                         <li><a href="{% url 'doctor_login' %}">Doctor Login</a></li>
@@ -271,6 +274,27 @@
     document.querySelectorAll('.service-card, .stat-card, .portal-card, .feedback-card, .about-grid').forEach(el => {
         el.classList.add('reveal');
         observer.observe(el);
+    });
+
+    // Mobile hamburger menu
+    const hamburger = document.getElementById('hamburger');
+    const navLinks = document.getElementById('navbar-links');
+    hamburger.addEventListener('click', () => {
+        navLinks.classList.toggle('open');
+    });
+
+    // Mobile dropdown toggles
+    document.getElementById('register-toggle').addEventListener('click', function(e) {
+        if (window.innerWidth <= 768) {
+            e.preventDefault();
+            this.closest('.login-dropdown').classList.toggle('open');
+        }
+    });
+    document.getElementById('login-toggle').addEventListener('click', function(e) {
+        if (window.innerWidth <= 768) {
+            e.preventDefault();
+            this.closest('.login-dropdown').classList.toggle('open');
+        }
     });
     </script>
 

@@ -298,7 +298,7 @@ def doctor_dashboard(request):
     today_appointments = Appointment.objects.filter(
         doctor=doctor,
         appointment_date=today
-    )
+    ).select_related('patient')
 
     # Active appointments
     appointments = today_appointments.filter(
@@ -433,7 +433,7 @@ def doctor_appointments(request):
     # ✅ All appointments (including cancelled)
     appointments = Appointment.objects.filter(
         doctor=doctor
-    ).order_by('-created_at')
+    ).select_related('patient').order_by('-created_at')
 
     # ✅ STATUS COUNTS
     pending_count = appointments.filter(status='Pending').count()
@@ -631,7 +631,7 @@ def doctor_patients(request):
 
     patients = Appointment.objects.filter(
         doctor=doctor
-    ).order_by('-appointment_date')
+    ).select_related('patient').order_by('-appointment_date')
 
     return render(request,"DoctorPortal/patients.html",{
         "patients":patients

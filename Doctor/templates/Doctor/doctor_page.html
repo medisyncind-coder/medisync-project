@@ -161,6 +161,18 @@ View Details →
 
 {% endif %}
 
+{% if doctors.has_other_pages %}
+<div style="display:flex;justify-content:center;gap:8px;margin:32px 0;">
+    {% if doctors.has_previous %}
+        <a href="?page={{ doctors.previous_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.city %}&city={{ request.GET.city }}{% endif %}" style="padding:8px 16px;border:1px solid #3b82f6;color:#3b82f6;border-radius:6px;text-decoration:none;">← Prev</a>
+    {% endif %}
+    <span style="padding:8px 16px;background:#3b82f6;color:white;border-radius:6px;">{{ doctors.number }} / {{ doctors.paginator.num_pages }}</span>
+    {% if doctors.has_next %}
+        <a href="?page={{ doctors.next_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.city %}&city={{ request.GET.city }}{% endif %}" style="padding:8px 16px;border:1px solid #3b82f6;color:#3b82f6;border-radius:6px;text-decoration:none;">Next →</a>
+    {% endif %}
+</div>
+{% endif %}
+
 </div>
 
 
