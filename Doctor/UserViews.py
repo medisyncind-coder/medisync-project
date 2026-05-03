@@ -12,10 +12,9 @@ import random
 
 
 from accounts.emails import send_otp_via_email
-from .forms import *
-from .models import Doctor, Lab, MedicalRecord
-from appointments.models import *
-from appointments.views import *
+from .forms import PatientRegistrationForm
+from .models import Doctor, Lab, MedicalRecord, Patient
+from appointments.models import Appointment, LabAppointment
 
 User = get_user_model()
 

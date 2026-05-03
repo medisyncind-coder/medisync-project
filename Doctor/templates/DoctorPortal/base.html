@@ -4,7 +4,9 @@
 <head>
 
 <meta charset="UTF-8">
-<title>MediSync Doctor Panel</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="MediSync Doctor Portal — Manage appointments, prescriptions and patients.">
+<title>MediSync — Doctor Portal</title>
 
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
@@ -100,6 +102,7 @@
 </head>
 <body>
 
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
 <div class="layout">
 
 <!-- ================= SIDEBAR ================= -->
@@ -194,13 +197,16 @@
 
 <header class="topbar">
 
-    <div class="search-box">
-        <form action="{% url 'doctor_appointments' %}" method="GET" style="display:flex;align-items:center;gap:6px;">
-            <input type="text" name="search" placeholder="Search appointments...">
-            <button type="submit" style="background:none;border:none;cursor:pointer;">
-                <i class="fa fa-search"></i>
-            </button>
-        </form>
+    <div style="display:flex;align-items:center;gap:12px;">
+        <button class="sidebar-toggle" id="sidebarToggle"><i class="fa fa-bars"></i></button>
+        <div class="search-box">
+            <form action="{% url 'doctor_appointments' %}" method="GET" style="display:flex;align-items:center;gap:6px;">
+                <input type="text" name="search" placeholder="Search appointments...">
+                <button type="submit" style="background:none;border:none;cursor:pointer;">
+                    <i class="fa fa-search"></i>
+                </button>
+            </form>
+        </div>
     </div>
 
     <div class="topbar-right">
@@ -300,6 +306,21 @@ document.addEventListener("DOMContentLoaded", function () {
 
     checkAppointments();
     setInterval(checkAppointments, 10000);
+
+    // Mobile sidebar toggle
+    const toggle = document.getElementById('sidebarToggle');
+    const sidebar = document.querySelector('.sidebar');
+    const overlay = document.getElementById('sidebarOverlay');
+    if (toggle) {
+        toggle.addEventListener('click', () => {
+            sidebar.classList.toggle('open');
+            overlay.classList.toggle('open');
+        });
+        overlay.addEventListener('click', () => {
+            sidebar.classList.remove('open');
+            overlay.classList.remove('open');
+        });
+    }
 
 });
 </script>
