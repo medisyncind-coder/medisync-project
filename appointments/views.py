@@ -29,10 +29,8 @@ def generate_slots(start_time, end_time, duration):
     end = datetime.combine(today, end_time)
 
     while current < end:
-
         if current > now:
             slots.append(current.time())
-
         current += timedelta(minutes=duration)
 
     return slots
@@ -52,17 +50,13 @@ def book_slot(request, doctor_id):
     doctor_days_list = [d.strip() for d in (doctor.available_days or [])]
 
     if today_day not in doctor_days_list:
-
         return render(request, "appointments/doctor_not_available.html", {
             "doctor": doctor
         })
 
-    availability = DoctorAvailability.objects.filter(
-        doctor=doctor
-    ).first()
+    availability = DoctorAvailability.objects.filter(doctor=doctor).first()
 
     if availability and availability.is_available == False:
-
         return render(request, "appointments/doctor_not_available.html", {
             "doctor": doctor
         })
@@ -81,10 +75,6 @@ def book_slot(request, doctor_id):
 
     available_slots = [slot for slot in slots if slot not in booked_slots]
 
-    print("TODAY:", today_day)
-    print("DOCTOR DAYS:", doctor.available_days)
-    print("TOGGLE:", availability.is_available if availability else "No Record")
-
     return render(request, "appointments/book_slot.html", {
         "doctor": doctor,
         "slots": available_slots,
@@ -95,50 +85,6 @@ def book_slot(request, doctor_id):
 # =====================================================
 # 📋 CONFIRM BOOKING
 # =====================================================
-
-# @login_required
-# def confirm_booking(request, doctor_id, slot_time):
-
-#     doctor = get_object_or_404(Doctor, id=doctor_id)
-
-#     try:
-#         slot_time_obj = datetime.strptime(slot_time, "%H:%M:%S").time()
-#     except ValueError:
-#         messages.error(request, "Invalid slot selected.")
-#         return redirect("book_slot", doctor_id=doctor.id)
-
-#     if request.method == "POST":
-
-#         form = AppointmentForm(request.POST)
-
-#         if form.is_valid():
-
-#             appointment = form.save(commit=False)
-
-#             appointment.doctor = doctor
-#             appointment.patient = request.user
-#             appointment.appointment_date = datetime.today().date()
-#             appointment.appointment_time = slot_time_obj
-#             appointment.payment_type = "Online"
-#             appointment.status = "Pending"
-
-#             appointment.save()
-
-#             messages.success(request, "Appointment booked successfully!")
-
-#             return redirect("home")
-
-#         else:
-#             messages.error(request, "Please correct the form errors.")
-
-#     else:
-#         form = AppointmentForm()
-
-#     return render(request, "appointments/confirm_booking.html", {
-#         "form": form,
-#         "doctor": doctor,
-#         "slot_time": slot_time_obj
-#     })
 
 @login_required
 def confirm_booking(request, doctor_id, slot_time):
@@ -151,40 +97,33 @@ def confirm_booking(request, doctor_id, slot_time):
         messages.error(request, "Invalid slot selected.")
         return redirect("book_slot", doctor_id=doctor.id)
 
-    # 🔥 ADD THIS
     consultation_fee = doctor.consultation_fee
 
     if request.method == "GET":
         form = AppointmentForm()
-
         return render(request, "appointments/confirm_booking.html", {
             "form": form,
             "doctor": doctor,
             "slot_time": slot_time_obj,
-            "fee": consultation_fee   # ✅ PASS
+            "fee": consultation_fee
         })
 
     if request.method == "POST":
-
         form = AppointmentForm(request.POST)
 
         if form.is_valid():
-
             appointment = form.save(commit=False)
-
             appointment.doctor = doctor
             appointment.patient = request.user
             appointment.appointment_date = datetime.today().date()
             appointment.appointment_time = slot_time_obj
             appointment.payment_type = "Online"
             appointment.status = "Pending"
-
             appointment.save()
 
             return render(request, "appointments/booking_success.html", {
                 "appointment": appointment
             })
-
         else:
             messages.error(request, "Please correct the form errors.")
 
@@ -206,7 +145,6 @@ def payment_page(request, appointment_id):
     appointment = get_object_or_404(Appointment, id=appointment_id)
 
     if request.method == "POST":
-
         Payment.objects.create(
             user=request.user,
             appointment=appointment,
@@ -214,18 +152,14 @@ def payment_page(request, appointment_id):
             payment_method=request.POST.get("payment_method"),
             status="Success"
         )
-
         appointment.is_paid = True
         appointment.save()
-
         return redirect("payment_success")
 
-    context = {
+    return render(request, "payment.html", {
         "appointment": appointment,
         "amount": appointment.doctor.consultation_fee
-    }
-
-    return render(request, "payment.html", context)
+    })
 
 
 # =====================================================
@@ -254,10 +188,8 @@ def generate_lab_slots(start_time, end_time, duration):
     end = datetime.combine(today, end_time)
 
     while current < end:
-
         if current > now:
             slots.append(current.time())
-
         current += timedelta(minutes=duration)
 
     return slots
@@ -267,17 +199,14 @@ def generate_lab_slots(start_time, end_time, duration):
 # 🧪 LAB BOOK SLOT PAGE
 # =====================================================
 
-from datetime import datetime
-
 def lab_book_slot(request, lab_id, test_id):
 
     lab = get_object_or_404(Lab, id=lab_id)
     test = get_object_or_404(LabTest, id=test_id)
 
     today = datetime.today().date()
-    today_day_full = today.strftime("%A")   # Monday, Tuesday
+    today_day_full = today.strftime("%A")
 
-    # 🔥 STEP 1: CHECK OPERATING DAYS
     lab_days = [d.strip() for d in (lab.operating_days or "").split(",") if d]
 
     if today_day_full not in lab_days:
@@ -286,7 +215,6 @@ def lab_book_slot(request, lab_id, test_id):
             "message": "Lab is closed today"
         })
 
-    # 🔥 STEP 2: CHECK TOGGLE (LAB AVAILABILITY)
     availability, created = LabAvailability.objects.get_or_create(lab=lab)
 
     if not availability.is_available:
@@ -295,23 +223,15 @@ def lab_book_slot(request, lab_id, test_id):
             "message": "Lab is currently not accepting bookings"
         })
 
-    # 🔥 STEP 3: GENERATE SLOTS
-    start = lab.opening_time
-    end = lab.closing_time
-    duration = 15
+    slots = generate_lab_slots(lab.opening_time, lab.closing_time, 15)
 
-    slots = generate_lab_slots(start, end, duration)
-
-    # 🔥 STEP 4: REMOVE BOOKED SLOTS
     booked_slots = LabAppointment.objects.filter(
         lab=lab,
         appointment_date=today,
         status__in=["Pending", "Approved"]
     ).values_list("appointment_time", flat=True)
 
-    available_slots = [
-        slot for slot in slots if slot not in booked_slots
-    ]
+    available_slots = [slot for slot in slots if slot not in booked_slots]
 
     return render(request, "Lab/book_slot.html", {
         "lab": lab,
@@ -319,6 +239,8 @@ def lab_book_slot(request, lab_id, test_id):
         "slots": available_slots,
         "today": today
     })
+
+
 # =====================================================
 # 📋 CONFIRM LAB BOOKING
 # =====================================================
@@ -329,20 +251,16 @@ def confirm_lab_booking(request, lab_id, test_id, slot_time):
     lab = get_object_or_404(Lab, id=lab_id)
     lab_test = get_object_or_404(LabTest, id=test_id)
 
-    # ================= TIME PARSE =================
     try:
         slot_time_obj = datetime.strptime(slot_time, "%H:%M:%S").time()
     except ValueError:
         messages.error(request, "Invalid slot selected.")
         return redirect("lab_book_slot", lab_id=lab.id)
 
-    # ================= TEST NAME + PRICE =================
-    test_name = lab_test.get_name()   # 🔥 FINAL FIX
-    test_price = lab_test.price       # 🔥 PRICE ADD
+    test_name = lab_test.get_name()
+    test_price = lab_test.price
 
-    # ================= POST =================
     if request.method == "POST":
-
         full_name = request.POST.get("full_name")
         age = request.POST.get("age")
         gender = request.POST.get("gender")
@@ -350,12 +268,10 @@ def confirm_lab_booking(request, lab_id, test_id, slot_time):
         email = request.POST.get("email")
         address = request.POST.get("address")
 
-        # ================= VALIDATION =================
         if not all([full_name, age, gender, contact_number, email]):
             messages.error(request, "Please fill all required fields.")
             return redirect(request.path)
 
-        # ================= SAVE =================
         appointment = LabAppointment.objects.create(
             full_name=full_name,
             age=age,
@@ -363,10 +279,8 @@ def confirm_lab_booking(request, lab_id, test_id, slot_time):
             contact_number=contact_number,
             email=email,
             address=address,
-
-            test_name=test_name,     # ✅ CORRECT NAME
-            test_price=test_price,   # ✅ PRICE ADD
-
+            test_name=test_name,
+            test_price=test_price,
             lab=lab,
             patient=request.user,
             appointment_date=date.today(),
@@ -374,16 +288,14 @@ def confirm_lab_booking(request, lab_id, test_id, slot_time):
             status="Pending"
         )
 
-        # ================= SUCCESS =================
         return render(request, "Lab/booking_success.html", {
             "appointment": appointment
         })
 
-    # ================= GET =================
     return render(request, "Lab/confirm_booking.html", {
         "lab": lab,
         "test": lab_test,
         "slot_time": slot_time,
         "test_name": test_name,
-        "test_price": test_price   # 🔥 SHOW PRICE
+        "test_price": test_price
     })
