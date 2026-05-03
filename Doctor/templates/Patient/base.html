@@ -65,10 +65,11 @@
 </head>
 <body>
 
+<div class="sidebar-overlay" id="patientSidebarOverlay"></div>
 <div class="container">
 
 <!-- ================= SIDEBAR ================= -->
-<div class="sidebar">
+<div class="sidebar" id="patientSidebar">
 
     <h2>MediSync</h2>
 
@@ -126,6 +127,7 @@
 
         <!-- LEFT -->
         <div class="header-left">
+            <button class="sidebar-toggle-btn" id="patientSidebarToggle"><i class="fa fa-bars"></i></button>
             <h1>{% block page_title %}Dashboard{% endblock %}</h1>
 
             <div class="search-box">
@@ -191,17 +193,30 @@
 <script>
 window.onload = () => {
     const cards = document.querySelectorAll('.card');
-
     cards.forEach((card, index) => {
         card.style.opacity = 0;
         card.style.transform = "translateY(20px)";
-
         setTimeout(() => {
             card.style.transition = "0.4s ease";
             card.style.opacity = 1;
             card.style.transform = "translateY(0)";
         }, index * 150);
     });
+
+    // Mobile sidebar toggle
+    const toggle = document.getElementById('patientSidebarToggle');
+    const sidebar = document.getElementById('patientSidebar');
+    const overlay = document.getElementById('patientSidebarOverlay');
+    if (toggle) {
+        toggle.addEventListener('click', () => {
+            sidebar.classList.toggle('open');
+            overlay.classList.toggle('open');
+        });
+        overlay.addEventListener('click', () => {
+            sidebar.classList.remove('open');
+            overlay.classList.remove('open');
+        });
+    }
 };
 </script>
 

@@ -432,18 +432,35 @@ def doctor_appointments(request):
         doctor=doctor
     ).select_related('patient').order_by('-created_at')
 
+    # ✅ SEARCH FILTER
+    search = request.GET.get('search', '').strip()
+    if search:
+        appointments = appointments.filter(
+            Q(full_name__icontains=search) |
+            Q(booking_id__icontains=search) |
+            Q(symptoms__icontains=search)
+        )
+
+    # ✅ STATUS FILTER
+    status_filter = request.GET.get('status', '')
+    if status_filter:
+        appointments = appointments.filter(status=status_filter)
+
     # ✅ STATUS COUNTS
-    pending_count = appointments.filter(status='Pending').count()
-    approved_count = appointments.filter(status='Approved').count()
-    completed_count = appointments.filter(status='Completed').count()
-    cancelled_count = appointments.filter(status='Cancelled').count()  # 🔥 NEW
+    all_appointments = Appointment.objects.filter(doctor=doctor)
+    pending_count = all_appointments.filter(status='Pending').count()
+    approved_count = all_appointments.filter(status='Approved').count()
+    completed_count = all_appointments.filter(status='Completed').count()
+    cancelled_count = all_appointments.filter(status='Cancelled').count()
 
     context = {
         "appointments": appointments,
         "pending_count": pending_count,
         "approved_count": approved_count,
         "completed_count": completed_count,
-        "cancelled_count": cancelled_count,  # 🔥 NEW
+        "cancelled_count": cancelled_count,
+        "search": search,
+        "status_filter": status_filter,
     }
 
     return render(request, "DoctorPortal/appointments.html", context)
@@ -650,7 +667,24 @@ def doctor_payments(request):
 @login_required
 def doctor_notifications(request):
 
-    notifications = []   # later you can connect notification model
+    doctor = get_object_or_404(Doctor, user=request.user)
+
+    # Show recent appointment activity as notifications
+    recent = Appointment.objects.filter(
+        doctor=doctor
+    ).select_related('patient').order_by('-created_at')[:20]
+
+    notifications = []
+    for a in recent:
+        if a.status == 'Pending':
+            msg = f"New appointment request from {a.full_name} on {a.appointment_date}"
+        elif a.status == 'Cancelled':
+            msg = f"{a.full_name} cancelled their appointment on {a.appointment_date}"
+        elif a.status == 'Completed':
+            msg = f"Appointment with {a.full_name} on {a.appointment_date} completed"
+        else:
+            msg = f"Appointment with {a.full_name} on {a.appointment_date} is {a.status}"
+        notifications.append({"message": msg, "status": a.status, "created_at": a.created_at})
 
     context = {
         "notifications": notifications

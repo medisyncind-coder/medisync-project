@@ -41,6 +41,22 @@
 </div>
 
 
+<!-- ================= FILTER BAR ================= -->
+<form method="GET" style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:20px;">
+    <input type="text" name="search" value="{{ search }}" placeholder="Search by name or booking ID..." style="padding:8px 14px;border:1px solid #e2e8f0;border-radius:8px;flex:1;min-width:200px;">
+    <select name="status" style="padding:8px 14px;border:1px solid #e2e8f0;border-radius:8px;">
+        <option value="">All Status</option>
+        <option value="Pending" {% if status_filter == 'Pending' %}selected{% endif %}>Pending</option>
+        <option value="Approved" {% if status_filter == 'Approved' %}selected{% endif %}>Approved</option>
+        <option value="Completed" {% if status_filter == 'Completed' %}selected{% endif %}>Completed</option>
+        <option value="Cancelled" {% if status_filter == 'Cancelled' %}selected{% endif %}>Cancelled</option>
+    </select>
+    <button type="submit" style="padding:8px 20px;background:#3b82f6;color:white;border:none;border-radius:8px;cursor:pointer;">Filter</button>
+    {% if search or status_filter %}
+    <a href="{% url 'doctor_appointments' %}" style="padding:8px 16px;border:1px solid #e2e8f0;border-radius:8px;color:#64748b;text-decoration:none;">Clear</a>
+    {% endif %}
+</form>
+
 <!-- ================= ACTIVE ================= -->
 
 <h3 class="section-title">Active Appointments</h3>

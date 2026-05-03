@@ -18,11 +18,12 @@ href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
 
 <body>
 
+<div class="lab-sidebar-overlay" id="labSidebarOverlay"></div>
 <div class="container">
 
 <!-- SIDEBAR -->
 
-<div class="sidebar">
+<div class="sidebar" id="labSidebar">
 
 <h2>MediSync Lab</h2>
 
@@ -87,10 +88,13 @@ href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
 
 <div class="topbar">
 
-<h1>Lab Portal</h1>
+<div style="display:flex;align-items:center;gap:12px;">
+    <button class="lab-sidebar-toggle" id="labSidebarToggle"><i class="fa fa-bars"></i></button>
+    <h1>Lab Portal</h1>
+</div>
 
 <div class="icons">
-<i class="fa fa-bell"></i> 
+<i class="fa fa-bell"></i>
 <i class="fa fa-user-circle"></i>
 </div>
 
@@ -107,6 +111,22 @@ href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
 </div>
 
 </div>
+
+<script>
+const labToggle = document.getElementById('labSidebarToggle');
+const labSidebar = document.getElementById('labSidebar');
+const labOverlay = document.getElementById('labSidebarOverlay');
+if (labToggle) {
+    labToggle.addEventListener('click', () => {
+        labSidebar.classList.toggle('open');
+        labOverlay.classList.toggle('open');
+    });
+    labOverlay.addEventListener('click', () => {
+        labSidebar.classList.remove('open');
+        labOverlay.classList.remove('open');
+    });
+}
+</script>
 
 </body>
 </html>

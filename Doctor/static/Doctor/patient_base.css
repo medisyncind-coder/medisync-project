@@ -306,8 +306,43 @@ tr:hover {
     box-shadow: 0 8px 20px rgba(0,0,0,0.2);
 }
 
+.sidebar-toggle-btn {
+    display: none;
+    background: none;
+    border: none;
+    font-size: 22px;
+    cursor: pointer;
+    color: #1e293b;
+    margin-right: 8px;
+}
+
+.sidebar-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.4);
+    z-index: 999;
+}
+
+.sidebar-overlay.open { display: block; }
+
 /* ================= RESPONSIVE ================= */
 @media (max-width: 900px) {
+    .sidebar {
+        position: fixed;
+        left: -260px;
+        top: 0;
+        height: 100vh;
+        z-index: 1000;
+        transition: left 0.3s ease;
+    }
+
+    .sidebar.open { left: 0; }
+
+    .main { margin-left: 0 !important; width: 100%; }
+
+    .sidebar-toggle-btn { display: inline-block; }
+
     .cards,
     .quick-actions {
         grid-template-columns: 1fr;
