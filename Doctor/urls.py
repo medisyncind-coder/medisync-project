@@ -2,6 +2,7 @@ from django.contrib import admin
 from django.conf.urls.static import static
 from django.conf import settings
 from django.urls import include, path
+from django.http import HttpResponse
 
 from accounts.views import RegisterApi, VerifyOtp
 from . import views, DoctorViews, LabViews, UserViews, api_views
@@ -176,6 +177,11 @@ urlpatterns = [
     # ================= LOGOUT =================
     path('logout/', UserViews.user_logout, name='user_logout'),
     path('cancel-appointment/<str:type>/<int:id>/',UserViews.cancel_appointment,name='cancel_appointment'),
+
+    # ==========================
+    # SEO
+    # ==========================
+    path('robots.txt', lambda r: HttpResponse("User-agent: *\nDisallow: /admin/\nDisallow: /api/\nSitemap: https://medisync.mooo.com/sitemap.xml", content_type="text/plain")),
 
 ]
 

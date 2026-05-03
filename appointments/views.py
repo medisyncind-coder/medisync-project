@@ -1,8 +1,7 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from datetime import datetime, timedelta
-from datetime import datetime, date
+from datetime import datetime, timedelta, date
 
 from .models import Appointment, Payment, LabAppointment
 from .forms import AppointmentForm, LabAppointmentForm
@@ -35,10 +34,6 @@ def generate_slots(start_time, end_time, duration):
             slots.append(current.time())
 
         current += timedelta(minutes=duration)
-
-    print("START:", start_time)
-    print("END:", end_time)
-    print("SLOTS:", slots)
 
     return slots
 
