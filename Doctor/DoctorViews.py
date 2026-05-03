@@ -4,6 +4,7 @@ from django.db import transaction
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.csrf import csrf_exempt
+from django.core.paginator import Paginator
 from datetime import date
 from django.utils import timezone
 from datetime import datetime
@@ -110,6 +111,10 @@ def doctor_page(request):
     # ❗ CHANGE HERE
     cities = Doctor.objects.values_list('address', flat=True).distinct()
 
+    paginator = Paginator(doctors, 12)
+    page = request.GET.get('page')
+    doctors = paginator.get_page(page)
+
     context = {
         'doctors': doctors,
         'cities': cities
@@ -168,6 +173,7 @@ def register_doctor(request):
                     # ✅ Generate OTP
                     otp = generate_otp()
                     user.otp = otp
+                    user.otp_created_at = timezone.now()
                     user.save()
 
                     # ✅ Send OTP via REST or Email
@@ -214,9 +220,14 @@ def verify_otp_page(request):
             user = User.objects.get(email=email)
 
             # ✅ OTP MATCH
+            if not user.is_otp_valid():
+                messages.error(request, "OTP has expired. Please register again.")
+                return redirect('doctor_register')
+
             if user.otp == otp:
                 user.is_verified = True
                 user.otp = None
+                user.otp_created_at = None
                 user.save()
 
                 # 🔥 LOGIN

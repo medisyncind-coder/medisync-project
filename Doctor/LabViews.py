@@ -4,6 +4,7 @@ from django.contrib import messages
 from django.db import transaction
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
+from django.core.paginator import Paginator
 from django.utils import timezone
 import random
 from accounts.models import *
@@ -45,6 +46,10 @@ def lab_list(request):
         labs = labs.filter(city__icontains=city)
 
     cities = Lab.objects.values_list("city", flat=True).distinct()
+
+    paginator = Paginator(labs, 12)
+    page = request.GET.get('page')
+    labs = paginator.get_page(page)
 
     return render(request, "Lab/lab_list.html", {
         "labs": labs,
@@ -136,6 +141,7 @@ def lab_registration(request):
 
                     otp = generate_otp()
                     user.otp = otp
+                    user.otp_created_at = timezone.now()
                     user.save()
 
                     send_otp_via_email(user.email, otp, role="Lab")
@@ -216,11 +222,16 @@ def verify_lab_otp(request):
         otp = request.POST.get("otp")
 
         # 🔥 SAFE OTP CHECK
+        if not user.is_otp_valid():
+            messages.error(request, "OTP has expired. Please register again.")
+            return redirect('lab_registration')
+
         if user.otp and str(user.otp) == str(otp):
 
             # ✅ verify user
             user.is_verified = True
             user.otp = None
+            user.otp_created_at = None
             user.save()
 
             # ✅ verify lab

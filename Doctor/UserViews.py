@@ -73,6 +73,7 @@ def register_patient(request):
                     user.is_verified = False
                     otp = generate_otp()
                     user.otp = otp
+                    user.otp_created_at = timezone.now()
                     user.save()
 
                     # ✅ Signal already created a blank Patient — just update it
@@ -130,9 +131,14 @@ def patient_verify_otp(request):
             user = User.objects.get(email=email)
 
             # ✅ OTP MATCH
+            if not user.is_otp_valid():
+                messages.error(request, "OTP has expired. Please register again.")
+                return redirect('patient_register')
+
             if user.otp == otp:
                 user.is_verified = True
                 user.otp = None
+                user.otp_created_at = None
                 user.save()
 
                 # 🔥 LOGIN KARO
