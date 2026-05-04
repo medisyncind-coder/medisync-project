@@ -86,10 +86,20 @@
     font-weight:500;
     transition:0.2s;
 }
+.cancel-btn:hover{ background:#dc2626; }
 
-.cancel-btn:hover{
-    background:#dc2626;
+.reschedule-btn{
+    padding:6px 12px;
+    background:#f59e0b;
+    color:#fff;
+    border-radius:6px;
+    text-decoration:none;
+    font-size:12px;
+    font-weight:500;
+    transition:0.2s;
+    margin-right:6px;
 }
+.reschedule-btn:hover{ background:#d97706; }
 
 /* ===== EMPTY ===== */
 .empty{
@@ -129,11 +139,11 @@
                 <tr>
                     <th>Type</th>
                     <th>Name</th>
+                    <th>Date</th>
                     <th>Time</th>
                     <th>Status</th>
                     <th>Action</th>
                     <th>Live Status</th>
-
                 </tr>
             </thead>
 
@@ -150,6 +160,7 @@
                     </td>
 
                     <td>{{ b.name }}</td>
+                    <td>{{ b.date|date:"d M Y" }}</td>
                     <td>{{ b.time }}</td>
 
                     <td>
@@ -167,6 +178,10 @@
 
                     <td>
                         {% if b.status == "Pending" or b.status == "Approved" %}
+                            <a href="{% url 'reschedule_appointment' b.type|lower b.id %}"
+                               class="reschedule-btn">
+                               Reschedule
+                            </a>
                             <a href="{% url 'cancel_appointment' b.type|lower b.id %}"
                                class="cancel-btn"
                                onclick="return confirm('Are you sure you want to cancel this booking?')">

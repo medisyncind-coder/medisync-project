@@ -6,6 +6,7 @@ from django.conf import settings
 
 from accounts.models import User
 from .models import Doctor, Lab
+from .utils import is_rate_limited
 
 
 # ======================================================
@@ -17,6 +18,9 @@ def send_otp(request):
 
     if not email:
         return Response({'error': 'Email required'}, status=400)
+
+    if is_rate_limited(f"otp_send:{email}", max_attempts=3, period_seconds=3600):
+        return Response({'error': 'Too many attempts. Try again in 1 hour.'}, status=429)
 
     user, created = User.objects.get_or_create(
         email=email,
@@ -49,6 +53,9 @@ def verify_otp(request):
 
     if not email or not otp_input:
         return Response({'error': 'Email and OTP required'}, status=400)
+
+    if is_rate_limited(f"otp_verify:{email}", max_attempts=5, period_seconds=600):
+        return Response({'error': 'Too many attempts. Try again in 10 minutes.'}, status=429)
 
     try:
         user = User.objects.get(email=email)

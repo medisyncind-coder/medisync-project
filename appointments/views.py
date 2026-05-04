@@ -15,20 +15,18 @@ from Doctor.LabViews import *
 # 🕒 GENERATE TIME SLOTS
 # =====================================================
 
-def generate_slots(start_time, end_time, duration):
-
+def generate_slots(start_time, end_time, duration, for_date=None):
     slots = []
-
     if not start_time or not end_time:
         return slots
 
-    today = datetime.today().date()
+    target_date = for_date or datetime.today().date()
     now = datetime.now()
 
-    current = datetime.combine(today, start_time)
-    end = datetime.combine(today, end_time)
+    current = datetime.combine(target_date, start_time)
+    end_dt = datetime.combine(target_date, end_time)
 
-    while current < end:
+    while current < end_dt:
         if current > now:
             slots.append(current.time())
         current += timedelta(minutes=duration)
@@ -41,35 +39,45 @@ def generate_slots(start_time, end_time, duration):
 # =====================================================
 
 def book_slot(request, doctor_id):
-
     doctor = get_object_or_404(Doctor, id=doctor_id)
 
     today = datetime.today().date()
-    today_day = today.strftime("%a")
-
     doctor_days_list = [d.strip() for d in (doctor.available_days or [])]
 
-    if today_day not in doctor_days_list:
-        return render(request, "appointments/doctor_not_available.html", {
-            "doctor": doctor
-        })
+    # Build the list of selectable dates (next 30 days matching doctor's schedule)
+    available_dates = []
+    for i in range(30):
+        d = today + timedelta(days=i)
+        if d.strftime("%a") in doctor_days_list:
+            available_dates.append(d)
 
+    # Resolve selected date from GET param, default to first available date
+    selected_date = today
+    date_str = request.GET.get("date")
+    if date_str:
+        try:
+            selected_date = datetime.strptime(date_str, "%Y-%m-%d").date()
+        except ValueError:
+            selected_date = today
+
+    # Validate selected date is actually an available day
+    if selected_date.strftime("%a") not in doctor_days_list:
+        selected_date = available_dates[0] if available_dates else today
+
+    # Check doctor availability toggle
     availability = DoctorAvailability.objects.filter(doctor=doctor).first()
+    if availability and not availability.is_available:
+        return render(request, "appointments/doctor_not_available.html", {"doctor": doctor})
 
-    if availability and availability.is_available == False:
-        return render(request, "appointments/doctor_not_available.html", {
-            "doctor": doctor
-        })
+    if not available_dates:
+        return render(request, "appointments/doctor_not_available.html", {"doctor": doctor})
 
-    start_time = doctor.start_time
-    end_time = doctor.end_time
     duration = doctor.appointment_duration or 15
-
-    slots = generate_slots(start_time, end_time, duration)
+    slots = generate_slots(doctor.start_time, doctor.end_time, duration, for_date=selected_date)
 
     booked_slots = Appointment.objects.filter(
         doctor=doctor,
-        appointment_date=today,
+        appointment_date=selected_date,
         status__in=["Pending", "Approved"]
     ).values_list("appointment_time", flat=True)
 
@@ -78,7 +86,9 @@ def book_slot(request, doctor_id):
     return render(request, "appointments/book_slot.html", {
         "doctor": doctor,
         "slots": available_slots,
-        "today": today
+        "selected_date": selected_date,
+        "available_dates": available_dates,
+        "today": today,
     })
 
 
@@ -87,7 +97,7 @@ def book_slot(request, doctor_id):
 # =====================================================
 
 @login_required
-def confirm_booking(request, doctor_id, slot_time):
+def confirm_booking(request, doctor_id, booking_date, slot_time):
 
     doctor = get_object_or_404(Doctor, id=doctor_id)
 
@@ -95,6 +105,17 @@ def confirm_booking(request, doctor_id, slot_time):
         slot_time_obj = datetime.strptime(slot_time, "%H:%M:%S").time()
     except ValueError:
         messages.error(request, "Invalid slot selected.")
+        return redirect("book_slot", doctor_id=doctor.id)
+
+    try:
+        appointment_date = datetime.strptime(booking_date, "%Y-%m-%d").date()
+    except ValueError:
+        messages.error(request, "Invalid date selected.")
+        return redirect("book_slot", doctor_id=doctor.id)
+
+    # Reject past dates
+    if appointment_date < datetime.today().date():
+        messages.error(request, "Cannot book appointments for past dates.")
         return redirect("book_slot", doctor_id=doctor.id)
 
     consultation_fee = doctor.consultation_fee
@@ -105,7 +126,8 @@ def confirm_booking(request, doctor_id, slot_time):
             "form": form,
             "doctor": doctor,
             "slot_time": slot_time_obj,
-            "fee": consultation_fee
+            "appointment_date": appointment_date,
+            "fee": consultation_fee,
         })
 
     if request.method == "POST":
@@ -115,7 +137,7 @@ def confirm_booking(request, doctor_id, slot_time):
             appointment = form.save(commit=False)
             appointment.doctor = doctor
             appointment.patient = request.user
-            appointment.appointment_date = datetime.today().date()
+            appointment.appointment_date = appointment_date
             appointment.appointment_time = slot_time_obj
             appointment.payment_type = "Online"
             appointment.status = "Pending"
@@ -131,35 +153,98 @@ def confirm_booking(request, doctor_id, slot_time):
         "form": form,
         "doctor": doctor,
         "slot_time": slot_time_obj,
-        "fee": consultation_fee
+        "appointment_date": appointment_date,
+        "fee": consultation_fee,
     })
 
 
 # =====================================================
-# 💳 PAYMENT PAGE
+# 💳 PAYMENT PAGE  (Razorpay)
 # =====================================================
+
+import razorpay
+import hmac
+import hashlib
+from django.conf import settings
+from django.views.decorators.csrf import csrf_exempt
 
 @login_required
 def payment_page(request, appointment_id):
+    appointment = get_object_or_404(Appointment, id=appointment_id, patient=request.user)
 
-    appointment = get_object_or_404(Appointment, id=appointment_id)
-
-    if request.method == "POST":
-        Payment.objects.create(
-            user=request.user,
-            appointment=appointment,
-            amount=appointment.doctor.consultation_fee,
-            payment_method=request.POST.get("payment_method"),
-            status="Success"
-        )
-        appointment.is_paid = True
-        appointment.save()
+    if appointment.is_paid:
         return redirect("payment_success")
 
-    return render(request, "payment.html", {
-        "appointment": appointment,
-        "amount": appointment.doctor.consultation_fee
+    amount_paise = int(appointment.doctor.consultation_fee * 100)
+
+    client = razorpay.Client(auth=(settings.RAZORPAY_KEY_ID, settings.RAZORPAY_KEY_SECRET))
+    razorpay_order = client.order.create({
+        "amount": amount_paise,
+        "currency": "INR",
+        "payment_capture": 1,
+        "notes": {
+            "appointment_id": str(appointment.id),
+            "booking_id": appointment.booking_id,
+        }
     })
+
+    # Store pending payment record
+    payment, _ = Payment.objects.get_or_create(
+        appointment=appointment,
+        defaults={
+            "user": request.user,
+            "amount": appointment.doctor.consultation_fee,
+            "status": "Pending",
+        }
+    )
+    payment.razorpay_order_id = razorpay_order["id"]
+    payment.save()
+
+    return render(request, "appointments/payment.html", {
+        "appointment": appointment,
+        "amount": appointment.doctor.consultation_fee,
+        "amount_paise": amount_paise,
+        "razorpay_order_id": razorpay_order["id"],
+        "razorpay_key_id": settings.RAZORPAY_KEY_ID,
+    })
+
+
+# =====================================================
+# 🔐 RAZORPAY CALLBACK (signature verification)
+# =====================================================
+
+@csrf_exempt
+def razorpay_callback(request):
+    if request.method != "POST":
+        return redirect("home")
+
+    razorpay_payment_id = request.POST.get("razorpay_payment_id", "")
+    razorpay_order_id   = request.POST.get("razorpay_order_id", "")
+    razorpay_signature  = request.POST.get("razorpay_signature", "")
+
+    # Verify signature
+    body = f"{razorpay_order_id}|{razorpay_payment_id}"
+    expected = hmac.new(
+        key=settings.RAZORPAY_KEY_SECRET.encode(),
+        msg=body.encode(),
+        digestmod=hashlib.sha256
+    ).hexdigest()
+
+    payment = Payment.objects.filter(razorpay_order_id=razorpay_order_id).first()
+    if not payment:
+        return render(request, "appointments/payment_failed.html")
+
+    if hmac.compare_digest(expected, razorpay_signature):
+        payment.razorpay_payment_id = razorpay_payment_id
+        payment.status = "Success"
+        payment.save()
+        payment.appointment.is_paid = True
+        payment.appointment.save()
+        return redirect("payment_success")
+    else:
+        payment.status = "Failed"
+        payment.save()
+        return render(request, "appointments/payment_failed.html")
 
 
 # =====================================================

@@ -139,6 +139,12 @@ EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD', default='')
 
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 
+# ======================================================
+# 💳 RAZORPAY
+# ======================================================
+RAZORPAY_KEY_ID     = config('RAZORPAY_KEY_ID', default='')
+RAZORPAY_KEY_SECRET = config('RAZORPAY_KEY_SECRET', default='')
+
 
 LOGIN_URL = '/doctor-login/'
 LOGIN_REDIRECT_URL = '/doctor/dashboard/'

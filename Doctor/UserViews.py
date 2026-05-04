@@ -7,16 +7,21 @@ from django.views.decorators.csrf import csrf_exempt
 from django.utils import timezone
 from django.db.models import Q
 from django.contrib.auth import get_user_model
+from django.contrib.auth.tokens import PasswordResetTokenGenerator
+from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
+from django.utils.encoding import force_bytes, force_str
 
 import random
 
 
-from accounts.emails import send_otp_via_email
+from accounts.emails import send_otp_via_email, send_password_reset_email
+from .utils import is_rate_limited
 from .forms import PatientRegistrationForm
 from .models import Doctor, Lab, MedicalRecord, Patient
 from appointments.models import Appointment, LabAppointment
 
 User = get_user_model()
+_token_generator = PasswordResetTokenGenerator()
 
 
 # ================= OTP GENERATOR ================= #
@@ -44,6 +49,10 @@ def register_patient(request):
             email = form.cleaned_data['email']
             password = form.cleaned_data['password']
             full_name = form.cleaned_data['name']
+
+            if is_rate_limited(f"otp_send:{email}", max_attempts=3, period_seconds=3600):
+                messages.error(request, "Too many attempts. Please try again in 1 hour.")
+                return render(request, 'Patient/patient_register.html', {'form': form})
 
             try:
                 # ✅ Handle existing unverified user (stale/incomplete registration)
@@ -125,6 +134,10 @@ def patient_verify_otp(request):
         if not email:
             messages.error(request, "Session expired.")
             return redirect('patient_register')
+
+        if is_rate_limited(f"otp_verify:{email}", max_attempts=5, period_seconds=600):
+            messages.error(request, "Too many incorrect attempts. Please wait 10 minutes.")
+            return render(request, 'Patient/verify_otp.html')
 
         try:
             user = User.objects.get(email=email)
@@ -311,6 +324,158 @@ def my_bookings(request):
     return render(request, "Patient/my_bookings.html", {
         "bookings": bookings
     })
+
+# ================= RESCHEDULE ================= #
+@login_required
+def reschedule_appointment(request, type, id):
+    from datetime import datetime, timedelta
+    from appointments.views import generate_slots, generate_lab_slots
+    from Doctor.models import DoctorAvailability, LabAvailability
+
+    today = datetime.today().date()
+
+    # ── Fetch the booking ──
+    if type == "doctor":
+        booking = get_object_or_404(Appointment, id=id, patient=request.user)
+        doctor = booking.doctor
+
+        if booking.status not in ("Pending", "Approved"):
+            messages.error(request, "Only pending or approved appointments can be rescheduled.")
+            return redirect("my_bookings")
+
+        # Build available dates (next 30 days, matching doctor's weekdays)
+        doctor_days = [d.strip() for d in (doctor.available_days or [])]
+        available_dates = [
+            today + timedelta(days=i)
+            for i in range(30)
+            if (today + timedelta(days=i)).strftime("%a") in doctor_days
+        ]
+
+        # Selected date from GET param
+        date_str = request.GET.get("date")
+        selected_date = today
+        if date_str:
+            try:
+                selected_date = datetime.strptime(date_str, "%Y-%m-%d").date()
+            except ValueError:
+                pass
+        if selected_date.strftime("%a") not in doctor_days:
+            selected_date = available_dates[0] if available_dates else today
+
+        # Check toggle
+        avail = DoctorAvailability.objects.filter(doctor=doctor).first()
+        if avail and not avail.is_available:
+            messages.error(request, "Doctor is currently not accepting appointments.")
+            return redirect("my_bookings")
+
+        duration = doctor.appointment_duration or 15
+        slots = generate_slots(doctor.start_time, doctor.end_time, duration, for_date=selected_date)
+        booked = Appointment.objects.filter(
+            doctor=doctor,
+            appointment_date=selected_date,
+            status__in=["Pending", "Approved"]
+        ).exclude(id=booking.id).values_list("appointment_time", flat=True)
+        available_slots = [s for s in slots if s not in booked]
+
+        if request.method == "POST":
+            new_date_str = request.POST.get("appointment_date")
+            new_time_str = request.POST.get("appointment_time")
+            try:
+                new_date = datetime.strptime(new_date_str, "%Y-%m-%d").date()
+                new_time = datetime.strptime(new_time_str, "%H:%M:%S").time()
+            except (ValueError, TypeError):
+                messages.error(request, "Invalid date or time selected.")
+                return redirect("reschedule_appointment", type=type, id=id)
+
+            if new_date < today:
+                messages.error(request, "Cannot reschedule to a past date.")
+                return redirect("reschedule_appointment", type=type, id=id)
+
+            booking.appointment_date = new_date
+            booking.appointment_time = new_time
+            booking.status = "Pending"
+            booking.save()
+            messages.success(request, "Appointment rescheduled successfully.")
+            return redirect("my_bookings")
+
+        return render(request, "Patient/reschedule.html", {
+            "booking": booking,
+            "booking_type": "doctor",
+            "available_dates": available_dates,
+            "selected_date": selected_date,
+            "slots": available_slots,
+        })
+
+    elif type == "lab":
+        booking = get_object_or_404(LabAppointment, id=id, patient=request.user)
+        lab = booking.lab
+
+        if booking.status not in ("Pending", "Approved"):
+            messages.error(request, "Only pending or approved bookings can be rescheduled.")
+            return redirect("my_bookings")
+
+        lab_days_raw = [d.strip() for d in (lab.operating_days or "").split(",") if d.strip()]
+        available_dates = [
+            today + timedelta(days=i)
+            for i in range(30)
+            if (today + timedelta(days=i)).strftime("%A") in lab_days_raw
+        ]
+
+        date_str = request.GET.get("date")
+        selected_date = today
+        if date_str:
+            try:
+                selected_date = datetime.strptime(date_str, "%Y-%m-%d").date()
+            except ValueError:
+                pass
+        if selected_date.strftime("%A") not in lab_days_raw:
+            selected_date = available_dates[0] if available_dates else today
+
+        avail, _ = LabAvailability.objects.get_or_create(lab=lab)
+        if not avail.is_available:
+            messages.error(request, "Lab is currently not accepting bookings.")
+            return redirect("my_bookings")
+
+        slots = generate_lab_slots(lab.opening_time, lab.closing_time, 15)
+        booked = LabAppointment.objects.filter(
+            lab=lab,
+            appointment_date=selected_date,
+            status__in=["Pending", "Approved"]
+        ).exclude(id=booking.id).values_list("appointment_time", flat=True)
+        available_slots = [s for s in slots if s not in booked]
+
+        if request.method == "POST":
+            new_date_str = request.POST.get("appointment_date")
+            new_time_str = request.POST.get("appointment_time")
+            try:
+                new_date = datetime.strptime(new_date_str, "%Y-%m-%d").date()
+                new_time = datetime.strptime(new_time_str, "%H:%M:%S").time()
+            except (ValueError, TypeError):
+                messages.error(request, "Invalid date or time selected.")
+                return redirect("reschedule_appointment", type=type, id=id)
+
+            if new_date < today:
+                messages.error(request, "Cannot reschedule to a past date.")
+                return redirect("reschedule_appointment", type=type, id=id)
+
+            booking.appointment_date = new_date
+            booking.appointment_time = new_time
+            booking.status = "Pending"
+            booking.save()
+            messages.success(request, "Lab test rescheduled successfully.")
+            return redirect("my_bookings")
+
+        return render(request, "Patient/reschedule.html", {
+            "booking": booking,
+            "booking_type": "lab",
+            "available_dates": available_dates,
+            "selected_date": selected_date,
+            "slots": available_slots,
+        })
+
+    messages.error(request, "Invalid booking type.")
+    return redirect("my_bookings")
+
 
 # ================= CANCEL ================= #
 @login_required
@@ -548,3 +713,50 @@ def past_appointments(request):
     }
 
     return render(request, "Patient/past_appointments.html", context)
+
+
+# ================= FORGOT PASSWORD ================= #
+def forgot_password(request):
+    if request.method == "POST":
+        email = request.POST.get("email", "").strip().lower()
+        user = User.objects.filter(email__iexact=email, is_verified=True).first()
+        if user:
+            uid = urlsafe_base64_encode(force_bytes(user.pk))
+            token = _token_generator.make_token(user)
+            reset_link = request.build_absolute_uri(f"/reset-password/{uid}/{token}/")
+            try:
+                send_password_reset_email(user.email, reset_link)
+            except Exception:
+                pass
+        # Always show success to prevent email enumeration
+        messages.success(request, "If that email is registered, a reset link has been sent.")
+        return redirect("forgot_password")
+    return render(request, "forgot_password.html")
+
+
+# ================= RESET PASSWORD ================= #
+def reset_password(request, uidb64, token):
+    try:
+        uid = force_str(urlsafe_base64_decode(uidb64))
+        user = User.objects.get(pk=uid)
+    except (User.DoesNotExist, ValueError, TypeError):
+        user = None
+
+    if user is None or not _token_generator.check_token(user, token):
+        messages.error(request, "This reset link is invalid or has expired.")
+        return redirect("forgot_password")
+
+    if request.method == "POST":
+        password = request.POST.get("password", "")
+        confirm = request.POST.get("confirm_password", "")
+        if len(password) < 6:
+            messages.error(request, "Password must be at least 6 characters.")
+        elif password != confirm:
+            messages.error(request, "Passwords do not match.")
+        else:
+            user.set_password(password)
+            user.save()
+            messages.success(request, "Password reset successful. Please log in.")
+            return redirect("patient_login")
+
+    return render(request, "reset_password.html", {"uidb64": uidb64, "token": token})

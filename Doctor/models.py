@@ -548,6 +548,27 @@ class Patient(models.Model):
     
     
 class MedicalRecord(models.Model):
-    patient = models.ForeignKey(User, on_delete=models.CASCADE)  # 🔥 CHANGE
+    patient = models.ForeignKey(User, on_delete=models.CASCADE)
     file = models.FileField(upload_to="records/")
     uploaded_at = models.DateTimeField(auto_now_add=True)
+
+
+class Review(models.Model):
+    RATING_CHOICES = [(i, i) for i in range(1, 6)]
+
+    patient = models.ForeignKey(User, on_delete=models.CASCADE, related_name="reviews")
+    doctor  = models.ForeignKey('Doctor', on_delete=models.CASCADE, null=True, blank=True, related_name="reviews")
+    lab     = models.ForeignKey('Lab', on_delete=models.CASCADE, null=True, blank=True, related_name="reviews")
+    rating  = models.PositiveSmallIntegerField(choices=RATING_CHOICES)
+    comment = models.TextField(blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=['patient', 'doctor'], condition=models.Q(doctor__isnull=False), name='unique_patient_doctor_review'),
+            models.UniqueConstraint(fields=['patient', 'lab'],    condition=models.Q(lab__isnull=False),    name='unique_patient_lab_review'),
+        ]
+
+    def __str__(self):
+        target = self.doctor or self.lab
+        return f"{self.patient.email} → {target} ({self.rating}★)"

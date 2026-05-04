@@ -176,7 +176,20 @@ urlpatterns = [
 
     # ================= LOGOUT =================
     path('logout/', UserViews.user_logout, name='user_logout'),
-    path('cancel-appointment/<str:type>/<int:id>/',UserViews.cancel_appointment,name='cancel_appointment'),
+    path('cancel-appointment/<str:type>/<int:id>/', UserViews.cancel_appointment, name='cancel_appointment'),
+    path('reschedule/<str:type>/<int:id>/', UserViews.reschedule_appointment, name='reschedule_appointment'),
+
+    # ==========================
+    # REVIEWS
+    # ==========================
+    path('doctor/<int:doctor_id>/review/', DoctorViews.submit_doctor_review, name='submit_doctor_review'),
+    path('lab/<int:lab_id>/review/', LabViews.submit_lab_review, name='submit_lab_review'),
+
+    # ==========================
+    # PASSWORD RESET
+    # ==========================
+    path('forgot-password/', UserViews.forgot_password, name='forgot_password'),
+    path('reset-password/<uidb64>/<token>/', UserViews.reset_password, name='reset_password'),
 
     # ==========================
     # SEO

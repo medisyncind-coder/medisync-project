@@ -3,81 +3,101 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Secure Payment | MediSync</title>
-    <link rel="stylesheet" href="{% static 'Doctor/payment.css' %}">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Secure Payment — MediSync</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+    *{margin:0;padding:0;box-sizing:border-box;font-family:'Poppins',sans-serif;}
+    body{min-height:100vh;display:flex;align-items:center;justify-content:center;background:#f1f5f9;}
+    .card{
+        background:#fff;border-radius:20px;padding:40px;width:100%;max-width:420px;
+        box-shadow:0 4px 24px rgba(0,0,0,0.1);
+    }
+    .card h2{font-size:22px;font-weight:700;color:#1e293b;margin-bottom:6px;}
+    .card p.sub{font-size:13px;color:#64748b;margin-bottom:28px;}
+    .summary{background:#f8fafc;border-radius:12px;padding:16px;margin-bottom:24px;}
+    .summary-row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid #e2e8f0;}
+    .summary-row:last-child{border-bottom:none;font-weight:700;color:#0072ff;font-size:16px;}
+    .summary-row span{font-size:14px;color:#64748b;}
+    .summary-row strong{font-size:14px;color:#1e293b;}
+    .pay-btn{
+        width:100%;padding:14px;border:none;border-radius:12px;
+        background:linear-gradient(135deg,#0072ff,#6a11cb);
+        color:#fff;font-size:16px;font-weight:600;cursor:pointer;
+        transition:0.2s;letter-spacing:0.03em;
+    }
+    .pay-btn:hover{opacity:0.9;transform:translateY(-1px);}
+    .pay-btn:active{transform:translateY(0);}
+    .secure-note{text-align:center;margin-top:14px;font-size:12px;color:#94a3b8;}
+    .secure-note img{height:16px;vertical-align:middle;margin-right:4px;}
+    </style>
 </head>
 <body>
 
-<div class="payment-container">
+<div class="card">
+    <h2>Complete Payment</h2>
+    <p class="sub">You're one step away from confirming your appointment.</p>
 
-    <div class="payment-card">
-
-        <div class="payment-header">
-            <h2>Secure Payment</h2>
-            <p>Complete your payment to confirm appointment</p>
+    <div class="summary">
+        <div class="summary-row">
+            <span>Doctor</span>
+            <strong>Dr. {{ appointment.doctor.name }}</strong>
         </div>
-
-        <div class="payment-summary">
-            <div>
-                <span>Doctor</span>
-                <strong>{{ doctor.name }}</strong>
-            </div>
-            <div>
-                <span>Consultation Fee</span>
-                <strong>₹{{ amount }}</strong>
-            </div>
+        <div class="summary-row">
+            <span>Date & Time</span>
+            <strong>{{ appointment.appointment_date|date:"d M Y" }}, {{ appointment.appointment_time|time:"g:i A" }}</strong>
         </div>
-
-        <div class="payment-methods">
-            <button class="method active" onclick="selectMethod('card')">Credit / Debit Card</button>
-            <button class="method" onclick="selectMethod('upi')">UPI</button>
+        <div class="summary-row">
+            <span>Booking ID</span>
+            <strong>{{ appointment.booking_id }}</strong>
         </div>
-
-        <form method="POST" id="paymentForm">
-            {% csrf_token %}
-
-            <!-- Card Section -->
-            <div id="cardSection">
-                <input type="text" placeholder="Card Number" required>
-                <input type="text" placeholder="Card Holder Name" required>
-                <div class="row">
-                    <input type="text" placeholder="MM/YY" required>
-                    <input type="text" placeholder="CVV" required>
-                </div>
-            </div>
-
-            <!-- UPI Section -->
-            <div id="upiSection" style="display:none;">
-                <input type="text" placeholder="Enter UPI ID (example@upi)">
-            </div>
-
-            <button type="submit" class="pay-btn">Pay ₹{{ amount }}</button>
-        </form>
-
+        <div class="summary-row">
+            <span>Total Amount</span>
+            <strong>₹{{ amount }}</strong>
+        </div>
     </div>
 
+    <button class="pay-btn" id="rzp-btn">Pay ₹{{ amount }} Securely</button>
+
+    <p class="secure-note">🔒 Secured by Razorpay. Your payment info is never stored.</p>
 </div>
 
+<!-- Hidden form to POST payment result back to server -->
+<form id="rzp-form" method="POST" action="{% url 'razorpay_callback' %}" style="display:none;">
+    {% csrf_token %}
+    <input type="hidden" name="razorpay_payment_id" id="rzp_payment_id">
+    <input type="hidden" name="razorpay_order_id"   id="rzp_order_id">
+    <input type="hidden" name="razorpay_signature"  id="rzp_signature">
+</form>
+
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 <script>
-function selectMethod(method){
-    document.querySelectorAll(".method").forEach(btn => btn.classList.remove("active"));
-    event.target.classList.add("active");
-
-    if(method === "card"){
-        document.getElementById("cardSection").style.display = "block";
-        document.getElementById("upiSection").style.display = "none";
-    } else {
-        document.getElementById("cardSection").style.display = "none";
-        document.getElementById("upiSection").style.display = "block";
+var options = {
+    key:         "{{ razorpay_key_id }}",
+    amount:      {{ amount_paise }},
+    currency:    "INR",
+    name:        "MediSync",
+    description: "Consultation with Dr. {{ appointment.doctor.name }}",
+    order_id:    "{{ razorpay_order_id }}",
+    prefill: {
+        name:  "{{ appointment.full_name }}",
+        email: "{{ appointment.email }}",
+        contact: "{{ appointment.contact_number }}"
+    },
+    theme: { color: "#0072ff" },
+    handler: function(response) {
+        document.getElementById("rzp_payment_id").value = response.razorpay_payment_id;
+        document.getElementById("rzp_order_id").value   = response.razorpay_order_id;
+        document.getElementById("rzp_signature").value  = response.razorpay_signature;
+        document.getElementById("rzp-form").submit();
     }
-}
+};
 
-// Fake Processing Animation
-document.getElementById("paymentForm").addEventListener("submit", function(){
-    const btn = document.querySelector(".pay-btn");
-    btn.innerHTML = "Processing Payment...";
-    btn.style.opacity = "0.7";
+var rzp = new Razorpay(options);
+
+document.getElementById("rzp-btn").addEventListener("click", function(e) {
+    e.preventDefault();
+    rzp.open();
 });
 </script>
 

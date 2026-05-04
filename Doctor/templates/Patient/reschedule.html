@@ -1,20 +1,161 @@
-{% extends "UserPortal/base.html" %}
+{% extends "Patient/base.html" %}
+{% load static %}
+
+{% block title %}Reschedule Appointment{% endblock %}
+{% block page_title %}Reschedule{% endblock %}
 
 {% block content %}
+<style>
+.reschedule-card {
+    background: #fff;
+    border-radius: 16px;
+    padding: 28px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+    max-width: 720px;
+}
+.info-row {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-bottom: 24px;
+}
+.info-pill {
+    background: #f1f5f9;
+    border-radius: 10px;
+    padding: 10px 16px;
+    font-size: 13px;
+    color: #475569;
+}
+.info-pill strong { color: #1e293b; display: block; font-size: 15px; }
 
-<h2>Reschedule Appointment</h2>
+/* Date strip */
+.section-label { font-size: 12px; font-weight: 600; color: #64748b; text-transform: uppercase; letter-spacing: .05em; margin-bottom: 10px; }
+.date-strip { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 10px; margin-bottom: 22px; scrollbar-width: thin; }
+.date-btn {
+    flex: 0 0 auto; display: flex; flex-direction: column; align-items: center;
+    padding: 10px 16px; border-radius: 12px; background: #f1f5f9;
+    border: 2px solid transparent; cursor: pointer; text-decoration: none;
+    color: #334155; transition: all .2s; min-width: 64px;
+}
+.date-btn .dn  { font-size: 11px; font-weight: 600; color: #64748b; text-transform: uppercase; }
+.date-btn .dd  { font-size: 20px; font-weight: 700; line-height: 1.2; }
+.date-btn .dm  { font-size: 11px; color: #64748b; }
+.date-btn:hover            { background: #e0f2fe; border-color: #0ea5e9; }
+.date-btn.active           { background: #0072ff; border-color: #0072ff; color: #fff; }
+.date-btn.active .dn,
+.date-btn.active .dm       { color: rgba(255,255,255,.8); }
 
-<form method="POST">
-{% csrf_token %}
+/* Slot grid */
+.slots-grid { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 24px; }
+.slot-item  { position: relative; }
+.slot-item input[type=radio] { position: absolute; opacity: 0; width: 0; height: 0; }
+.slot-label {
+    display: inline-block; padding: 8px 18px; border-radius: 8px;
+    background: #f1f5f9; border: 2px solid transparent;
+    font-size: 14px; font-weight: 500; color: #334155;
+    cursor: pointer; transition: .2s;
+}
+.slot-item input[type=radio]:checked + .slot-label {
+    background: #0072ff; color: #fff; border-color: #0072ff;
+}
+.slot-label:hover { border-color: #0ea5e9; background: #e0f2fe; }
 
-<label>New Date</label>
-<input type="date" name="date" required>
+.no-slots { color: #94a3b8; font-size: 14px; margin-bottom: 20px; }
+.submit-btn {
+    padding: 12px 32px; background: #0072ff; color: #fff;
+    border: none; border-radius: 10px; font-size: 15px;
+    font-weight: 600; cursor: pointer; transition: .2s;
+}
+.submit-btn:hover { opacity: .9; }
+.submit-btn:disabled { opacity: .5; cursor: not-allowed; }
+.back-link { display: inline-block; margin-top: 14px; font-size: 13px; color: #64748b; text-decoration: none; }
+.back-link:hover { color: #0072ff; }
+</style>
 
-<label>New Time</label>
-<input type="time" name="time" required>
+<div class="reschedule-card">
+    <h2 style="font-size:20px;font-weight:700;color:#1e293b;margin-bottom:18px;">Reschedule Appointment</h2>
 
-<button class="btn reschedule">Update</button>
+    {% if messages %}
+        {% for message in messages %}
+            <div style="padding:10px;border-radius:8px;margin-bottom:14px;font-size:13px;
+                background:{% if 'error' in message.tags %}#fee2e2;color:#b91c1c{% else %}#dcfce7;color:#15803d{% endif %};">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endif %}
 
-</form>
+    <!-- Current booking summary -->
+    <div class="info-row">
+        {% if booking_type == "doctor" %}
+        <div class="info-pill"><span>Doctor</span><strong>Dr. {{ booking.doctor.name }}</strong></div>
+        {% else %}
+        <div class="info-pill"><span>Lab</span><strong>{{ booking.lab.lab_name }}</strong></div>
+        <div class="info-pill"><span>Test</span><strong>{{ booking.test_name }}</strong></div>
+        {% endif %}
+        <div class="info-pill"><span>Current Date</span><strong>{{ booking.appointment_date|date:"d M Y" }}</strong></div>
+        <div class="info-pill"><span>Current Time</span><strong>{{ booking.appointment_time|time:"g:i A" }}</strong></div>
+        <div class="info-pill">
+            <span>Status</span>
+            <strong style="color:{% if booking.status == 'Approved' %}#065f46{% else %}#92400e{% endif %}">
+                {{ booking.status }}
+            </strong>
+        </div>
+    </div>
 
+    <!-- Date picker strip -->
+    {% if available_dates %}
+    <div class="section-label">Select New Date</div>
+    <div class="date-strip">
+        {% for d in available_dates %}
+        <a href="?date={{ d|date:'Y-m-d' }}"
+           class="date-btn {% if d == selected_date %}active{% endif %}">
+            <span class="dn">{{ d|date:"D" }}</span>
+            <span class="dd">{{ d|date:"j" }}</span>
+            <span class="dm">{{ d|date:"M" }}</span>
+        </a>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- Slot picker -->
+    <div class="section-label">Select New Time — {{ selected_date|date:"D, d M Y" }}</div>
+
+    {% if slots %}
+    <form method="POST">
+        {% csrf_token %}
+        <input type="hidden" name="appointment_date" value="{{ selected_date|date:'Y-m-d' }}">
+
+        <div class="slots-grid" id="slotGrid">
+            {% for slot in slots %}
+            <div class="slot-item">
+                <input type="radio" name="appointment_time"
+                       id="slot_{{ forloop.counter }}"
+                       value="{{ slot|time:'H:i:s' }}"
+                       required>
+                <label class="slot-label" for="slot_{{ forloop.counter }}">
+                    {{ slot|time:"g:i A" }}
+                </label>
+            </div>
+            {% endfor %}
+        </div>
+
+        <button type="submit" class="submit-btn" id="submitBtn" disabled>
+            Confirm Reschedule
+        </button>
+    </form>
+    {% else %}
+    <p class="no-slots">No slots available for this date. Please pick another date.</p>
+    {% endif %}
+
+    <br>
+    <a href="{% url 'my_bookings' %}" class="back-link">← Back to My Bookings</a>
+</div>
+
+<script>
+document.querySelectorAll('input[name="appointment_time"]').forEach(function(radio) {
+    radio.addEventListener('change', function() {
+        document.getElementById('submitBtn').disabled = false;
+    });
+});
+</script>
 {% endblock %}

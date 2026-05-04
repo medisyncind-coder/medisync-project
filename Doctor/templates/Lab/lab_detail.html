@@ -136,5 +136,96 @@ Book Slot
 
 </div>
 
+<!-- ================= REVIEWS SECTION ================= -->
+<div class="container" style="margin-top:32px;margin-bottom:40px;">
+
+    <h2 style="font-size:20px;font-weight:700;color:#1e293b;margin-bottom:6px;">
+        Patient Reviews
+        {% if avg_rating %}<span style="font-size:16px;color:#f59e0b;margin-left:10px;">★ {{ avg_rating }} / 5</span>{% endif %}
+    </h2>
+    <p style="font-size:13px;color:#64748b;margin-bottom:20px;">{{ reviews|length }} review{{ reviews|length|pluralize }}</p>
+
+    {% if can_review %}
+    <div style="background:#fff;border-radius:14px;padding:24px;box-shadow:0 2px 12px rgba(0,0,0,0.08);margin-bottom:28px;">
+        <h3 style="font-size:16px;font-weight:600;color:#1e293b;margin-bottom:16px;">Write a Review</h3>
+        {% if messages %}
+            {% for message in messages %}
+                <div style="padding:10px;border-radius:8px;margin-bottom:12px;font-size:13px;background:{% if 'error' in message.tags %}#fee2e2;color:#b91c1c{% else %}#dcfce7;color:#15803d{% endif %};">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
+        <form method="POST" action="{% url 'submit_lab_review' lab.id %}">
+            {% csrf_token %}
+            <div style="margin-bottom:14px;">
+                <label style="font-size:13px;font-weight:500;color:#475569;display:block;margin-bottom:6px;">Rating</label>
+                <div id="starSelect">
+                    {% for i in "12345" %}
+                    <span class="star" data-val="{{ forloop.counter }}" style="font-size:28px;cursor:pointer;color:#cbd5e1;">★</span>
+                    {% endfor %}
+                </div>
+                <input type="hidden" name="rating" id="ratingInput" required>
+            </div>
+            <div style="margin-bottom:14px;">
+                <label style="font-size:13px;font-weight:500;color:#475569;display:block;margin-bottom:6px;">Comment <span style="color:#94a3b8;">(optional)</span></label>
+                <textarea name="comment" rows="3" placeholder="Share your experience..." style="width:100%;padding:10px;border:1px solid #e2e8f0;border-radius:8px;font-size:14px;resize:vertical;font-family:inherit;"></textarea>
+            </div>
+            <button type="submit" style="padding:10px 24px;background:#0072ff;color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;">Submit Review</button>
+        </form>
+    </div>
+    {% elif user_reviewed %}
+    <p style="font-size:13px;color:#64748b;margin-bottom:20px;">You have already reviewed this lab.</p>
+    {% endif %}
+
+    {% if reviews %}
+    <div style="display:flex;flex-direction:column;gap:14px;">
+        {% for review in reviews %}
+        <div style="background:#fff;border-radius:12px;padding:18px 20px;box-shadow:0 1px 6px rgba(0,0,0,0.07);">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+                <div style="display:flex;align-items:center;gap:10px;">
+                    <div style="width:36px;height:36px;border-radius:50%;background:#0072ff;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;">
+                        {{ review.patient.email|first|upper }}
+                    </div>
+                    <div>
+                        <p style="font-size:14px;font-weight:600;color:#1e293b;margin:0;">{{ review.patient.email|truncatechars:30 }}</p>
+                        <p style="font-size:11px;color:#94a3b8;margin:0;">{{ review.created_at|date:"d M Y" }}</p>
+                    </div>
+                </div>
+                <span style="color:#f59e0b;font-size:16px;font-weight:700;">{% for i in "12345" %}{% if forloop.counter <= review.rating %}★{% else %}☆{% endif %}{% endfor %}</span>
+            </div>
+            {% if review.comment %}
+            <p style="font-size:14px;color:#475569;margin:0;">{{ review.comment }}</p>
+            {% endif %}
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <p style="font-size:14px;color:#94a3b8;">No reviews yet. Be the first to review!</p>
+    {% endif %}
+
+</div>
+
+<script>
+document.querySelectorAll('.star').forEach(function(star) {
+    star.addEventListener('mouseover', function() {
+        const val = parseInt(this.dataset.val);
+        document.querySelectorAll('.star').forEach(function(s, i) {
+            s.style.color = i < val ? '#f59e0b' : '#cbd5e1';
+        });
+    });
+    star.addEventListener('mouseout', function() {
+        const selected = parseInt(document.getElementById('ratingInput').value) || 0;
+        document.querySelectorAll('.star').forEach(function(s, i) {
+            s.style.color = i < selected ? '#f59e0b' : '#cbd5e1';
+        });
+    });
+    star.addEventListener('click', function() {
+        const val = parseInt(this.dataset.val);
+        document.getElementById('ratingInput').value = val;
+        document.querySelectorAll('.star').forEach(function(s, i) {
+            s.style.color = i < val ? '#f59e0b' : '#cbd5e1';
+        });
+    });
+});
+</script>
+
 </body>
 </html>

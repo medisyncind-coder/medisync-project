@@ -1,123 +1,128 @@
 {% load static %}
 <!DOCTYPE html>
-<html>
-
+<html lang="en">
 <head>
-
-<title>Book Appointment</title>
-
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Book Appointment — MediSync</title>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
-
 <link rel="stylesheet" href="{% static 'Doctor/book_slot.css' %}">
-
+<style>
+/* ===== DATE PICKER STRIP ===== */
+.date-strip {
+    display: flex;
+    gap: 10px;
+    overflow-x: auto;
+    padding: 4px 0 12px;
+    margin-bottom: 20px;
+    scrollbar-width: thin;
+}
+.date-btn {
+    flex: 0 0 auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 10px 16px;
+    border-radius: 12px;
+    background: #f1f5f9;
+    border: 2px solid transparent;
+    cursor: pointer;
+    text-decoration: none;
+    color: #334155;
+    transition: all 0.2s;
+    min-width: 64px;
+}
+.date-btn .day-name { font-size: 11px; font-weight: 600; color: #64748b; text-transform: uppercase; }
+.date-btn .day-num  { font-size: 20px; font-weight: 700; line-height: 1.2; }
+.date-btn .month    { font-size: 11px; color: #64748b; }
+.date-btn:hover     { background: #e0f2fe; border-color: #0ea5e9; }
+.date-btn.active    { background: #0072ff; border-color: #0072ff; color: #fff; }
+.date-btn.active .day-name,
+.date-btn.active .month { color: rgba(255,255,255,0.8); }
+.section-label { font-size: 13px; font-weight: 600; color: #64748b; margin-bottom: 10px; letter-spacing: 0.05em; text-transform: uppercase; }
+</style>
 </head>
-
-
 <body>
 
 <div class="booking-card">
 
-<h1 class="page-title">Book Appointment</h1>
+    <h1 class="page-title">Book Appointment</h1>
 
-<!-- Doctor Info -->
+    <!-- Doctor Info -->
+    <div class="doctor-section">
+        <h2>Dr. {{ doctor.name }}</h2>
+        <p>{{ doctor.specialization }}</p>
 
-<div class="doctor-section">
+        <div id="avail-badge" style="margin:14px 0;text-align:center;">
+            <span style="color:#94a3b8;font-size:13px;">Checking availability...</span>
+        </div>
 
-<h2>Dr. {{ doctor.name }}</h2>
+        <script>
+        (function checkAvailability() {
+            fetch('/doctor/live-status/{{ doctor.id }}/')
+                .then(res => res.json())
+                .then(data => {
+                    const badge = document.getElementById('avail-badge');
+                    if (!badge) return;
+                    if (data.is_available) {
+                        badge.innerHTML = '<span style="background:#bbf7d0;color:#065f46;padding:6px 16px;border-radius:20px;font-size:13px;font-weight:600;">✓ Doctor is Available — ' + data.total_queue + ' patient(s) in queue</span>';
+                    } else {
+                        badge.innerHTML = '<span style="background:#fde68a;color:#92400e;padding:6px 16px;border-radius:20px;font-size:13px;font-weight:600;">⚠ Doctor is Currently Busy — ' + data.total_queue + ' patient(s) waiting</span>';
+                    }
+                })
+                .catch(function() {});
+            setTimeout(checkAvailability, 30000);
+        })();
+        </script>
+    </div>
 
-<p>{{ doctor.specialization }}</p>
+    <!-- Date Selector -->
+    {% if available_dates %}
+    <div class="section-label">Select Date</div>
+    <div class="date-strip">
+        {% for d in available_dates %}
+        <a href="?date={{ d|date:'Y-m-d' }}"
+           class="date-btn {% if d == selected_date %}active{% endif %}">
+            <span class="day-name">{{ d|date:"D" }}</span>
+            <span class="day-num">{{ d|date:"j" }}</span>
+            <span class="month">{{ d|date:"M" }}</span>
+        </a>
+        {% endfor %}
+    </div>
+    {% endif %}
 
-<div id="avail-badge" style="margin:14px 0;text-align:center;">
-    <span style="color:#94a3b8;font-size:13px;">Checking availability...</span>
+    <!-- Time Slots -->
+    <div class="section-label">
+        Available Slots — {{ selected_date|date:"D, d M Y" }}
+    </div>
+
+    {% if slots %}
+    <div class="slots-container">
+        {% for slot in slots %}
+        <a href="{% url 'confirm_booking' doctor.id selected_date|date:'Y-m-d' slot|time:'H:i:s' %}" class="slot-link">
+            <div class="slot-btn">{{ slot|time:"g:i A" }}</div>
+        </a>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="no-slot">No slots available for this date.</div>
+    {% endif %}
+
+    <!-- Back Button -->
+    <div class="back-btn">
+        <a href="{% url 'doctor_detail' doctor.id %}">← Back to Doctor</a>
+    </div>
+
 </div>
 
 <script>
-(function checkAvailability() {
-    fetch('/doctor/live-status/{{ doctor.id }}/')
-        .then(res => res.json())
-        .then(data => {
-            const badge = document.getElementById('avail-badge');
-            if (!badge) return;
-            if (data.is_available) {
-                badge.innerHTML = '<span style="background:#bbf7d0;color:#065f46;padding:6px 16px;border-radius:20px;font-size:13px;font-weight:600;">✓ Doctor is Available — ' + data.total_queue + ' patient(s) in queue</span>';
-            } else {
-                badge.innerHTML = '<span style="background:#fde68a;color:#92400e;padding:6px 16px;border-radius:20px;font-size:13px;font-weight:600;">⚠ Doctor is Currently Busy — ' + data.total_queue + ' patient(s) waiting</span>';
-            }
-        })
-        .catch(function() {});
-    setTimeout(checkAvailability, 30000);
-})();
-</script>
-
-</div>
-
-
-<!-- Slots -->
-
-{% if slots %}
-
-<div class="slots-container">
-
-{% for slot in slots %}
-
-<a href="{% url 'confirm_booking' doctor.id slot|time:'H:i:s' %}" class="slot-link">
-
-<div class="slot-btn">
-
-{{ slot|time:"g:i A" }}
-
-</div>
-
-</a>
-
-{% endfor %}
-
-</div>
-
-{% else %}
-
-<div class="no-slot">
-
-Doctor is not available today
-
-</div>
-
-{% endif %}
-
-
-<!-- Back Button -->
-
-<div class="back-btn">
-
-<a href="{% url 'doctor_detail' doctor.id %}">
-
-← Back to Doctor
-
-</a>
-
-</div>
-
-</div>
-
-
-<script>
-
-const slots = document.querySelectorAll(".slot-btn");
-
-slots.forEach(slot => {
-
-slot.addEventListener("click", function(){
-
-slots.forEach(s => s.classList.remove("selected"));
-
-this.classList.add("selected");
-
+document.querySelectorAll(".slot-btn").forEach(slot => {
+    slot.addEventListener("click", function() {
+        document.querySelectorAll(".slot-btn").forEach(s => s.classList.remove("selected"));
+        this.classList.add("selected");
+    });
 });
-
-});
-
 </script>
-
 
 </body>
 </html>

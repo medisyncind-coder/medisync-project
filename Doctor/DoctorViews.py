@@ -3,14 +3,19 @@ from django.contrib import messages
 from django.db import transaction
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
-from django.views.decorators.csrf import csrf_exempt
+from .utils import is_rate_limited
 from django.core.paginator import Paginator
 from django.utils import timezone
 import random
 from accounts.models import User
-from accounts.emails import send_otp_via_email
+from accounts.emails import (
+    send_otp_via_email,
+    notify_appointment_approved,
+    notify_appointment_rejected,
+    notify_appointment_completed,
+)
 from appointments.models import Appointment, LabAppointment, Prescription
-from .models import Doctor, DoctorAvailability, MedicalRecord
+from .models import Doctor, DoctorAvailability, MedicalRecord, Review
 from .forms import DoctorRegistrationForm
 from django.db.models import Q
 
@@ -124,6 +129,7 @@ def doctor_page(request):
 # 👨‍⚕️ DOCTOR DETAIL
 # ======================================================
 def doctor_detail(request, id):
+    from django.db.models import Avg
     doctor = get_object_or_404(Doctor, id=id, user__is_verified=True)
 
     photos = [
@@ -131,16 +137,72 @@ def doctor_detail(request, id):
         doctor.photo_4, doctor.photo_5, doctor.photo_6, doctor.photo_7
     ]
 
+    reviews = Review.objects.filter(doctor=doctor).select_related('patient').order_by('-created_at')
+    avg_rating = reviews.aggregate(avg=Avg('rating'))['avg']
+    avg_rating = round(avg_rating, 1) if avg_rating else None
+
+    user_reviewed = (
+        request.user.is_authenticated and
+        reviews.filter(patient=request.user).exists()
+    )
+    can_review = (
+        request.user.is_authenticated and
+        not user_reviewed and
+        Appointment.objects.filter(
+            patient=request.user, doctor=doctor, status='Completed'
+        ).exists()
+    )
+
     return render(request, 'Doctor/doctor_detail.html', {
         'doctor': doctor,
-        'photos': photos
+        'photos': photos,
+        'reviews': reviews,
+        'avg_rating': avg_rating,
+        'can_review': can_review,
+        'user_reviewed': user_reviewed,
     })
 
 
+@login_required
+def submit_doctor_review(request, doctor_id):
+    doctor = get_object_or_404(Doctor, id=doctor_id)
+
+    has_completed = Appointment.objects.filter(
+        patient=request.user, doctor=doctor, status='Completed'
+    ).exists()
+    if not has_completed:
+        messages.error(request, "You can only review a doctor after a completed appointment.")
+        return redirect('doctor_detail', id=doctor_id)
+
+    already_reviewed = Review.objects.filter(patient=request.user, doctor=doctor).exists()
+    if already_reviewed:
+        messages.error(request, "You have already reviewed this doctor.")
+        return redirect('doctor_detail', id=doctor_id)
+
+    if request.method == "POST":
+        try:
+            rating = int(request.POST.get('rating', 0))
+            comment = request.POST.get('comment', '').strip()
+            if not (1 <= rating <= 5):
+                raise ValueError
+        except (ValueError, TypeError):
+            messages.error(request, "Please select a valid rating (1–5).")
+            return redirect('doctor_detail', id=doctor_id)
+
+        Review.objects.create(
+            patient=request.user,
+            doctor=doctor,
+            rating=rating,
+            comment=comment,
+        )
+        messages.success(request, "Thank you for your review!")
+
+    return redirect('doctor_detail', id=doctor_id)
+
+
 # ======================================================
-# 👨‍⚕️ DOCTOR REGISTER (CSRF EXEMPT – PUBLIC SIGNUP)
+# 👨‍⚕️ DOCTOR REGISTER
 # ======================================================
-@csrf_exempt
 def register_doctor(request):
 
     if request.method == "POST":
@@ -150,6 +212,10 @@ def register_doctor(request):
 
             email = form.cleaned_data['email']
             password = form.cleaned_data['password']
+
+            if is_rate_limited(f"otp_send:{email}", max_attempts=3, period_seconds=3600):
+                messages.error(request, "Too many attempts. Please try again in 1 hour.")
+                return render(request, 'Doctor/doctor_register.html', {'form': form})
 
             try:
                 with transaction.atomic():
@@ -212,6 +278,10 @@ def verify_otp_page(request):
         if not email:
             messages.error(request, "Session expired.")
             return redirect('doctor_register')
+
+        if is_rate_limited(f"otp_verify:{email}", max_attempts=5, period_seconds=600):
+            messages.error(request, "Too many incorrect attempts. Please wait 10 minutes.")
+            return render(request, 'Doctor/verify_otp_page.html')
 
         try:
             user = User.objects.get(email=email)
@@ -604,37 +674,31 @@ def doctor_logout(request):
 
 @login_required
 def approve_appointment(request, appointment_id):
-
     doctor = get_object_or_404(Doctor, user=request.user)
     appointment = get_object_or_404(Appointment, id=appointment_id, doctor=doctor)
-
     appointment.status = "Approved"
     appointment.save()
-
+    notify_appointment_approved(appointment)
     return redirect("doctor_appointments")
 
 
 @login_required
 def reject_appointment(request, appointment_id):
-
     doctor = get_object_or_404(Doctor, user=request.user)
     appointment = get_object_or_404(Appointment, id=appointment_id, doctor=doctor)
-
     appointment.status = "Rejected"
     appointment.save()
-
+    notify_appointment_rejected(appointment)
     return redirect("doctor_appointments")
 
 
 @login_required
 def complete_appointment(request, appointment_id):
-
     doctor = get_object_or_404(Doctor, user=request.user)
     appointment = get_object_or_404(Appointment, id=appointment_id, doctor=doctor)
-
     appointment.status = "Completed"
     appointment.save()
-
+    notify_appointment_completed(appointment)
     return redirect("doctor_appointments")
 
 

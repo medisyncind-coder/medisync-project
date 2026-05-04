@@ -8,7 +8,14 @@ from django.core.paginator import Paginator
 from django.utils import timezone
 import random
 from accounts.models import *
-from accounts.emails import send_otp_via_email
+from accounts.emails import (
+    send_otp_via_email,
+    notify_lab_appointment_approved,
+    notify_lab_appointment_rejected,
+    notify_lab_test_completed,
+    notify_lab_report_ready,
+)
+from .utils import is_rate_limited
 from .forms import LabRegistrationForm, LabTestFormSet
 from .models import (
     Lab,
@@ -17,7 +24,8 @@ from .models import (
     LabReport,
     LabWorkingHours,
     LabAvailability,
-    Test
+    Test,
+    Review
 )
 
 # ======================================================
@@ -62,27 +70,79 @@ def lab_list(request):
 # ======================================================
 
 def lab_detail(request, lab_id):
+    from django.db.models import Avg
 
     lab = get_object_or_404(Lab, id=lab_id, is_verified=True)
 
-    tests = LabTest.objects.filter(
-        lab=lab
-    ).select_related("test").order_by("test__name")
-
-    # 🔥 FIX: correct split
+    tests = LabTest.objects.filter(lab=lab).select_related("test").order_by("test__name")
     operating_days = lab.operating_days.split(",") if lab.operating_days else []
 
-    context = {
+    reviews = Review.objects.filter(lab=lab).select_related('patient').order_by('-created_at')
+    avg_rating = reviews.aggregate(avg=Avg('rating'))['avg']
+    avg_rating = round(avg_rating, 1) if avg_rating else None
+
+    user_reviewed = (
+        request.user.is_authenticated and
+        reviews.filter(patient=request.user).exists()
+    )
+    can_review = (
+        request.user.is_authenticated and
+        not user_reviewed and
+        LabAppointment.objects.filter(
+            patient=request.user, lab=lab, status='Completed'
+        ).exists()
+    )
+
+    return render(request, "Lab/lab_detail.html", {
         "lab": lab,
         "tests": tests,
         "total_tests": tests.count(),
         "home_collection": lab.home_sample_collection,
         "opening_time": lab.opening_time,
         "closing_time": lab.closing_time,
-        "operating_days": operating_days   # ✅ correct
-    }
+        "operating_days": operating_days,
+        "reviews": reviews,
+        "avg_rating": avg_rating,
+        "can_review": can_review,
+        "user_reviewed": user_reviewed,
+    })
 
-    return render(request, "Lab/lab_detail.html", context)
+
+@login_required
+def submit_lab_review(request, lab_id):
+    lab = get_object_or_404(Lab, id=lab_id)
+
+    has_completed = LabAppointment.objects.filter(
+        patient=request.user, lab=lab, status='Completed'
+    ).exists()
+    if not has_completed:
+        messages.error(request, "You can only review a lab after a completed test.")
+        return redirect('lab_detail', lab_id=lab_id)
+
+    already_reviewed = Review.objects.filter(patient=request.user, lab=lab).exists()
+    if already_reviewed:
+        messages.error(request, "You have already reviewed this lab.")
+        return redirect('lab_detail', lab_id=lab_id)
+
+    if request.method == "POST":
+        try:
+            rating = int(request.POST.get('rating', 0))
+            comment = request.POST.get('comment', '').strip()
+            if not (1 <= rating <= 5):
+                raise ValueError
+        except (ValueError, TypeError):
+            messages.error(request, "Please select a valid rating (1–5).")
+            return redirect('lab_detail', lab_id=lab_id)
+
+        Review.objects.create(
+            patient=request.user,
+            lab=lab,
+            rating=rating,
+            comment=comment,
+        )
+        messages.success(request, "Thank you for your review!")
+
+    return redirect('lab_detail', lab_id=lab_id)
 
 def view_lab_tests(request, lab_id):
 
@@ -123,6 +183,10 @@ def lab_registration(request):
 
             email = form.cleaned_data["email"]
             password = form.cleaned_data["password"]
+
+            if is_rate_limited(f"otp_send:{email}", max_attempts=3, period_seconds=3600):
+                messages.error(request, "Too many attempts. Please try again in 1 hour.")
+                return redirect("lab_registration")
 
             try:
 
@@ -221,7 +285,10 @@ def verify_lab_otp(request):
 
         otp = request.POST.get("otp")
 
-        # 🔥 SAFE OTP CHECK
+        if is_rate_limited(f"otp_verify:{email}", max_attempts=5, period_seconds=600):
+            messages.error(request, "Too many incorrect attempts. Please wait 10 minutes.")
+            return render(request, "Lab/verify_lab_otp.html", {"lab": lab})
+
         if not user.is_otp_valid():
             messages.error(request, "OTP has expired. Please register again.")
             return redirect('lab_registration')
@@ -414,16 +481,13 @@ def add_lab_tests(request):
 
 @login_required
 def approve_lab_appointment(request, appointment_id):
-
     lab = get_object_or_404(Lab, user=request.user)
     appointment = get_object_or_404(LabAppointment, id=appointment_id, lab=lab)
-
     appointment.status = "Approved"
     appointment.save()
-
-    messages.success(request, "✅ Test Approved Successfully")
-
-    return redirect("lab_bookings")   # ✅ FIXED
+    notify_lab_appointment_approved(appointment)
+    messages.success(request, "Test Approved Successfully")
+    return redirect("lab_bookings")
 
 
 # =========================
@@ -431,16 +495,13 @@ def approve_lab_appointment(request, appointment_id):
 # =========================
 @login_required
 def reject_lab_appointment(request, appointment_id):
-
     lab = get_object_or_404(Lab, user=request.user)
     appointment = get_object_or_404(LabAppointment, id=appointment_id, lab=lab)
-
     appointment.status = "Cancelled"
     appointment.save()
-
-    messages.error(request, "❌ Test Rejected")
-
-    return redirect("lab_bookings")   # ✅ FIXED
+    notify_lab_appointment_rejected(appointment)
+    messages.error(request, "Test Rejected")
+    return redirect("lab_bookings")
 
 
 # =========================
@@ -448,16 +509,13 @@ def reject_lab_appointment(request, appointment_id):
 # =========================
 @login_required
 def complete_lab_appointment(request, appointment_id):
-
     lab = get_object_or_404(Lab, user=request.user)
     appointment = get_object_or_404(LabAppointment, id=appointment_id, lab=lab)
-
     appointment.status = "Completed"
     appointment.save()
-
-    messages.success(request, "🎉 Test Completed")
-
-    return redirect("lab_bookings")   # ✅ FIXED
+    notify_lab_test_completed(appointment)
+    messages.success(request, "Test Completed")
+    return redirect("lab_bookings")
 
 
 # ======================================================
@@ -494,11 +552,10 @@ def upload_lab_report(request, appointment_id):
         report_file = request.FILES.get("report_file")
 
         if report_file:
-            # 🔥 DIRECT SAVE (IMPORTANT)
             appointment.report_file = report_file
             appointment.save()
-
-            messages.success(request, "✅ Report uploaded successfully")
+            notify_lab_report_ready(appointment)
+            messages.success(request, "Report uploaded successfully")
             return redirect("lab_reports")
 
     return render(request, "LabPortal/upload_report.html", {

@@ -17,7 +17,7 @@ class User(AbstractUser):
     def is_otp_valid(self):
         if not self.otp or not self.otp_created_at:
             return False
-        return (timezone.now() - self.otp_created_at).seconds < 600  # 10 minutes
+        return (timezone.now() - self.otp_created_at).total_seconds() < 600  # 10 minutes
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = []
