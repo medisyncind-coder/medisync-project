@@ -162,7 +162,7 @@ def lab_bookings(request):
 
     appointments = LabAppointment.objects.filter(
         lab=lab
-    ).order_by("-created_at")
+    ).select_related('patient').order_by("-created_at")
 
     return render(request, "LabPortal/lab_bookings.html", {
         "appointments": appointments
@@ -412,7 +412,7 @@ def lab_appointments(request):
 
     appointments = LabAppointment.objects.filter(
         lab=lab
-    ).order_by("-created_at")
+    ).select_related('patient').order_by("-created_at")
 
     return render(request, "LabPortal/lab_appointments.html", {
         "appointments": appointments
@@ -524,7 +524,7 @@ def complete_lab_appointment(request, appointment_id):
 def lab_reports(request):
     appointments = LabAppointment.objects.filter(
         lab__user=request.user
-    ).order_by("-created_at")
+    ).select_related('patient').order_by("-created_at")
 
     return render(request, "LabPortal/lab_reports.html", {
         "appointments": appointments
@@ -550,6 +550,11 @@ def upload_lab_report(request, appointment_id):
         report_file = request.FILES.get("report_file")
 
         if report_file:
+            allowed = ['.pdf', '.jpg', '.jpeg', '.png']
+            ext = '.' + report_file.name.rsplit('.', 1)[-1].lower() if '.' in report_file.name else ''
+            if ext not in allowed:
+                messages.error(request, "Only PDF, JPG, and PNG files are allowed.")
+                return render(request, "LabPortal/upload_report.html", {"appointment": appointment})
             appointment.report_file = report_file
             appointment.save()
             notify_lab_report_ready(appointment)

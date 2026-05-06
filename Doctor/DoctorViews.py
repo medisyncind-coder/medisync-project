@@ -567,10 +567,15 @@ def patient(request, appointment_id):
         # ✅ SAVE FILE (OPTIONAL)
         file = request.FILES.get("prescription_file")
         if file:
+            allowed = ['.pdf', '.jpg', '.jpeg', '.png']
+            ext = '.' + file.name.rsplit('.', 1)[-1].lower() if '.' in file.name else ''
+            if ext not in allowed:
+                messages.error(request, "Only PDF, JPG, and PNG files are allowed.")
+                return redirect("doctor_patient", appointment_id=appointment.id)
             appointment.prescription_file = file
             appointment.save()
 
-        messages.success(request, "Prescription saved ✅")
+        messages.success(request, "Prescription saved")
 
         # 🔥 SAME PAGE RELOAD (NO ERROR)
         return redirect("doctor_patient", appointment_id=appointment.id)
@@ -638,12 +643,16 @@ def add_prescription(request, appointment_id):
         # ✅ SAVE FILE
         file = request.FILES.get("prescription_file")
         if file:
+            allowed = ['.pdf', '.jpg', '.jpeg', '.png']
+            ext = '.' + file.name.rsplit('.', 1)[-1].lower() if '.' in file.name else ''
+            if ext not in allowed:
+                messages.error(request, "Only PDF, JPG, and PNG files are allowed.")
+                return redirect("doctor_patient", appointment_id=appointment.id)
             appointment.prescription_file = file
             appointment.save()
 
-        messages.success(request, "Prescription saved ✅")
+        messages.success(request, "Prescription saved")
 
-        # 🔥 FINAL FIX (IMPORTANT)
         return redirect("doctor_patient", appointment_id=appointment.id)
 
     return redirect("doctor_patient", appointment_id=appointment.id)
