@@ -17,12 +17,11 @@ from accounts.emails import (
 from appointments.models import Appointment, LabAppointment, Prescription
 from .models import Doctor, DoctorAvailability, MedicalRecord, Review
 from .forms import DoctorRegistrationForm
-from django.db.models import Q
+from django.db.models import Q, Count, Avg
 
 
 
 from django.http import JsonResponse
-from appointments.models import Appointment
 
 def check_new_appointments(request):
 
@@ -129,7 +128,6 @@ def doctor_page(request):
 # 👨‍⚕️ DOCTOR DETAIL
 # ======================================================
 def doctor_detail(request, id):
-    from django.db.models import Avg
     doctor = get_object_or_404(Doctor, id=id, user__is_verified=True)
 
     photos = [
@@ -252,12 +250,10 @@ def register_doctor(request):
                     messages.success(request, "OTP sent successfully")
                     return redirect('verify_otp_page')
 
-            except Exception as e:
-                print("❌ REGISTER ERROR:", e)
+            except Exception:
                 messages.error(request, "Registration failed")
 
         else:
-            print("❌ FORM ERRORS:", form.errors)
             messages.error(request, "Invalid form data")
 
     else:
@@ -516,19 +512,20 @@ def doctor_appointments(request):
     if status_filter:
         appointments = appointments.filter(status=status_filter)
 
-    # ✅ STATUS COUNTS
-    all_appointments = Appointment.objects.filter(doctor=doctor)
-    pending_count = all_appointments.filter(status='Pending').count()
-    approved_count = all_appointments.filter(status='Approved').count()
-    completed_count = all_appointments.filter(status='Completed').count()
-    cancelled_count = all_appointments.filter(status='Cancelled').count()
+    # ✅ STATUS COUNTS — single query via aggregation
+    counts = Appointment.objects.filter(doctor=doctor).aggregate(
+        pending_count=Count('id', filter=Q(status='Pending')),
+        approved_count=Count('id', filter=Q(status='Approved')),
+        completed_count=Count('id', filter=Q(status='Completed')),
+        cancelled_count=Count('id', filter=Q(status='Cancelled')),
+    )
 
     context = {
         "appointments": appointments,
-        "pending_count": pending_count,
-        "approved_count": approved_count,
-        "completed_count": completed_count,
-        "cancelled_count": cancelled_count,
+        "pending_count": counts['pending_count'],
+        "approved_count": counts['approved_count'],
+        "completed_count": counts['completed_count'],
+        "cancelled_count": counts['cancelled_count'],
         "search": search,
         "status_filter": status_filter,
     }

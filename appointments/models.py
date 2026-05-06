@@ -109,10 +109,17 @@ class Appointment(models.Model):
         self.completed_at = timezone.now()
         self.save()
 
+    class Meta:
+        indexes = [
+            models.Index(fields=['doctor', 'appointment_date', 'status']),
+            models.Index(fields=['patient']),
+            models.Index(fields=['created_at']),
+        ]
+
     def __str__(self):
         doctor_name = self.doctor.name if self.doctor else "No Doctor"
         return f"{self.full_name} - {doctor_name} ({self.status})"
-    
+
 class Payment(models.Model):
     PAYMENT_STATUS = (
         ('Pending', 'Pending'),
@@ -272,6 +279,13 @@ class LabAppointment(models.Model):
         self.status = 'Completed'
         self.completed_at = timezone.now()
         self.save()
+
+    class Meta:
+        indexes = [
+            models.Index(fields=['lab', 'appointment_date', 'status']),
+            models.Index(fields=['patient']),
+            models.Index(fields=['created_at']),
+        ]
 
     def __str__(self):
 

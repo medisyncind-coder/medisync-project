@@ -6,10 +6,8 @@ from django.utils import timezone
 from django.core.validators import RegexValidator, MinValueValidator
 from decimal import Decimal
 from accounts.models import User
-from appointments.models import *
 from django.contrib.auth.models import AbstractUser
 from django.contrib.auth import get_user_model
-from django.core.validators import RegexValidator
 
 
 # =====================================================
@@ -390,7 +388,7 @@ class LabTest(models.Model):
 class LabReport(models.Model):
 
     appointment = models.OneToOneField(
-        LabAppointment,
+        'appointments.LabAppointment',
         on_delete=models.CASCADE,
         related_name="report"
     )

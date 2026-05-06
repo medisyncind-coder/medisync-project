@@ -7,7 +7,7 @@ from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
 from django.utils import timezone
 import random
-from accounts.models import *
+from accounts.models import User
 from accounts.emails import (
     send_otp_via_email,
     notify_lab_appointment_approved,
@@ -20,13 +20,13 @@ from .forms import LabRegistrationForm, LabTestFormSet
 from .models import (
     Lab,
     LabTest,
-    LabAppointment,
     LabReport,
     LabWorkingHours,
     LabAvailability,
     Test,
     Review
 )
+from appointments.models import LabAppointment
 
 # ======================================================
 # OTP GENERATOR
@@ -251,9 +251,7 @@ def lab_registration(request):
 
                     return redirect("verify_lab_otp")
 
-            except Exception as e:
-
-                print("LAB REGISTER ERROR:", e)
+            except Exception:
                 messages.error(request, "Registration failed")
 
     else:
